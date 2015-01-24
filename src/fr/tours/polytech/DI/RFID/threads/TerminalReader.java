@@ -16,7 +16,6 @@ import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
-@SuppressWarnings("restriction")
 public class TerminalReader implements Runnable
 {
 	private boolean isPresent;

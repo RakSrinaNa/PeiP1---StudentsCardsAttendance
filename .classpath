@@ -11,11 +11,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Documents/Dropbox/Programmation/Java/RFID/External JARs/jscio-4_0-fr-spec.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="http://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8_31"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

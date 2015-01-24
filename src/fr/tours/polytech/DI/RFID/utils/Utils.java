@@ -93,7 +93,7 @@ public class Utils
 		FileWriter fileWriter = new FileWriter(file, true);
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		printWriter.print(dateFormat.format(date) + ";" + student.getName() + ";" + student.getUid().replaceAll("-", "") + "\n\r");
+		printWriter.print(dateFormat.format(date) + ";" + student.getName() + ";" + student.getUid().replaceAll("-", "") + "\n");
 		printWriter.close();
 		bufferedWriter.close();
 		fileWriter.close();
@@ -117,7 +117,7 @@ public class Utils
 		FileWriter fileWriter = new FileWriter(file, true);
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		printWriter.print(student.getUid() + ";" + student.getName() + "\n\r");
+		printWriter.print(student.getUid() + ";" + student.getName() + "\n");
 		printWriter.close();
 		bufferedWriter.close();
 		fileWriter.close();

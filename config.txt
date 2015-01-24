@@ -1,0 +1,3 @@
+startHour:2
+hourInterval:2
+endHour:20

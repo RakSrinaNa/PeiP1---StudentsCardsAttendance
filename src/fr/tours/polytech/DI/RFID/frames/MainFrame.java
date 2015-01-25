@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
@@ -59,9 +61,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private JTableUneditableModel modelChecked;
 	private Student currentStudent;
 	private JMenuBar menuBar;
-	private JMenu menuStaff, menuFile, menuHelp;
-	private JMenuItem menuItemReloadStudents, menuItemStaffAddManually,
-	        menuItemExit, menuItemHelp, menuItemAbout;
+	private JMenu menuFile, menuHelp;
+	private JMenuItem menuItemReloadStudents, menuItemSettings, menuItemExit, menuItemHelp, menuItemAbout;
 	private Color backColor;
 
 	public MainFrame(File data)
@@ -77,13 +78,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void windowActivated(WindowEvent arg0)
-			{
-			}
+			{}
 
 			@Override
 			public void windowClosed(WindowEvent arg0)
-			{
-			}
+			{}
 
 			@Override
 			public void windowClosing(WindowEvent arg0)
@@ -96,50 +95,38 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 			@Override
 			public void windowDeactivated(WindowEvent arg0)
-			{
-			}
+			{}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0)
-			{
-			}
+			{}
 
 			@Override
 			public void windowIconified(WindowEvent arg0)
-			{
-			}
+			{}
 
 			@Override
 			public void windowOpened(WindowEvent arg0)
-			{
-			}
+			{}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.menuBar = new JMenuBar();
 		this.menuFile = new JMenu("File");
-		this.menuStaff = new JMenu("Staff");
 		this.menuHelp = new JMenu("About");
 		this.menuItemReloadStudents = new JMenuItem("Reload CSV Students file");
+		this.menuItemSettings = new JMenuItem("Settings");
 		this.menuItemExit = new JMenuItem("Exit");
-		this.menuItemStaffAddManually = new JMenuItem("Add manually");
 		this.menuItemHelp = new JMenuItem("Help");
 		this.menuItemAbout = new JMenuItem("About");
 		this.menuItemReloadStudents.addActionListener(e -> {
 			this.students = CSV.getStudents(this.studentsFile, false);
 			updateList();
 		});
+		this.menuItemSettings.addActionListener(e -> {
+			new SettingsFrame(MainFrame.this);
+		});
 		this.menuItemExit.addActionListener(e -> {
 			Utils.exit(0);
-		});
-		this.menuItemStaffAddManually.addActionListener(e -> {
-			try
-			{
-				addManually();
-			}
-			catch(Exception e1)
-			{
-				Utils.logger.log(Level.WARNING, "Couldn't add a student manually", e1);
-			}
 		});
 		this.menuItemHelp.addActionListener(e -> {
 			try
@@ -155,13 +142,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			new AboutFrame(MainFrame.this);
 		});
 		this.menuFile.add(this.menuItemReloadStudents);
+		this.menuFile.add(this.menuItemSettings);
 		this.menuFile.addSeparator();
 		this.menuFile.add(this.menuItemExit);
-		this.menuStaff.add(this.menuItemStaffAddManually);
 		this.menuHelp.add(this.menuItemHelp);
 		this.menuHelp.add(this.menuItemAbout);
 		this.menuBar.add(this.menuFile);
-		this.menuBar.add(this.menuStaff);
 		this.menuBar.add(this.menuHelp);
 		setJMenuBar(this.menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -189,23 +175,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseEntered(MouseEvent e)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseExited(MouseEvent e)
-			{
-			}
+			{}
 
 			@Override
 			public void mousePressed(MouseEvent e)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseReleased(MouseEvent e)
@@ -286,16 +268,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.infoPanel.setBackground(this.backColor);
 		this.cardPanel = new JPanel(new GridBagLayout());
 		this.cardPanel.add(this.cardTextLabel, gcb);
+		this.cardPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		this.staffPanel = new JPanel(new GridBagLayout());
 		this.staffPanel.setBackground(this.backColor);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
+		Border border = BorderFactory.createLineBorder(Color.BLACK);
 		JPanel panelAddManually = new JPanel(new BorderLayout());
 		JPanel panelCheckManually = new JPanel(new BorderLayout());
 		panelAddManually.setBackground(this.backColor);
 		panelCheckManually.setBackground(this.backColor);
 		JTextArea studentManuallyAddArea = new JTextArea();
 		studentManuallyAddArea.setLineWrap(true);
-		studentManuallyAddArea.setPreferredSize(new Dimension(100, 20));
+		studentManuallyAddArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+		studentManuallyAddArea.setPreferredSize(new Dimension(100, 25));
 		JButton addManuallyButton = new JButton("Add manually");
 		addManuallyButton.addActionListener(e -> {
 			try
@@ -310,7 +295,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		});
 		JTextArea studentManuallyCheckArea = new JTextArea();
 		studentManuallyCheckArea.setLineWrap(true);
-		studentManuallyCheckArea.setPreferredSize(new Dimension(100, 20));
+		studentManuallyCheckArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+		studentManuallyCheckArea.setPreferredSize(new Dimension(100, 25));
 		JButton checkManuallyButton = new JButton("Check manually");
 		checkManuallyButton.addActionListener(e -> {
 			try
@@ -350,6 +336,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.weightx = 1;
 		gcb.insets = new Insets(0, 0, 0, 0);
 		gcb.weighty = 1;
+		gcb.weightx = 10;
 		gcb.gridheight = 1;
 		gcb.gridwidth = 2;
 		gcb.gridx = 0;
@@ -357,9 +344,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		getContentPane().add(this.infoPanel, gcb);
 		gcb.gridwidth = 1;
 		gcb.weighty = 10;
+		gcb.weightx = 1;
 		gcb.gridy = line++;
 		getContentPane().add(this.staffPanel, gcb);
 		gcb.gridx = 1;
+		gcb.weightx = 10;
 		getContentPane().add(this.scrollPaneChecked, gcb);
 		gcb.gridwidth = 2;
 		gcb.weighty = 1;
@@ -527,15 +516,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.modelChecked.fireTableDataChanged();
 	}
 
-	private void addManually() throws IOException
-	{
-		String uid = JOptionPane.showInputDialog(this, "UID", "Enter student card UID");
-		String name = JOptionPane.showInputDialog(this, "Name", "Enter student name");
-		if(uid == null || name == null || uid.equals("") || uid.equals("Enter student card UID") || name.equals("") || name.equals("Enter student name"))
-			return;
-		addStudent(new Student(uid, name, false));
-	}
-
 	private void checkStudent(Student student, boolean manually)
 	{
 		if(student == null)
@@ -612,8 +592,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		this.staffPanel.setVisible(b);
 		this.staffPanel.setEnabled(b);
+		this.menuItemSettings.setEnabled(b);
 		this.menuItemReloadStudents.setEnabled(b);
-		this.menuStaff.setEnabled(b);
 		this.menuItemExit.setEnabled(b);
 	}
 }

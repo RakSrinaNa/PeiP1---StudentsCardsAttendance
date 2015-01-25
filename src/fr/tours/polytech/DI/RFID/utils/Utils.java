@@ -47,6 +47,7 @@ public class Utils
 		mainFrame.exit();
 		terminalReader.stop();
 		config.stop();
+		config.writeVars();
 		logFileHandler.close();
 		System.exit(codeExit);
 	}

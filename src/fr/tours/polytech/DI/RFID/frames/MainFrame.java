@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -40,6 +41,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
+import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.CSV;
@@ -54,6 +56,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private File studentsFile;
 	private ArrayList<Student> students;
 	private ArrayList<Student> checkedStudents;
+	private ArrayList<Period> periods;
 	private JPanel infoPanel, cardPanel, staffPanel;
 	private JLabel cardTextLabel, infoTextLabel;
 	private JScrollPane scrollPaneChecked;
@@ -62,8 +65,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private Student currentStudent;
 	private JMenuBar menuBar;
 	private JMenu menuFile, menuHelp;
-	private JMenuItem menuItemReloadStudents, menuItemSettings, menuItemExit, menuItemHelp, menuItemAbout;
+	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp, menuItemAbout;
 	private Color backColor;
+	private Period lastPeriod;
+	private JComboBox<Period> removePeriodArea;
 
 	public MainFrame(File data)
 	{
@@ -71,6 +76,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.studentsFile = data;
 		this.students = CSV.getStudents(this.studentsFile, false);
 		this.checkedStudents = new ArrayList<Student>();
+		this.periods = Period.loadPeriods();
 		this.backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(800, 600));
@@ -114,16 +120,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.menuFile = new JMenu("File");
 		this.menuHelp = new JMenu("About");
 		this.menuItemReloadStudents = new JMenuItem("Reload CSV Students file");
-		this.menuItemSettings = new JMenuItem("Settings");
 		this.menuItemExit = new JMenuItem("Exit");
 		this.menuItemHelp = new JMenuItem("Help");
 		this.menuItemAbout = new JMenuItem("About");
 		this.menuItemReloadStudents.addActionListener(e -> {
 			this.students = CSV.getStudents(this.studentsFile, false);
 			updateList();
-		});
-		this.menuItemSettings.addActionListener(e -> {
-			new SettingsFrame(MainFrame.this);
 		});
 		this.menuItemExit.addActionListener(e -> {
 			Utils.exit(0);
@@ -142,7 +144,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			new AboutFrame(MainFrame.this);
 		});
 		this.menuFile.add(this.menuItemReloadStudents);
-		this.menuFile.add(this.menuItemSettings);
 		this.menuFile.addSeparator();
 		this.menuFile.add(this.menuItemExit);
 		this.menuHelp.add(this.menuItemHelp);
@@ -275,8 +276,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		Border border = BorderFactory.createLineBorder(Color.BLACK);
 		JPanel panelAddManually = new JPanel(new BorderLayout());
 		JPanel panelCheckManually = new JPanel(new BorderLayout());
+		JPanel panelAddPeriod = new JPanel(new BorderLayout());
+		JPanel panelRemovePeriod = new JPanel(new BorderLayout());
 		panelAddManually.setBackground(this.backColor);
 		panelCheckManually.setBackground(this.backColor);
+		panelAddPeriod.setBackground(this.backColor);
+		panelRemovePeriod.setBackground(this.backColor);
 		JTextArea studentManuallyAddArea = new JTextArea();
 		studentManuallyAddArea.setLineWrap(true);
 		studentManuallyAddArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
@@ -309,10 +314,61 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Utils.logger.log(Level.WARNING, "", e1);
 			}
 		});
+		JTextArea addPeriodArea = new JTextArea();
+		addPeriodArea.setLineWrap(true);
+		addPeriodArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+		addPeriodArea.setPreferredSize(new Dimension(100, 25));
+		JButton addPeriodButton = new JButton("Add period");
+		addPeriodButton.addActionListener(e -> {
+			try
+			{
+				try
+				{
+					Period period = new Period(addPeriodArea.getText());
+					if(!periodOverlap(period))
+					{
+						this.periods.add(period);
+						this.removePeriodArea.addItem(period);
+						Utils.config.getConfigValue(Configuration.PERIODS).addValue(period);
+					}
+				}
+				catch(Exception e1)
+				{
+					Utils.logger.log(Level.WARNING, "Can't parse perriod", e1);
+				}
+				addPeriodArea.setText("");
+			}
+			catch(Exception e1)
+			{
+				Utils.logger.log(Level.WARNING, "", e1);
+			}
+		});
+		this.removePeriodArea = new JComboBox<Period>();
+		for(Period period : this.periods)
+			this.removePeriodArea.addItem(period);
+		this.removePeriodArea.setPreferredSize(new Dimension(100, 25));
+		JButton removePeriodButton = new JButton("Remove period");
+		removePeriodButton.addActionListener(e -> {
+			try
+			{
+				Period period = (Period) this.removePeriodArea.getSelectedItem();
+				this.periods.remove(period);
+				Utils.config.getConfigValue(Configuration.PERIODS).removeValue(period);
+				this.removePeriodArea.removeItem(period);
+			}
+			catch(Exception e1)
+			{
+				Utils.logger.log(Level.WARNING, "", e1);
+			}
+		});
 		panelAddManually.add(studentManuallyAddArea, BorderLayout.NORTH);
 		panelAddManually.add(addManuallyButton, BorderLayout.SOUTH);
 		panelCheckManually.add(studentManuallyCheckArea, BorderLayout.NORTH);
 		panelCheckManually.add(checkManuallyButton, BorderLayout.SOUTH);
+		panelAddPeriod.add(addPeriodArea, BorderLayout.NORTH);
+		panelAddPeriod.add(addPeriodButton, BorderLayout.SOUTH);
+		panelRemovePeriod.add(this.removePeriodArea, BorderLayout.NORTH);
+		panelRemovePeriod.add(removePeriodButton, BorderLayout.SOUTH);
 		line = 0;
 		gcb.anchor = GridBagConstraints.NORTH;
 		gcb.fill = GridBagConstraints.HORIZONTAL;
@@ -321,6 +377,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(panelAddManually, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(panelCheckManually, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(panelAddPeriod, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(panelRemovePeriod, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.scrollPaneChecked = new JScrollPane(this.tableChecked);
 		this.scrollPaneChecked.setAutoscrolls(false);
@@ -467,26 +527,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
-			int hours = calendar.get(Calendar.HOUR);
-			int i = -1;
-			while(i < 24)
-				if(hours >= ++i * Utils.config.getConfigValue(Configuration.HOUR_INTERVAL).getInt(2) + Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) % 2 && hours < (i + 1) * Utils.config.getConfigValue(Configuration.HOUR_INTERVAL).getInt(2) + Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) % 2)
-					break;
-			int min = i * Utils.config.getConfigValue(Configuration.HOUR_INTERVAL).getInt(2) + Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) % 2;
-			int max = (i + 1) * Utils.config.getConfigValue(Configuration.HOUR_INTERVAL).getInt(2) + Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) % 2;
-			if(isTimeValid())
-				this.infoTextLabel.setText("<html><p align=\"center\">Current time : " + dateFormat.format(date) + "<br />Scan for period : " + min + "H - " + max + "H</p></html>");
+			boolean validPeriod = isTimeValid();
+			boolean newPeriod = isNewPeriod();
+			if(validPeriod)
+			{
+				Period period = getCurrentPeriod();
+				this.infoTextLabel.setText("<html><p align=\"center\">Current time : " + dateFormat.format(date) + "<br />Scan for period : " + period.getTimeInterval() + "</p></html>");
+			}
 			else
 				this.infoTextLabel.setText("<html><p align=\"center\">Current time : " + dateFormat.format(date) + "<br />Not in a scan period</p></html>");
-			boolean test = (hours + Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) % 2) % Utils.config.getConfigValue(Configuration.HOUR_INTERVAL).getInt(2) == 0 && isTimeValid();
-			if(test && !hasBeenReset)
+			if(!hasBeenReset && newPeriod)
 			{
 				this.checkedStudents.clear();
 				updateList();
 				hasBeenReset = true;
 				Utils.logger.log(Level.INFO, "List cleared, check again!");
 			}
-			else if(hasBeenReset && !test)
+			else if(hasBeenReset && !newPeriod)
 				hasBeenReset = false;
 		}
 	}
@@ -522,22 +579,21 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			return;
 		try
 		{
-			if(!student.isTeatcher())
-				if(!isTimeValid())
-				{
-					if(!manually)
-						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Not in a period to validate</p></html>");
-				}
-				else if(!this.checkedStudents.contains(student))
-				{
-					Utils.writeCheck(student);
-					if(!manually)
-						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
-					this.checkedStudents.add(student);
-					updateList();
-				}
-				else if(!manually)
-					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
+			if(!isTimeValid())
+			{
+				if(!manually)
+					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Not in a period to validate</p></html>");
+			}
+			else if(!this.checkedStudents.contains(student))
+			{
+				Utils.writeCheck(student);
+				if(!manually)
+					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
+				this.checkedStudents.add(student);
+				updateList();
+			}
+			else if(!manually)
+				this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
 		}
 		catch(IOException e)
 		{
@@ -545,19 +601,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 	}
 
-	private ArrayList<Student> getOnlyStudents()
+	private Period getCurrentPeriod()
 	{
-		ArrayList<Student> stu = new ArrayList<Student>();
-		for(Student student : this.students)
-			if(!student.isTeatcher())
-				stu.add(student);
-		return stu;
+		Date date = new Date();
+		for(Period period : this.periods)
+			if(period.isInPeriod(date))
+				return period;
+		return null;
 	}
 
 	private Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : this.students)
-			if(student != null && student.getName().equalsIgnoreCase(name))
+			if(student != null && student.toString().equalsIgnoreCase(name))
 				return student;
 		return checkDB ? Utils.sql.getStudentByName(name) : null;
 	}
@@ -572,27 +628,38 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	private Student[][] getTableList(ArrayList<Student> students)
 	{
-		Student[][] student = new Student[getOnlyStudents().size()][1];
+		Student[][] student = new Student[this.students.size()][1];
 		int i = 0;
-		for(Student stu : getOnlyStudents())
+		for(Student stu : this.students)
 			student[i++][0] = stu;
 		return student;
 	}
 
+	private boolean isNewPeriod()
+	{
+		boolean result = getCurrentPeriod() == this.lastPeriod;
+		if(result)
+			this.lastPeriod = getCurrentPeriod();
+		return result;
+	}
+
 	private boolean isTimeValid()
 	{
-		Date date = new Date();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		int hours = calendar.get(Calendar.HOUR);
-		return hours >= Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) && hours < Utils.config.getConfigValue(Configuration.END_HOUR).getInt(24);
+		return getCurrentPeriod() != null;
+	}
+
+	private boolean periodOverlap(Period period)
+	{
+		for(Period per : this.periods)
+			if(per.isOverlapped(period))
+				return true;
+		return false;
 	}
 
 	private void setStaffInfos(boolean b)
 	{
 		this.staffPanel.setVisible(b);
 		this.staffPanel.setEnabled(b);
-		this.menuItemSettings.setEnabled(b);
 		this.menuItemReloadStudents.setEnabled(b);
 		this.menuItemExit.setEnabled(b);
 	}

@@ -1,3 +1,4 @@
 startHour:2
 hourInterval:2
 endHour:20
+periods:8H0-10H0,0H00-1H00

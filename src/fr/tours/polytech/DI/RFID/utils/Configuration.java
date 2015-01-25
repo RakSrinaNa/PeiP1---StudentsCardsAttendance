@@ -16,7 +16,7 @@ import fr.tours.polytech.DI.RFID.objects.ConfigValue;
 
 public class Configuration
 {
-	public static final String HOUR_INTERVAL = "hourInterval", START_HOUR = "startHour", END_HOUR = "endHour";
+	public static final String PERIODS = "periods";
 	private File configFile;
 	private String normalConfigName = "config.txt";
 	private List<ConfigValue> configValues;

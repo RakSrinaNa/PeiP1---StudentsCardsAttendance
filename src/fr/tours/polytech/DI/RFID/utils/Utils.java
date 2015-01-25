@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -25,6 +26,7 @@ public class Utils
 	private static MainFrame mainFrame;
 	public static Logger logger;
 	public static Configuration config;
+	public static SQLManager sql;
 
 	public static String bytesToHex(byte[] bytes)
 	{
@@ -58,7 +60,8 @@ public class Utils
 		logger.addHandler(logFileHandler);
 		config = new Configuration();
 		terminalReader = new TerminalReader("Contactless");
-		mainFrame = new MainFrame(new File(".", "Students.csv"), new File(".", "Teatchers.csv"));
+		sql = new SQLManager("db4free.net", 3306, "rfid", "rfid", "polytechDI26");
+		mainFrame = new MainFrame(new File(".", "Students.csv"));
 		terminalReader.addListener(mainFrame);
 	}
 
@@ -72,7 +75,6 @@ public class Utils
 
 	public static void writeCheck(Student student) throws IOException
 	{
-		System.out.println("Writting to file");
 		DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy HH:mm:ss");
 		Date date = new Date();
 		Calendar calendar = Calendar.getInstance();
@@ -86,9 +88,7 @@ public class Utils
 				file.createNewFile();
 			}
 			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			{}
 		}
 		FileWriter fileWriter = new FileWriter(file, true);
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -99,9 +99,9 @@ public class Utils
 		fileWriter.close();
 	}
 
-	public static void writeStudent(Student student, File file) throws IOException
+	public static void writeStudent(List<Student> students, File file) throws IOException
 	{
-		System.out.println("Writting to file");
+		file.delete();
 		if(!file.exists())
 		{
 			file.getParentFile().mkdirs();
@@ -110,16 +110,22 @@ public class Utils
 				file.createNewFile();
 			}
 			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			{}
 		}
 		FileWriter fileWriter = new FileWriter(file, true);
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		printWriter.print(student.getUid() + ";" + student.getName() + "\n");
+		for(Student student : students)
+			printWriter.print(student.getName() + "\n");
 		printWriter.close();
 		bufferedWriter.close();
 		fileWriter.close();
+	}
+
+	public static void writeStudent(Student student, File file) throws IOException
+	{
+		ArrayList<Student> students = new ArrayList<Student>();
+		students.add(student);
+		writeStudent(students, file);
 	}
 }

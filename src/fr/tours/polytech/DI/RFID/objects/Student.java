@@ -1,5 +1,7 @@
 package fr.tours.polytech.DI.RFID.objects;
 
+import fr.tours.polytech.DI.RFID.utils.Utils;
+
 public class Student
 {
 	private String name;
@@ -11,6 +13,11 @@ public class Student
 		this.uid = uid;
 		this.name = name;
 		this.isTeatcher = isTeatcher;
+	}
+
+	public static Student fetch(String name)
+	{
+		return Utils.sql.getStudentByName(name);
 	}
 
 	public String getName()

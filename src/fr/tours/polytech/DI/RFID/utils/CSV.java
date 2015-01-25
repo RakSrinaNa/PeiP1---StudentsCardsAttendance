@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import fr.tours.polytech.DI.RFID.objects.Student;
 
 public class CSV
@@ -21,16 +22,18 @@ public class CSV
 			while((line = bufferedReader.readLine()) != null)
 			{
 				String[] student = line.split(";|,");
-				data.add(new Student(student[0], student[1], staff));
+				Student studentt = Student.fetch(student[0]);
+				if(studentt != null)
+					data.add(studentt);
 			}
 		}
 		catch(FileNotFoundException e)
 		{
-			e.printStackTrace();
+			Utils.logger.log(Level.SEVERE, "Can't import student list, file not found!");
 		}
 		catch(IOException e)
 		{
-			e.printStackTrace();
+			Utils.logger.log(Level.WARNING, "Error reading student file", e);
 		}
 		finally
 		{
@@ -40,9 +43,7 @@ public class CSV
 					bufferedReader.close();
 				}
 				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
+				{}
 		}
 		return data;
 	}

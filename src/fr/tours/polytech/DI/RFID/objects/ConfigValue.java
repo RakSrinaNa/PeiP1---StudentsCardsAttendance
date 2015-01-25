@@ -1,7 +1,6 @@
 package fr.tours.polytech.DI.RFID.objects;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
@@ -21,11 +20,6 @@ public class ConfigValue
 	}
 
 	public ConfigValue(String key, String value)
-	{
-		this(key, value, new Date(System.currentTimeMillis()));
-	}
-
-	public ConfigValue(String key, String value, Date date)
 	{
 		if(key == null || key.equals(""))
 			throw new IllegalArgumentException("Key must not be null/empty!");

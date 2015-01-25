@@ -91,7 +91,7 @@ public class TerminalReader implements Runnable
 			}
 			catch(Exception e1)
 			{
-				e1.printStackTrace();
+				Utils.logger.log(Level.WARNING, "", e1);
 			}
 		}
 	}

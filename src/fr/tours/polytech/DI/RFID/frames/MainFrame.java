@@ -1,18 +1,26 @@
 package fr.tours.polytech.DI.RFID.frames;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -20,8 +28,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -38,31 +48,33 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
 	private static final long serialVersionUID = -4989573496325827301L;
+	public static final String VERSION = "1.0";
 	private ArrayList<StaffListener> staffListeners;
 	private Thread thread;
-	private File studentsFile, teatchersFile;
+	private File studentsFile;
 	private ArrayList<Student> students;
 	private ArrayList<Student> checkedStudents;
-	private JPanel infoPanel, cardPanel;
+	private JPanel infoPanel, cardPanel, staffPanel;
 	private JLabel cardTextLabel, infoTextLabel;
 	private JScrollPane scrollPaneChecked;
 	private JTable tableChecked;
 	private JTableUneditableModel modelChecked;
 	private Student currentStudent;
 	private JMenuBar menuBar;
-	private JMenu menuStaff;
-	private JMenuItem menuItemStaffAddManually;
+	private JMenu menuStaff, menuFile, menuHelp;
+	private JMenuItem menuItemReloadStudents, menuItemStaffAddManually, menuItemExit, menuItemHelp, menuItemAbout;
+	private Color backColor;
 
-	public MainFrame(File data, File data2)
+	public MainFrame(File data)
 	{
-		super("Gestion de présence");
+		super("Student presence management");
 		this.studentsFile = data;
-		this.teatchersFile = data2;
 		this.staffListeners = new ArrayList<StaffListener>();
 		this.students = CSV.getStudents(this.studentsFile, false);
-		this.students.addAll(CSV.getStudents(this.teatchersFile, true));
 		this.checkedStudents = new ArrayList<Student>();
+		this.backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setPreferredSize(new Dimension(800, 600));
 		addWindowListener(new WindowListener()
 		{
 			@Override
@@ -100,9 +112,21 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.menuBar = new JMenuBar();
+		this.menuFile = new JMenu("File");
 		this.menuStaff = new JMenu("Staff");
-		this.menuStaff.setEnabled(false);
+		this.menuHelp = new JMenu("About");
+		this.menuItemReloadStudents = new JMenuItem("Reload CSV Students file");
+		this.menuItemExit = new JMenuItem("Exit");
 		this.menuItemStaffAddManually = new JMenuItem("Add manually");
+		this.menuItemHelp = new JMenuItem("Help");
+		this.menuItemAbout = new JMenuItem("About");
+		this.menuItemReloadStudents.addActionListener(e -> {
+			this.students = CSV.getStudents(this.studentsFile, false);
+			updateList();
+		});
+		this.menuItemExit.addActionListener(e -> {
+			Utils.exit(0);
+		});
 		this.menuItemStaffAddManually.addActionListener(e -> {
 			try
 			{
@@ -110,11 +134,31 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			catch(Exception e1)
 			{
-				e1.printStackTrace();
+				Utils.logger.log(Level.WARNING, "Couldn't add a student manually", e1);
 			}
 		});
+		this.menuItemHelp.addActionListener(e -> {
+			try
+			{
+				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
+			}
+			catch(Exception e1)
+			{
+				Utils.logger.log(Level.WARNING, "Error when opening wiki page", e1);
+			}
+		});
+		this.menuItemAbout.addActionListener(e -> {
+			new AboutFrame(MainFrame.this);
+		});
+		this.menuFile.add(this.menuItemReloadStudents);
+		this.menuFile.addSeparator();
+		this.menuFile.add(this.menuItemExit);
 		this.menuStaff.add(this.menuItemStaffAddManually);
+		this.menuHelp.add(this.menuItemHelp);
+		this.menuHelp.add(this.menuItemAbout);
+		this.menuBar.add(this.menuFile);
 		this.menuBar.add(this.menuStaff);
+		this.menuBar.add(this.menuHelp);
 		setJMenuBar(this.menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.cardTextLabel = new JLabel();
@@ -137,7 +181,80 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				return String.class;
 			}
 		};
-		this.tableChecked.setBackground(Color.GRAY);
+		this.tableChecked.addMouseListener(new MouseListener()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{}
+
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{}
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{}
+
+			@Override
+			public void mousePressed(MouseEvent e)
+			{}
+
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				int row = MainFrame.this.tableChecked.rowAtPoint(e.getPoint());
+				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
+					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
+				else
+					MainFrame.this.tableChecked.clearSelection();
+				int rowindex = MainFrame.this.tableChecked.getSelectedRow();
+				if(e.isPopupTrigger() && e.getComponent() instanceof JTable)
+				{
+					Student student = getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString(), false);
+					JPopupMenu popup = new JPopupMenu();
+					JMenuItem deleteStudent = new JMenuItem("Delete student");
+					deleteStudent.addActionListener(event -> {
+						try
+						{
+							removeStudent(student);
+						}
+						catch(Exception e1)
+						{
+							Utils.logger.log(Level.WARNING, "", e1);
+						}
+					});
+					JMenuItem checkStudent = new JMenuItem("Check student");
+					checkStudent.addActionListener(event -> {
+						try
+						{
+							checkStudent(student, true);
+						}
+						catch(Exception e1)
+						{
+							Utils.logger.log(Level.WARNING, "", e1);
+						}
+					});
+					JMenuItem uncheckStudent = new JMenuItem("Uncheck student");
+					uncheckStudent.addActionListener(event -> {
+						try
+						{
+							uncheckStudent(student);
+						}
+						catch(Exception e1)
+						{
+							Utils.logger.log(Level.WARNING, "", e1);
+						}
+					});
+					if(!hasChecked(student))
+						popup.add(checkStudent);
+					else
+						popup.add(uncheckStudent);
+					popup.add(deleteStudent);
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+		});
+		this.tableChecked.setBackground(this.backColor);
 		this.tableChecked.setDefaultRenderer(String.class, new StudentsRenderer(centerRenderer, this));
 		this.tableChecked.getTableHeader().setReorderingAllowed(false);
 		this.tableChecked.getTableHeader().setResizingAllowed(true);
@@ -153,38 +270,96 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.weightx = 1;
 		gcb.weighty = 1;
 		gcb.gridwidth = 1;
+		gcb.gridheight = 1;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.infoPanel = new JPanel();
 		this.infoPanel.add(this.infoTextLabel, gcb);
-		this.infoPanel.setBackground(Color.GRAY);
+		this.infoPanel.setBackground(this.backColor);
 		this.cardPanel = new JPanel(new GridBagLayout());
 		this.cardPanel.add(this.cardTextLabel, gcb);
+		this.staffPanel = new JPanel(new GridBagLayout());
+		this.staffPanel.setBackground(this.backColor);
+		// ///////////////////////////////////////////////////////////////////////////////////////////
+		JPanel panelAddManually = new JPanel(new BorderLayout());
+		JPanel panelCheckManually = new JPanel(new BorderLayout());
+		panelAddManually.setBackground(this.backColor);
+		panelCheckManually.setBackground(this.backColor);
+		JTextArea studentManuallyAddArea = new JTextArea();
+		studentManuallyAddArea.setLineWrap(true);
+		studentManuallyAddArea.setPreferredSize(new Dimension(100, 20));
+		JButton addManuallyButton = new JButton("Add manually");
+		addManuallyButton.addActionListener(e -> {
+			try
+			{
+				MainFrame.this.addStudentManually(studentManuallyAddArea.getText());
+				studentManuallyAddArea.setText("");
+			}
+			catch(Exception e1)
+			{
+				Utils.logger.log(Level.WARNING, "", e1);
+			}
+		});
+		JTextArea studentManuallyCheckArea = new JTextArea();
+		studentManuallyCheckArea.setLineWrap(true);
+		studentManuallyCheckArea.setPreferredSize(new Dimension(100, 20));
+		JButton checkManuallyButton = new JButton("Check manually");
+		checkManuallyButton.addActionListener(e -> {
+			try
+			{
+				MainFrame.this.checkStudentManually(studentManuallyCheckArea.getText());
+				studentManuallyCheckArea.setText("");
+			}
+			catch(Exception e1)
+			{
+				Utils.logger.log(Level.WARNING, "", e1);
+			}
+		});
+		panelAddManually.add(studentManuallyAddArea, BorderLayout.NORTH);
+		panelAddManually.add(addManuallyButton, BorderLayout.SOUTH);
+		panelCheckManually.add(studentManuallyCheckArea, BorderLayout.NORTH);
+		panelCheckManually.add(checkManuallyButton, BorderLayout.SOUTH);
+		line = 0;
+		gcb.anchor = GridBagConstraints.NORTH;
+		gcb.fill = GridBagConstraints.HORIZONTAL;
+		gcb.insets = new Insets(10, 20, 10, 20);
+		gcb.gridy = line++;
+		this.staffPanel.add(panelAddManually, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(panelCheckManually, gcb);
+		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.scrollPaneChecked = new JScrollPane(this.tableChecked);
 		this.scrollPaneChecked.setAutoscrolls(false);
 		this.scrollPaneChecked.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		this.scrollPaneChecked.setBackground(Color.GRAY);
-		// ///////////////////////////////////////////////////////////////////////////////////////////
-		cardRemoved();
+		this.scrollPaneChecked.setBackground(this.backColor);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		line = 0;
 		gcb = new GridBagConstraints();
 		getContentPane().setLayout(new GridBagLayout());
-		getContentPane().setBackground(Color.GRAY);
+		getContentPane().setBackground(this.backColor);
 		gcb.anchor = GridBagConstraints.PAGE_START;
 		gcb.fill = GridBagConstraints.BOTH;
 		gcb.weightx = 1;
+		gcb.insets = new Insets(0, 0, 0, 0);
 		gcb.weighty = 1;
-		gcb.gridwidth = 1;
+		gcb.gridheight = 1;
+		gcb.gridwidth = 2;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		getContentPane().add(this.infoPanel, gcb);
+		gcb.gridwidth = 1;
 		gcb.weighty = 10;
 		gcb.gridy = line++;
+		getContentPane().add(this.staffPanel, gcb);
+		gcb.gridx = 1;
 		getContentPane().add(this.scrollPaneChecked, gcb);
+		gcb.gridwidth = 2;
 		gcb.weighty = 1;
+		gcb.gridx = 0;
 		gcb.gridy = line++;
 		getContentPane().add(this.cardPanel, gcb);
+		setStaffInfos(false);
+		cardRemoved();
 		pack();
 		setVisible(true);
 		setLocationRelativeTo(null);
@@ -195,17 +370,22 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	public void addStudent(Student student) throws IOException
 	{
-		if(getStudentByUID(student.getUid()) != null || getStudentByName(student.getName()) != null)
+		if(student == null || getStudentByUID(student.getUid(), false) != null || getStudentByName(student.getName(), false) != null)
 			return;
 		Utils.writeStudent(student, this.studentsFile);
 		this.students.add(student);
 		updateList();
 	}
 
+	public void addStudentManually(String name) throws IOException
+	{
+		addStudent(getStudentByName(name, true));
+	}
+
 	@Override
 	public void cardAdded(RFIDCard rfidCard)
 	{
-		Student student = getStudentByUID(rfidCard.getUid());
+		Student student = getStudentByUID(rfidCard.getUid(), true);
 		this.currentStudent = student;
 		for(StaffListener staffListener : this.staffListeners)
 			staffListener.cardAdded(rfidCard, student);
@@ -217,27 +397,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		Utils.logger.log(Level.INFO, "Card infos: " + (student == null ? "" : student) + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
 		this.cardTextLabel.setText("Card detected : " + student.getName() + " " + (student.isTeatcher() ? "(Staff)" : "(Student)"));
-		try
-		{
-			if(!student.isTeatcher())
-				if(!isTimeValid())
-					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Not in a period to validate</p></html>");
-				else if(!this.checkedStudents.contains(student))
-				{
-					Utils.writeCheck(student);
-					updateList();
-					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
-				}
-				else
-					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-		this.checkedStudents.add(student);
-		if(student.isTeatcher())
-			this.menuStaff.setEnabled(true);
+		checkStudent(student, false);
+		setStaffInfos(student.isTeatcher());
 	}
 
 	@Override
@@ -255,10 +416,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	@Override
 	public void cardRemoved()
 	{
+		setStaffInfos(false);
 		this.currentStudent = null;
-		this.menuStaff.setEnabled(false);
 		this.cardPanel.setBackground(Color.ORANGE);
 		this.cardTextLabel.setText("No card detected");
+	}
+
+	public void checkStudentManually(String name)
+	{
+		checkStudent(getStudentByName(name, true), true);
 	}
 
 	public void exit()
@@ -270,7 +436,24 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	public boolean hasChecked(String name)
 	{
-		return this.checkedStudents.contains(getStudentByName(name));
+		return hasChecked(getStudentByName(name, true));
+	}
+
+	public boolean hasChecked(Student student)
+	{
+		return this.checkedStudents.contains(student);
+	}
+
+	public void removeStudent(Student student) throws IOException
+	{
+		this.students.remove(student);
+		Utils.writeStudent(this.students, this.studentsFile);
+		updateList();
+	}
+
+	public void removeStudentManually(String name) throws IOException
+	{
+		removeStudent(getStudentByName(name, true));
 	}
 
 	@Override
@@ -285,9 +468,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Thread.sleep(500);
 			}
 			catch(InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			{}
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
@@ -315,6 +496,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 	}
 
+	public void uncheckStudent(String name, boolean b)
+	{
+		checkStudent(getStudentByName(name, true), true);
+	}
+
+	public void uncheckStudent(Student student)
+	{
+		if(student == null)
+			return;
+		if(!student.isTeatcher())
+			if(this.checkedStudents.contains(student))
+			{
+				this.checkedStudents.remove(student);
+				updateList();
+			}
+	}
+
 	public synchronized void updateList()
 	{
 		this.modelChecked.setRowCount(0);
@@ -332,6 +530,35 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		addStudent(new Student(uid, name, false));
 	}
 
+	private void checkStudent(Student student, boolean manually)
+	{
+		if(student == null)
+			return;
+		try
+		{
+			if(!student.isTeatcher())
+				if(!isTimeValid())
+				{
+					if(!manually)
+						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Not in a period to validate</p></html>");
+				}
+				else if(!this.checkedStudents.contains(student))
+				{
+					Utils.writeCheck(student);
+					if(!manually)
+						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
+					this.checkedStudents.add(student);
+					updateList();
+				}
+				else if(!manually)
+					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
+		}
+		catch(IOException e)
+		{
+			Utils.logger.log(Level.SEVERE, "Error writing student check!", e);
+		}
+	}
+
 	private ArrayList<Student> getOnlyStudents()
 	{
 		ArrayList<Student> stu = new ArrayList<Student>();
@@ -341,20 +568,20 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return stu;
 	}
 
-	private Student getStudentByName(String name)
+	private Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : this.students)
-			if(student.getName().equals(name))
+			if(student != null && student.getName().equalsIgnoreCase(name))
 				return student;
-		return null;
+		return checkDB ? Utils.sql.getStudentByName(name) : null;
 	}
 
-	private Student getStudentByUID(String uid)
+	private Student getStudentByUID(String uid, boolean checkDB)
 	{
 		for(Student student : this.students)
-			if(student.getUid().equals(uid.replaceAll("-", "")))
+			if(student != null && student.getUid().equals(uid.replaceAll("-", "")))
 				return student;
-		return null;
+		return checkDB ? Utils.sql.getStudentByUID(uid.replaceAll("-", "")) : null;
 	}
 
 	private Student[][] getTableList(ArrayList<Student> students)
@@ -373,5 +600,14 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		calendar.setTime(date);
 		int hours = calendar.get(Calendar.HOUR);
 		return hours >= Utils.config.getConfigValue(Configuration.START_HOUR).getInt(0) && hours < Utils.config.getConfigValue(Configuration.END_HOUR).getInt(24);
+	}
+
+	private void setStaffInfos(boolean b)
+	{
+		this.staffPanel.setVisible(b);
+		this.staffPanel.setEnabled(b);
+		this.menuItemReloadStudents.setEnabled(b);
+		this.menuStaff.setEnabled(b);
+		this.menuItemExit.setEnabled(b);
 	}
 }

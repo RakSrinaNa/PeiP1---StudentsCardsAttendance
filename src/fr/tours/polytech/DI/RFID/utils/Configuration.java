@@ -183,17 +183,13 @@ public class Configuration
 			fileWriter.close();
 		}
 		catch(IOException e1)
-		{
-			e1.printStackTrace();
-		}
+		{}
 		try
 		{
 			this.configValues = readConfigTextFile(this.configFile);
 		}
 		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		{}
 		return true;
 	}
 

@@ -37,7 +37,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
-import fr.tours.polytech.DI.RFID.interfaces.StaffListener;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -49,7 +48,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
 	private static final long serialVersionUID = -4989573496325827301L;
 	public static final String VERSION = "1.0";
-	private ArrayList<StaffListener> staffListeners;
 	private Thread thread;
 	private File studentsFile;
 	private ArrayList<Student> students;
@@ -62,14 +60,14 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private Student currentStudent;
 	private JMenuBar menuBar;
 	private JMenu menuStaff, menuFile, menuHelp;
-	private JMenuItem menuItemReloadStudents, menuItemStaffAddManually, menuItemExit, menuItemHelp, menuItemAbout;
+	private JMenuItem menuItemReloadStudents, menuItemStaffAddManually,
+	        menuItemExit, menuItemHelp, menuItemAbout;
 	private Color backColor;
 
 	public MainFrame(File data)
 	{
 		super("Student presence management");
 		this.studentsFile = data;
-		this.staffListeners = new ArrayList<StaffListener>();
 		this.students = CSV.getStudents(this.studentsFile, false);
 		this.checkedStudents = new ArrayList<Student>();
 		this.backColor = new Color(224, 242, 255);
@@ -79,11 +77,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void windowActivated(WindowEvent arg0)
-			{}
+			{
+			}
 
 			@Override
 			public void windowClosed(WindowEvent arg0)
-			{}
+			{
+			}
 
 			@Override
 			public void windowClosing(WindowEvent arg0)
@@ -96,19 +96,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 			@Override
 			public void windowDeactivated(WindowEvent arg0)
-			{}
+			{
+			}
 
 			@Override
 			public void windowDeiconified(WindowEvent arg0)
-			{}
+			{
+			}
 
 			@Override
 			public void windowIconified(WindowEvent arg0)
-			{}
+			{
+			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0)
-			{}
+			{
+			}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.menuBar = new JMenuBar();
@@ -185,19 +189,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseEntered(MouseEvent e)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseExited(MouseEvent e)
-			{}
+			{
+			}
 
 			@Override
 			public void mousePressed(MouseEvent e)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseReleased(MouseEvent e)
@@ -387,8 +395,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		Student student = getStudentByUID(rfidCard.getUid(), true);
 		this.currentStudent = student;
-		for(StaffListener staffListener : this.staffListeners)
-			staffListener.cardAdded(rfidCard, student);
 		if(student == null)
 		{
 			this.cardTextLabel.setText("Card detected : " + rfidCard);

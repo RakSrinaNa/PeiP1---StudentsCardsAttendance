@@ -9,17 +9,31 @@ import java.util.logging.Level;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
 
+/**
+ * Class that allow us to interact with a SQL database.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class SQLManager
 {
 	private String UID_LABEL = "UID", NAME_LABEL = "Name", STAFF_LABEL = "Staff";
-	private Connection con;
-	private String table;
+	private Connection connection;
+	private String tableName;
 	private String databaseURL;
 	private int port;
 	private String databaseName;
 	private String user;
 	private String password;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param databaseURL The URL of the database.
+	 * @param port The port of the database.
+	 * @param databaseName The database name.
+	 * @param user The username.
+	 * @param password The password for this user.
+	 */
 	public SQLManager(String databaseURL, int port, String databaseName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
@@ -29,60 +43,94 @@ public class SQLManager
 		this.password = password;
 		login();
 		Utils.logger.log(Level.INFO, "Initializing SQL connection...");
-		this.table = "Users";
+		this.tableName = "Users";
 		createBaseTable();
 	}
 
+	/**
+	 * Used to retrieve a student from the database by his name.
+	 *
+	 * @param name The name of the student.
+	 * @return The student corresponding, null if not found.
+	 */
 	public Student getStudentByName(String name)
 	{
-		ResultSet result = sendQuerryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.table + " WHERE " + this.NAME_LABEL + " = \"" + name + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.NAME_LABEL + " = \"" + name + "\";");
 		try
 		{
 			if(result.next())
 				return new Student(result.getString(this.UID_LABEL), name, result.getInt(this.STAFF_LABEL) == 1);
 		}
-		catch(SQLException e)
+		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "", e);
+			Utils.logger.log(Level.WARNING, "", exception);
 		}
 		return null;
 	}
 
+	/**
+	 * Used to retrieve a student from the database by his UID.
+	 *
+	 * @param uid The UID of the student.
+	 * @return The student corresponding, null if not found.
+	 */
 	public Student getStudentByUID(String uid)
 	{
-		ResultSet result = sendQuerryRequest("SELECT " + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.table + " WHERE " + this.UID_LABEL + " = \"" + uid + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.UID_LABEL + " = \"" + uid + "\";");
 		try
 		{
 			if(result.next())
 				return new Student(uid, result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1);
 		}
-		catch(SQLException e)
+		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "", e);
+			Utils.logger.log(Level.WARNING, "", exception);
 		}
 		return null;
 	}
 
-	public synchronized ResultSet sendQuerryRequest(String request)
+	/**
+	 * Used to send a query request to the database.
+	 *
+	 * @param request The request to send.
+	 * @return The result of the query.
+	 *
+	 * @see ResultSet
+	 */
+	public synchronized ResultSet sendQueryRequest(String request)
 	{
-		return sendQuerryRequest(request, true);
+		return sendQueryRequest(request, true);
 	}
 
+	/**
+	 * Used to send an update request to the database.
+	 *
+	 * @param request The request to send.
+	 * @return How many lines were modified by the request.
+	 */
 	public synchronized int sendUpdateRequest(String request)
 	{
 		return sendUpdateRequest(request, true);
 	}
 
+	/**
+	 * Used to create the default database.
+	 *
+	 * @return How many lines were modified by the request.
+	 */
 	private int createBaseTable()
 	{
-		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.table + "(" + this.UID_LABEL + " varchar(18), " + this.NAME_LABEL + " varchar(255), " + this.STAFF_LABEL + " tinyint(1), PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + this.UID_LABEL + " varchar(18), " + this.NAME_LABEL + " varchar(255), " + this.STAFF_LABEL + " tinyint(1), PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 	}
 
+	/**
+	 * Used to establish a connection with the database.
+	 */
 	private void login()
 	{
 		try
 		{
-			this.con = DriverManager.getConnection("jdbc:mysql://" + this.databaseURL + ":" + this.port + "/" + this.databaseName, this.user, this.password);
+			this.connection = DriverManager.getConnection("jdbc:mysql://" + this.databaseURL + ":" + this.port + "/" + this.databaseName, this.user, this.password);
 		}
 		catch(SQLException e)
 		{
@@ -90,40 +138,56 @@ public class SQLManager
 		}
 	}
 
-	private ResultSet sendQuerryRequest(String request, boolean retry)
+	/**
+	 * Used to send a query request to the database.
+	 *
+	 * @param request The request to send.
+	 * @param retry Should retry to send the request another time if it failed?
+	 * @return The result of the query.
+	 *
+	 * @see ResultSet
+	 */
+	private ResultSet sendQueryRequest(String request, boolean retry)
 	{
-		if(this.con == null)
+		if(this.connection == null)
 			return null;
 		Utils.logger.log(Level.INFO, "Sending MYSQL request...: " + request);
 		ResultSet result = null;
 		try
 		{
-			Statement stmt = this.con.createStatement();
-			result = stmt.executeQuery(request);
+			Statement statement = this.connection.createStatement();
+			result = statement.executeQuery(request);
 		}
 		catch(MySQLNonTransientConnectionException e)
 		{
 			login();
 			if(retry)
-				return sendQuerryRequest(request, false);
+				return sendQueryRequest(request, false);
 		}
-		catch(SQLException e)
+		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR", e);
+			Utils.logger.log(Level.WARNING, "SQL ERROR", exception);
 		}
 		return result;
 	}
 
+	/**
+	 * Used to send an update request to the database.
+	 *
+	 * @param request The request to send.
+	 * @param retry Should retry to send the request another time if it failed?
+	 * @return How many lines were modified by the request.
+	 */
 	private int sendUpdateRequest(String request, boolean retry)
 	{
-		if(this.con == null)
+		if(this.connection == null)
 			return 0;
 		Utils.logger.log(Level.INFO, "Sending MYSQL update...: " + request);
 		int result = 0;
 		try
 		{
-			Statement stmt = this.con.createStatement();
-			result = stmt.executeUpdate(request);
+			Statement statement = this.connection.createStatement();
+			result = statement.executeUpdate(request);
 		}
 		catch(MySQLNonTransientConnectionException e)
 		{
@@ -131,9 +195,9 @@ public class SQLManager
 			if(retry)
 				return sendUpdateRequest(request, false);
 		}
-		catch(SQLException e)
+		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR", e);
+			Utils.logger.log(Level.WARNING, "SQL ERROR", exception);
 		}
 		return result;
 	}

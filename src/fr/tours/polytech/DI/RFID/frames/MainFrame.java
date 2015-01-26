@@ -193,6 +193,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
+				if(MainFrame.this.currentStudent == null || !MainFrame.this.currentStudent.isTeatcher())
+					return;
 				int row = MainFrame.this.tableChecked.rowAtPoint(e.getPoint());
 				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
 					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
@@ -331,9 +333,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						this.removePeriodArea.addItem(period);
 						Utils.config.getConfigValue(Configuration.PERIODS).addValue(period);
 					}
+					else
+						JOptionPane.showMessageDialog(MainFrame.this, "This period is overlapping an other one!", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
 				}
 				catch(Exception e1)
 				{
+					JOptionPane.showMessageDialog(MainFrame.this, "This period isn't valid: xxHxx-yyHyy", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
 					Utils.logger.log(Level.WARNING, "Can't parse perriod", e1);
 				}
 				addPeriodArea.setText("");

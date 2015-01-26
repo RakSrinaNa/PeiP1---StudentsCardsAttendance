@@ -74,7 +74,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		super("Student presence management");
 		this.studentsFile = data;
-		this.students = CSV.getStudents(this.studentsFile, false);
+		this.students = CSV.getStudents(this.studentsFile);
 		this.checkedStudents = new ArrayList<Student>();
 		this.periods = Period.loadPeriods();
 		this.backColor = new Color(224, 242, 255);
@@ -124,7 +124,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.menuItemHelp = new JMenuItem("Help");
 		this.menuItemAbout = new JMenuItem("About");
 		this.menuItemReloadStudents.addActionListener(e -> {
-			this.students = CSV.getStudents(this.studentsFile, false);
+			this.students = CSV.getStudents(this.studentsFile);
 			updateList();
 		});
 		this.menuItemExit.addActionListener(e -> {
@@ -434,7 +434,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		if(student == null || getStudentByUID(student.getUid(), false) != null || getStudentByName(student.getName(), false) != null)
 			return;
-		Utils.writeStudent(student, this.studentsFile);
+		Utils.addStudentToFile(student, this.studentsFile);
 		this.students.add(student);
 		updateList();
 	}
@@ -507,7 +507,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	public void removeStudent(Student student) throws IOException
 	{
 		this.students.remove(student);
-		Utils.writeStudent(this.students, this.studentsFile);
+		Utils.writeStudentsToFile(this.students, this.studentsFile);
 		updateList();
 	}
 
@@ -591,7 +591,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			else if(!this.checkedStudents.contains(student))
 			{
-				Utils.writeCheck(student);
+				Utils.logCheck(student);
 				if(!manually)
 					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
 				this.checkedStudents.add(student);

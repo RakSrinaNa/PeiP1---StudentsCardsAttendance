@@ -19,6 +19,11 @@ import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
 
+/**
+ * Utility class, contain useful methods for the application.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class Utils
 {
 	private static FileHandler logFileHandler;
@@ -28,6 +33,26 @@ public class Utils
 	public static Configuration config;
 	public static SQLManager sql;
 
+	/**
+	 * Used to add a student that need to check in the CSV file.
+	 *
+	 * @param student The student to add.
+	 * @param file The CSV file.
+	 * @throws IOException If the file can't be modified.
+	 */
+	public static void addStudentToFile(Student student, File file) throws IOException
+	{
+		ArrayList<Student> students = new ArrayList<Student>();
+		students.add(student);
+		writeStudentsToFile(students, file);
+	}
+
+	/**
+	 * Used to transform an array of bytes to a String like FF-FF-FF...
+	 *
+	 * @param bytes The array of bytes to transform.
+	 * @return The String representing this array.
+	 */
 	public static String bytesToHex(byte[] bytes)
 	{
 		char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -42,16 +67,30 @@ public class Utils
 		return new String(hexChars).substring(0, hexChars.length - 1);
 	}
 
-	public static void exit(int codeExit)
+	/**
+	 * Call when we need to exit the program.
+	 *
+	 * @param exitStaus The parameter given to {@link System#exit(int)}
+	 *
+	 * @see System#exit(int)
+	 */
+	public static void exit(int exitStaus)
 	{
 		mainFrame.exit();
 		terminalReader.stop();
-		config.stop();
-		config.writeVars();
+		config.close();
 		logFileHandler.close();
-		System.exit(codeExit);
+		System.exit(exitStaus);
 	}
 
+	/**
+	 * Call when the program is starting. Initalize some variables like configuration, logger, reader and SQL connection.
+	 *
+	 * @throws SecurityException If the Student.csv file can't be read.
+	 * @throws IOException If the Student.csv file can't be read.
+	 *
+	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String, boolean)
+	 */
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("RFID");
@@ -66,15 +105,14 @@ public class Utils
 		terminalReader.addListener(mainFrame);
 	}
 
-	public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list)
-	{
-		Set<T> setItems = new LinkedHashSet<T>(list);
-		list.clear();
-		list.addAll(setItems);
-		return list;
-	}
-
-	public static void writeCheck(Student student) throws IOException
+	/**
+	 * Used to log a check in the CSV file.
+	 *
+	 * @param student The student that checked.
+	 *
+	 * @throws IOException If file can't be opened or wrote.
+	 */
+	public static void logCheck(Student student) throws IOException
 	{
 		DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy HH:mm:ss");
 		Date date = new Date();
@@ -88,7 +126,7 @@ public class Utils
 			{
 				file.createNewFile();
 			}
-			catch(IOException e)
+			catch(IOException exception)
 			{}
 		}
 		FileWriter fileWriter = new FileWriter(file, true);
@@ -100,7 +138,29 @@ public class Utils
 		fileWriter.close();
 	}
 
-	public static void writeStudent(List<Student> students, File file) throws IOException
+	/**
+	 * Used to remove duplicates in an ArrayList.
+	 *
+	 * @param list The list where to remove duplicates.
+	 * @return The list without duplicates.
+	 */
+	public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list)
+	{
+		Set<T> setItems = new LinkedHashSet<T>(list);
+		list.clear();
+		list.addAll(setItems);
+		return list;
+	}
+
+	/**
+	 * Used to write the student list that need to check to the CSV file.
+	 *
+	 * @param students The students list.
+	 * @param file The CSV file.
+	 *
+	 * @throws IOException If the file can't be modified.
+	 */
+	public static void writeStudentsToFile(List<Student> students, File file) throws IOException
 	{
 		file.delete();
 		if(!file.exists())
@@ -110,7 +170,7 @@ public class Utils
 			{
 				file.createNewFile();
 			}
-			catch(IOException e)
+			catch(IOException exception)
 			{}
 		}
 		FileWriter fileWriter = new FileWriter(file, true);
@@ -121,12 +181,5 @@ public class Utils
 		printWriter.close();
 		bufferedWriter.close();
 		fileWriter.close();
-	}
-
-	public static void writeStudent(Student student, File file) throws IOException
-	{
-		ArrayList<Student> students = new ArrayList<Student>();
-		students.add(student);
-		writeStudent(students, file);
 	}
 }

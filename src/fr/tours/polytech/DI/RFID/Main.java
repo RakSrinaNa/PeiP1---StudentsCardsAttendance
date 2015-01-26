@@ -20,7 +20,7 @@ public class Main
 	 * @throws SecurityException If the Student.csv file can't be read.
 	 * @throws IOException If the Student.csv file can't be read.
 	 *
-	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String, boolean)
+	 * @see Utils#init()
 	 */
 	public static void main(String[] args) throws SecurityException, IOException
 	{

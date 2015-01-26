@@ -128,7 +128,7 @@ public class ConfigValue
 		{
 			return Boolean.parseBoolean(getValue());
 		}
-		catch(Exception e)
+		catch(Exception exception)
 		{
 			setValue(defaultValue);
 		}
@@ -147,7 +147,7 @@ public class ConfigValue
 		{
 			return Double.parseDouble(getValue());
 		}
-		catch(Exception e)
+		catch(Exception exception)
 		{
 			setValue(defaultValue);
 		}
@@ -166,7 +166,7 @@ public class ConfigValue
 		{
 			return Integer.parseInt(getValue());
 		}
-		catch(Exception e)
+		catch(Exception exception)
 		{
 			setValue(defaultValue);
 		}
@@ -195,7 +195,7 @@ public class ConfigValue
 		{
 			return Long.parseLong(getValue());
 		}
-		catch(Exception e)
+		catch(Exception exception)
 		{
 			setValue(defaultValue);
 		}
@@ -245,7 +245,7 @@ public class ConfigValue
 
 	/**
 	 * Used to know if this config value have this key.
-	 * 
+	 *
 	 * @param key the key to test.
 	 * @return true if it's this key, false if not.
 	 */

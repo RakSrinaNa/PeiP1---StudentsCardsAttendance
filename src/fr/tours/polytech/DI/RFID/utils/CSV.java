@@ -9,11 +9,22 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import fr.tours.polytech.DI.RFID.objects.Student;
 
+/**
+ * Class used to read CSV files.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class CSV
 {
-	public static ArrayList<Student> getStudents(File file, boolean staff)
+	/**
+	 * Used to get a list of {@link Student} from a CSV file. The CSV file should contain a name in the first column.
+	 *
+	 * @param file The File representing the CSV file.
+	 * @return An ArrayList of the students.
+	 */
+	public static ArrayList<Student> getStudents(File file)
 	{
-		ArrayList<Student> data = new ArrayList<Student>();
+		ArrayList<Student> students = new ArrayList<Student>();
 		BufferedReader bufferedReader = null;
 		String line = "";
 		try
@@ -21,19 +32,19 @@ public class CSV
 			bufferedReader = new BufferedReader(new FileReader(file));
 			while((line = bufferedReader.readLine()) != null)
 			{
-				String[] student = line.split(";|,");
-				Student studentt = Student.fetch(student[0]);
-				if(studentt != null)
-					data.add(studentt);
+				String[] studentLine = line.split(";|,");
+				Student student = Student.fetch(studentLine[0]);
+				if(student != null)
+					students.add(student);
 			}
 		}
-		catch(FileNotFoundException e)
+		catch(FileNotFoundException exception)
 		{
 			Utils.logger.log(Level.SEVERE, "Can't import student list, file not found!");
 		}
-		catch(IOException e)
+		catch(IOException exception)
 		{
-			Utils.logger.log(Level.WARNING, "Error reading student file", e);
+			Utils.logger.log(Level.WARNING, "Error reading student file", exception);
 		}
 		finally
 		{
@@ -45,6 +56,6 @@ public class CSV
 				catch(IOException e)
 				{}
 		}
-		return data;
+		return students;
 	}
 }

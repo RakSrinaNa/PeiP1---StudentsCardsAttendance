@@ -17,10 +17,20 @@ import fr.tours.polytech.DI.RFID.Main;
 import fr.tours.polytech.DI.RFID.frames.components.ImagePanel;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+/**
+ * The About Frame of the program.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class AboutFrame extends JWindow
 {
 	private static final long serialVersionUID = -475220568920430189L;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param parent The parent of the frame.
+	 */
 	public AboutFrame(JFrame parent)
 	{
 		super(parent);
@@ -28,25 +38,25 @@ public class AboutFrame extends JWindow
 		addMouseListener(new MouseListener()
 		{
 			@Override
-			public void mouseClicked(MouseEvent arg0)
+			public void mouseClicked(MouseEvent event)
 			{}
 
 			@Override
-			public void mouseEntered(MouseEvent arg0)
+			public void mouseEntered(MouseEvent event)
 			{}
 
 			@Override
-			public void mouseExited(MouseEvent arg0)
+			public void mouseExited(MouseEvent event)
 			{}
 
 			@Override
-			public void mousePressed(MouseEvent arg0)
+			public void mousePressed(MouseEvent event)
 			{
 				dispose();
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent arg0)
+			public void mouseReleased(MouseEvent avent)
 			{}
 		});
 		ImagePanel logoPanel = new ImagePanel();
@@ -55,9 +65,9 @@ public class AboutFrame extends JWindow
 		{
 			logoPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("resources/images/logo_polytech.jpg")));
 		}
-		catch(IOException e)
+		catch(IOException exception)
 		{
-			Utils.logger.log(Level.WARNING, "Couldn't load logo image", e);
+			Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
 		}
 		JPanel infoPanel = new JPanel();
 		infoPanel.setBackground(Color.WHITE);

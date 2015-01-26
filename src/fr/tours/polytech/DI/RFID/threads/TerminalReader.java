@@ -16,6 +16,11 @@ import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+/**
+ * Thread that check the reader if there is one.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class TerminalReader implements Runnable
 {
 	private boolean isPresent;
@@ -24,6 +29,11 @@ public class TerminalReader implements Runnable
 	private Thread thread;
 	private RFIDCard lastCard;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param name The name of the reader we should listen to.
+	 */
 	public TerminalReader(String name)
 	{
 		this.listenersTerminal = new ArrayList<TerminalListener>();
@@ -33,6 +43,11 @@ public class TerminalReader implements Runnable
 		this.thread.start();
 	}
 
+	/**
+	 * Used to add a {@link TerminalListener}.
+	 *
+	 * @param listener The listener to add.
+	 */
 	public void addListener(TerminalListener listener)
 	{
 		this.listenersTerminal.add(listener);
@@ -41,35 +56,41 @@ public class TerminalReader implements Runnable
 			listener.cardAdded(this.lastCard);
 	}
 
+	/**
+	 * What is doing the thread.
+	 *
+	 * Will check if there is a reader available containing the wanted name (will call {@link TerminalListener#cardReader(boolean)} if a listener is removed or added).
+	 * If it is the case it will wait for a card placed, call {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be removed then call {@link TerminalListener#cardRemoved()}
+	 */
 	@Override
 	public void run()
 	{
-		final TerminalFactory factory = TerminalFactory.getDefault();
+		final TerminalFactory terminalFactory = TerminalFactory.getDefault();
 		while(!this.thread.interrupted())
 		{
 			boolean lastPresent = this.isPresent;
 			try
 			{
-				final CardTerminals terminalList = factory.terminals();
-				CardTerminal terminal = null;
+				final CardTerminals terminalList = terminalFactory.terminals();
+				CardTerminal cardTerminal = null;
 				try
 				{
-					for(CardTerminal term : terminalList.list())
-						if(term.getName().contains(this.terminalName))
+					for(CardTerminal terminal : terminalList.list())
+						if(terminal.getName().contains(this.terminalName))
 						{
-							terminal = term;
+							cardTerminal = terminal;
 							this.isPresent = true;
 							break;
 						}
 				}
-				catch(CardException e1)
+				catch(CardException exception)
 				{}
-				if(terminal == null)
+				if(cardTerminal == null)
 					this.isPresent = false;
 				if(this.isPresent != lastPresent)
 				{
 					if(this.isPresent)
-						Utils.logger.log(Level.INFO, "Starting listening terminal " + terminal.getName());
+						Utils.logger.log(Level.INFO, "Starting listening terminal " + cardTerminal.getName());
 					else
 						Utils.logger.log(Level.INFO, "Stopped listening");
 					for(TerminalListener listener : this.listenersTerminal)
@@ -78,30 +99,41 @@ public class TerminalReader implements Runnable
 				if(!this.isPresent)
 					continue;
 				Utils.logger.log(Level.INFO, "Waiting for card...");
-				terminal.waitForCardPresent(0);
+				cardTerminal.waitForCardPresent(0);
 				Utils.logger.log(Level.INFO, "Card detected");
-				this.lastCard = getCardInfos(terminal.connect("*"));
+				this.lastCard = getCardInfos(cardTerminal.connect("*"));
 				for(TerminalListener listener : this.listenersTerminal)
 					listener.cardAdded(this.lastCard);
-				terminal.waitForCardAbsent(0);
+				cardTerminal.waitForCardAbsent(0);
 				this.lastCard = null;
 				Utils.logger.log(Level.INFO, "Card removed");
 				for(TerminalListener listener : this.listenersTerminal)
 					listener.cardRemoved();
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", e1);
+				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		}
 	}
 
+	/**
+	 * Used to stop the thread.
+	 */
 	public void stop()
 	{
 		if(this.thread != null)
 			this.thread.interrupt();
 	}
 
+	/**
+	 * Used to retrieve the card informations when a card is detected.
+	 *
+	 * @param card The card that have been placed.
+	 * @return The card informations.
+	 *
+	 * @throws CardException If the card can't be read.
+	 */
 	private RFIDCard getCardInfos(Card card) throws CardException
 	{
 		CardChannel cardChannel = card.getBasicChannel();

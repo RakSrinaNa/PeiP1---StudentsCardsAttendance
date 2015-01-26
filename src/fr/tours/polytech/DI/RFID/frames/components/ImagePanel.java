@@ -9,48 +9,67 @@ import javax.swing.JPanel;
 /**
  * A panel containing a buffered image.
  *
- * @author MrCraftCod
+ * @author COLEAU Victor, COUCHOUD Thomas
  */
 public class ImagePanel extends JPanel
 {
 	private static final long serialVersionUID = -6952599309580686281L;
 	private BufferedImage image;
-	private boolean printLoading;
 
+	/**
+	 * Constructor.
+	 * Will call {@link #ImagePanel(BufferedImage, Dimension, boolean)} with null, null.
+	 */
 	public ImagePanel()
 	{
-		this(null, null, false);
+		this(null, null);
 	}
 
-	public ImagePanel(boolean printLoading)
-	{
-		this(null, null, printLoading);
-	}
-
+	/**
+	 * Constructor.
+	 * Will call {@link #ImagePanel(BufferedImage, Dimension, boolean)} with image, null.
+	 *
+	 * @param image The image to display.
+	 */
 	public ImagePanel(BufferedImage image)
 	{
-		this(image, null, false);
+		this(image, null);
 	}
 
-	public ImagePanel(BufferedImage image, Dimension dim)
+	/**
+	 * Constructor.
+	 *
+	 * @param image The image to display.
+	 * @param dimension The dimension of the panel.
+	 */
+	public ImagePanel(BufferedImage image, Dimension dimension)
 	{
-		this(image, dim, false);
-	}
-
-	public ImagePanel(BufferedImage image, Dimension dim, boolean printLoading)
-	{
-		if(dim != null)
-			setPreferredSize(dim);
-		this.printLoading = printLoading;
+		if(dimension != null)
+			setPreferredSize(dimension);
 		setImage(image);
 	}
 
-	public static BufferedImage resizeBufferedImage(BufferedImage image, Dimension size)
+	/**
+	 * Used to resize a BufferedImage and keep the ratio.
+	 *
+	 * @param image The image to resize.
+	 * @param size The maximum sizes of the final image.
+	 * @return The new BufferedImage
+	 */
+	private static BufferedImage resizeBufferedImage(BufferedImage image, Dimension size)
 	{
 		return resizeBufferedImage(image, (float) size.getWidth(), (float) size.getHeight());
 	}
 
-	public static BufferedImage resizeBufferedImage(BufferedImage image, float width, float height)
+	/**
+	 * Used to resize a BufferedImage and keep the ratio.
+	 *
+	 * @param image The image to resize.
+	 * @param width The maximum final width.
+	 * @param height The maximum final height.
+	 * @return The new BufferedImage
+	 */
+	private static BufferedImage resizeBufferedImage(BufferedImage image, float width, float height)
 	{
 		if(image == null)
 			return image;
@@ -62,11 +81,11 @@ public class ImagePanel extends JPanel
 		return buffered;
 	}
 
-	public boolean isPrintLoading()
-	{
-		return this.printLoading;
-	}
-
+	/**
+	 * Used to set the displayed image.
+	 *
+	 * @param image the image to display.
+	 */
 	public void setImage(BufferedImage image)
 	{
 		this.image = resizeBufferedImage(image, getPreferredSize());
@@ -74,24 +93,17 @@ public class ImagePanel extends JPanel
 		invalidate();
 	}
 
-	public void setPrintLoading(boolean printLoading)
-	{
-		this.printLoading = printLoading;
-	}
-
+	/**
+	 * Used to paint the component.
+	 */
 	@Override
 	protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		if(this.image == null)
+		if(this.image != null)
 		{
-			if(!isPrintLoading())
-				return;
-			String string = "loading";
-			g.drawString(string, getWidth() / 2 - g.getFontMetrics().stringWidth(string) / 2, getHeight() / 2);
-			return;
+			int baseY = (getHeight() - this.image.getHeight()) / 2, baseX = (getWidth() - this.image.getWidth()) / 2;
+			g.drawImage(this.image, baseX, baseY, null);
 		}
-		int baseY = (getHeight() - this.image.getHeight()) / 2, baseX = (getWidth() - this.image.getWidth()) / 2;
-		g.drawImage(this.image, baseX, baseY, null);
 	}
 }

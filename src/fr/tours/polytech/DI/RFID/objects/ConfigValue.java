@@ -4,21 +4,37 @@ import java.util.ArrayList;
 import java.util.List;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+/**
+ * Class that represents a value in the configuration file.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class ConfigValue
 {
 	private String key;
 	private String value;
 
-	public ConfigValue(String line)
+	/**
+	 * Constructor.
+	 *
+	 * @param configLine A line in the config that should be formated as <b>[key]:[value]</b>.
+	 */
+	public ConfigValue(String configLine)
 	{
-		if(line == null || !line.contains(":"))
+		if(configLine == null || !configLine.contains(":"))
 			throw new IllegalArgumentException("The string must be formatted as <key>:<value>!");
-		this.key = line.substring(0, line.indexOf(":"));
-		this.value = line.substring(line.indexOf(":") + 1);
+		this.key = configLine.substring(0, configLine.indexOf(":"));
+		this.value = configLine.substring(configLine.indexOf(":") + 1);
 		if(this.value == null)
 			this.value = "";
 	}
 
+	/**
+	 * Constructor.
+	 *
+	 * @param key The key of this config.
+	 * @param value The value.
+	 */
 	public ConfigValue(String key, String value)
 	{
 		if(key == null || key.equals(""))
@@ -27,6 +43,14 @@ public class ConfigValue
 		this.value = value == null ? "" : value;
 	}
 
+	/**
+	 * Used to get all config values from an array of lines.
+	 *
+	 * @param lines The array of lines.
+	 * @return A list of config values.
+	 *
+	 * @see #ConfigValue(String)
+	 */
 	public static List<ConfigValue> getAllConfigs(List<String> lines)
 	{
 		List<ConfigValue> list = new ArrayList<ConfigValue>();
@@ -40,11 +64,33 @@ public class ConfigValue
 		return list;
 	}
 
+	/**
+	 * Used to add a double to the current value. (! It suppose that the value is a double !)
+	 *
+	 * @param toAdd The value to add.
+	 * @param defaultValue The default value if the variable is not set or isn't a double.
+	 */
+	public void addDouble(double toAdd, double defaultValue)
+	{
+		setValue(getDouble(defaultValue) + toAdd);
+	}
+
+	/**
+	 * Used to add an integer to the current value. (! It suppose that the value is an integer !)
+	 *
+	 * @param toAdd The value to add.
+	 * @param defaultValue The default value if the variable is not set or isn't an integer.
+	 */
 	public void addInt(int toAdd, int defaultValue)
 	{
 		setValue(getInt(defaultValue) + toAdd);
 	}
 
+	/**
+	 * Used to add the object in the array of the values. (! It suppose that the value is an array !)
+	 *
+	 * @param value the object to add (will use {@link Object#toString()} to save it).
+	 */
 	public void addValue(Object value)
 	{
 		if(containsValue(value))
@@ -54,6 +100,12 @@ public class ConfigValue
 		setListValue(list);
 	}
 
+	/**
+	 * Used to know if the array of values is containing this object.
+	 *
+	 * @param value The object to test.
+	 * @return true if in the array, false if not.
+	 */
 	public boolean containsValue(Object value)
 	{
 		if(value == null)
@@ -64,6 +116,12 @@ public class ConfigValue
 		return false;
 	}
 
+	/**
+	 * Used to get the value as a boolean.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public boolean getBoolean(boolean defaultValue)
 	{
 		try
@@ -72,11 +130,17 @@ public class ConfigValue
 		}
 		catch(Exception e)
 		{
-			this.setValue(defaultValue);
+			setValue(defaultValue);
 		}
 		return defaultValue;
 	}
 
+	/**
+	 * Used to get the value as a double.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public double getDouble(double defaultValue)
 	{
 		try
@@ -85,11 +149,17 @@ public class ConfigValue
 		}
 		catch(Exception e)
 		{
-			this.setValue(defaultValue);
+			setValue(defaultValue);
 		}
 		return defaultValue;
 	}
 
+	/**
+	 * Used to get the value as an integer.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public int getInt(int defaultValue)
 	{
 		try
@@ -98,16 +168,27 @@ public class ConfigValue
 		}
 		catch(Exception e)
 		{
-			this.setValue(defaultValue);
+			setValue(defaultValue);
 		}
 		return defaultValue;
 	}
 
+	/**
+	 * Used to get the key of the value.
+	 *
+	 * @return The key.
+	 */
 	public String getKey()
 	{
 		return this.key;
 	}
 
+	/**
+	 * Used to get the value as a long.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public long getLong(long defaultValue)
 	{
 		try
@@ -116,16 +197,28 @@ public class ConfigValue
 		}
 		catch(Exception e)
 		{
-			this.setValue(defaultValue);
+			setValue(defaultValue);
 		}
 		return defaultValue;
 	}
 
+	/**
+	 * Used to get the value as a string.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public String getString(String defaultValue)
 	{
 		return getValue().equals("") ? defaultValue : getValue();
 	}
 
+	/**
+	 * Used to get the value as a string array.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public String[] getStringArray()
 	{
 		ArrayList<String> list = getStringList();
@@ -134,6 +227,12 @@ public class ConfigValue
 		return list.toArray(new String[list.size()]);
 	}
 
+	/**
+	 * Used to get the value as a string list.
+	 *
+	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @return The value parsed.
+	 */
 	public ArrayList<String> getStringList()
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -144,11 +243,22 @@ public class ConfigValue
 		return list;
 	}
 
+	/**
+	 * Used to know if this config value have this key.
+	 * 
+	 * @param key the key to test.
+	 * @return true if it's this key, false if not.
+	 */
 	public boolean isKey(String key)
 	{
 		return this.key.equals(key);
 	}
 
+	/**
+	 * Used to remove values from the value.
+	 *
+	 * @param values The values to remove.
+	 */
 	public void removeValue(List<String> values)
 	{
 		if(values.size() < 1)
@@ -159,6 +269,11 @@ public class ConfigValue
 		setListValue(list);
 	}
 
+	/**
+	 * Used to remove an object from the value.
+	 *
+	 * @param value The object to remove (will use {@link Object#toString()} to save it).
+	 */
 	public void removeValue(Object value)
 	{
 		ArrayList<String> list = getStringList();
@@ -166,6 +281,11 @@ public class ConfigValue
 		setListValue(list);
 	}
 
+	/**
+	 * Used to set the value as an array of objects.
+	 *
+	 * @param array the array to set.
+	 */
 	public void setArrayValue(Object[] array)
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -174,44 +294,64 @@ public class ConfigValue
 		setListValue(list);
 	}
 
+	/**
+	 * Used to set the object as the value only if the value isn't currently defined.
+	 *
+	 * @param value The value to set.
+	 */
 	public void setIfEmpty(Object value)
 	{
 		if(getValue().equals(""))
 			setValue(value);
 	}
 
-	public ConfigValue setValue(boolean sendUpdate, Object value)
+	/**
+	 * Used to set the value of this config.
+	 *
+	 * @param value The value to set.
+	 * @return The ConfigValue modified.
+	 */
+	public ConfigValue setValue(Object value)
 	{
 		this.value = value.toString().replace("\n", ",");
 		return this;
 	}
 
-	public ConfigValue setValue(Object value)
-	{
-		return setValue(true, value);
-	}
-
+	/**
+	 * Used to get a representation of this object. Will return the same format at what should be parsed in {@link #ConfigValue(String)}.
+	 */
 	@Override
 	public String toString()
 	{
 		return this.key + ":" + this.value;
 	}
 
-	public void updateDouble(double base, double d)
+	/**
+	 * Used to add a long to the current value. (! It suppose that the value is a long !)
+	 *
+	 * @param toAdd The value to add.
+	 * @param defaultValue The default value if the variable is not set or isn't a long.
+	 */
+	public void updateLong(long toAdd, long defaultValue)
 	{
-		setValue(getDouble(base) + d);
+		setValue(getLong(defaultValue) + toAdd);
 	}
 
-	public void updateLong(long base, long l)
-	{
-		setValue(getLong(base) + l);
-	}
-
+	/**
+	 * Used to get the raw value of the config.
+	 *
+	 * @return The value.
+	 */
 	private String getValue()
 	{
 		return this.value;
 	}
 
+	/**
+	 * Used to set a list as value.
+	 *
+	 * @param list The list to set.
+	 */
 	private void setListValue(ArrayList<String> list)
 	{
 		String finalValue = "";

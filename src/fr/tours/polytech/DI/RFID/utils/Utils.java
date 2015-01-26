@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -26,7 +25,6 @@ import fr.tours.polytech.DI.RFID.threads.TerminalReader;
  */
 public class Utils
 {
-	private static FileHandler logFileHandler;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
 	public static Logger logger;
@@ -79,7 +77,6 @@ public class Utils
 		mainFrame.exit();
 		terminalReader.stop();
 		config.close();
-		logFileHandler.close();
 		System.exit(exitStaus);
 	}
 
@@ -94,10 +91,6 @@ public class Utils
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("RFID");
-		logFileHandler = new FileHandler(new File(".", "log.log").getAbsolutePath(), true);
-		logFileHandler.setFormatter(new LogFormatter());
-		logFileHandler.setEncoding("UTF-8");
-		logger.addHandler(logFileHandler);
 		config = new Configuration();
 		terminalReader = new TerminalReader("Contactless");
 		sql = new SQLManager("db4free.net", 3306, "rfid", "rfid", "polytechDI26");

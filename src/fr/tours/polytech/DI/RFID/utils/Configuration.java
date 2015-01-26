@@ -3,6 +3,7 @@ package fr.tours.polytech.DI.RFID.utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +15,11 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import fr.tours.polytech.DI.RFID.objects.ConfigValue;
 
+/**
+ * Configuration class, used to store parameters in a text file.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class Configuration
 {
 	public static final String PERIODS = "periods";
@@ -23,12 +29,22 @@ public class Configuration
 	private Timer timer;
 	private Object syncing;
 
+	/**
+	 * Constructor, will use {@link #Configuration(boolean)} with a true parameter.
+	 *
+	 * @see fr.tours.polytech.DI.RFID.utils.Configuration#Configuration(boolean)
+	 */
 	public Configuration()
 	{
 		this(true);
 	}
 
-	public Configuration(boolean b)
+	/**
+	 * Constructor, will create a Configuration Object. The file loaded is in the save folder as the JAR file and named with the valeu of {@link #normalConfigName}.It will be able to read and write configuration values.
+	 *
+	 * @param start Either to start the auto save thread or not after loading the text file.
+	 */
+	public Configuration(boolean start)
 	{
 		this.configFile = new File("." + File.separator + this.normalConfigName);
 		try
@@ -40,29 +56,35 @@ public class Configuration
 			}
 			this.configValues = readConfigTextFile(this.configFile);
 		}
-		catch(IOException e)
+		catch(IOException exception)
 		{
-			Utils.logger.log(Level.SEVERE, "Failed to read configuration file", e);
+			Utils.logger.log(Level.SEVERE, "Failed to read configuration file", exception);
 		}
 		this.syncing = false;
-		setStatus(b);
+		setAutoSaveStatus(start);
 		Utils.logger.log(Level.FINE, "Configuration initialized with config file " + this.configFile.getAbsolutePath());
 	}
 
-	public void addVar(String key, Object value)
-	{
-		getConfigValue(key).addValue(value);
-	}
-
+	/**
+	 * Should be called when the object will not be used anymore. Save the config.
+	 */
 	public void close()
 	{
+		setAutoSaveStatus(false);
 		writeVars();
 	}
 
-	public synchronized boolean deleteVar(ConfigValue cv)
+	/**
+	 * Used to delete a key from the config.
+	 *
+	 * @param configurationValue The {@link ConfigurationValue} to remove.
+	 *
+	 * @return true if the configuration have been modified, false if not.
+	 */
+	public synchronized boolean deleteVar(ConfigValue configurationValue)
 	{
-		Utils.logger.log(Level.WARNING, "Deletting config file with key " + cv.getKey());
-		this.configValues.remove(cv);
+		Utils.logger.log(Level.WARNING, "Deletting config file with key " + configurationValue.getKey());
+		this.configValues.remove(configurationValue);
 		FileWriter fileWriter;
 		try
 		{
@@ -81,52 +103,74 @@ public class Configuration
 		return true;
 	}
 
+	/**
+	 * Used to delete a key in the config by his name.
+	 *
+	 * @param key The key to remove.
+	 *
+	 * @return true if the configuration have been modified, false if not.
+	 *
+	 * @see deleteVar(ConfigurationValue)
+	 */
 	public synchronized boolean deleteVar(String key)
 	{
 		return deleteVar(getConfigValue(key));
 	}
 
-	public List<ConfigValue> getConfigsBeginingWith(String key)
-	{
-		List<ConfigValue> configValues = new ArrayList<ConfigValue>();
-		Utils.logger.log(Level.FINER, "Getting keys begining with " + key);
-		for(ConfigValue cv : this.configValues)
-			if(cv.getKey().startsWith(key))
-				configValues.add(cv);
-		Utils.logger.log(Level.FINER, "Found " + configValues + " begining with " + key);
-		return configValues;
-	}
-
+	/**
+	 * Used to get the {@link ConfigurationValue} associated with the key.
+	 *
+	 * @param key The key of the config value.
+	 *
+	 * @return The {@link ConfigurationValue} object corresponding to the key. If none is found, a new one with a blank value is returned.
+	 */
 	public ConfigValue getConfigValue(String key)
 	{
-		long s = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		synchronized(this.syncing)
 		{}
-		if((s = System.currentTimeMillis() - s) > 0)
-			Utils.logger.log(Level.INFO, "Waited " + s + " millis that the sync finishes");
-		for(ConfigValue cv : this.configValues)
-			if(cv.isKey(key))
-				return cv;
+		if((time = System.currentTimeMillis() - time) > 0)
+			Utils.logger.log(Level.INFO, "Waited " + time + " millis that the sync finishes");
+		for(ConfigValue configurationValue : this.configValues)
+			if(configurationValue.isKey(key))
+				return configurationValue;
 		ConfigValue cv = new ConfigValue(key, "");
 		this.configValues.add(cv);
 		return cv;
 	}
 
+	/**
+	 * Used to remove values in a config value (useful if the value is an array).
+	 *
+	 * @param key The key where to remove the values.
+	 * @param values The values to remove if they exists.
+	 */
 	public void removeInKey(String key, List<String> values)
 	{
 		Utils.logger.log(Level.INFO, "Removing values(" + values.size() + ") " + values.toString() + " from key " + key);
 		getConfigValue(key).removeValue(values);
 	}
 
+	/**
+	 * Used to remove a value in a config value (useful if the value is an array).
+	 *
+	 * @param key The key where to remove the value.
+	 * @param values The value to remove if it exists.
+	 */
 	public void removeInKey(String key, String value)
 	{
 		Utils.logger.log(Level.INFO, "Removing value " + value + " from key " + key);
 		getConfigValue(key).removeValue(value);
 	}
 
-	public void setStatus(boolean b)
+	/**
+	 * Set the status of the auto saving.
+	 *
+	 * @param status If true it will save the config every two minutes, if false will not save automatically.
+	 */
+	public void setAutoSaveStatus(boolean status)
 	{
-		if(!b)
+		if(!status)
 			stop();
 		else
 		{
@@ -143,23 +187,11 @@ public class Configuration
 		}
 	}
 
-	public void stop()
-	{
-		Utils.logger.log(Level.FINE, "Stopping config Thread");
-		if(this.timer != null)
-			this.timer.cancel();
-	}
-
-	public void sync()
-	{
-		synchronized(Configuration.this.syncing)
-		{
-			Utils.logger.log(Level.INFO, "Starting settings sync...");
-			writeVars();
-			Utils.logger.log(Level.INFO, "Settings sync finished");
-		}
-	}
-
+	/**
+	 * Used to write the ConfigurationValue list to the text file.
+	 *
+	 * @return true if the process have ended correctly, false if not.
+	 */
 	public synchronized boolean writeVars()
 	{
 		Utils.logger.log(Level.INFO, "Writting config file");
@@ -174,26 +206,36 @@ public class Configuration
 			return false;
 		}
 		final PrintWriter printWriter = new PrintWriter(new BufferedWriter(fileWriter));
-		for(ConfigValue cv : this.configValues)
-			printWriter.println(cv.toString());
+		for(ConfigValue configurationValue : this.configValues)
+			printWriter.println(configurationValue.toString());
 		Utils.logger.log(Level.FINER, "Writting config file done!");
 		printWriter.close();
 		try
 		{
 			fileWriter.close();
 		}
-		catch(IOException e1)
+		catch(IOException exception)
 		{}
 		try
 		{
 			this.configValues = readConfigTextFile(this.configFile);
 		}
-		catch(IOException e)
+		catch(IOException exception)
 		{}
 		return true;
 	}
 
-	private List<ConfigValue> readConfigTextFile(final File config) throws IOException
+	/**
+	 * Used to read the configuration text file.
+	 *
+	 * @param config The File representing the text file.
+	 * @return A list of {@link ConfigurationValue}.
+	 *
+	 * @throws FileNotFoundException If the file can't be read.
+	 *
+	 * @see FileReader#FileReader(File)
+	 */
+	private List<ConfigValue> readConfigTextFile(final File config) throws FileNotFoundException
 	{
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(config));
 		List<String> fileLines = null;
@@ -211,10 +253,35 @@ public class Configuration
 		{
 			Utils.logger.log(Level.SEVERE, "Failed to read configuration file", exception);
 		}
-		finally
+		try
 		{
 			bufferedReader.close();
 		}
+		catch(IOException e)
+		{}
 		return ConfigValue.getAllConfigs(fileLines);
+	}
+
+	/**
+	 * Used to stop the auto saving thread.
+	 */
+	private void stop()
+	{
+		Utils.logger.log(Level.FINE, "Stopping config Thread");
+		if(this.timer != null)
+			this.timer.cancel();
+	}
+
+	/**
+	 * Function used by the auto save thread to save the config file. It will block the config from any modifications while saving.
+	 */
+	private void sync()
+	{
+		synchronized(Configuration.this.syncing)
+		{
+			Utils.logger.log(Level.INFO, "Starting settings sync...");
+			writeVars();
+			Utils.logger.log(Level.INFO, "Settings sync finished");
+		}
 	}
 }

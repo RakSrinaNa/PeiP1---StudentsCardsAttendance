@@ -93,15 +93,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		addWindowListener(new WindowListener()
 		{
 			@Override
-			public void windowActivated(WindowEvent arg0)
+			public void windowActivated(WindowEvent event)
 			{}
 
 			@Override
-			public void windowClosed(WindowEvent arg0)
+			public void windowClosed(WindowEvent event)
 			{}
 
 			@Override
-			public void windowClosing(WindowEvent arg0)
+			public void windowClosing(WindowEvent event)
 			{
 				if(MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
 					Utils.exit(0);
@@ -110,19 +110,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 
 			@Override
-			public void windowDeactivated(WindowEvent arg0)
+			public void windowDeactivated(WindowEvent event)
 			{}
 
 			@Override
-			public void windowDeiconified(WindowEvent arg0)
+			public void windowDeiconified(WindowEvent event)
 			{}
 
 			@Override
-			public void windowIconified(WindowEvent arg0)
+			public void windowIconified(WindowEvent event)
 			{}
 
 			@Override
-			public void windowOpened(WindowEvent arg0)
+			public void windowOpened(WindowEvent event)
 			{}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -133,24 +133,24 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.menuItemExit = new JMenuItem("Exit");
 		this.menuItemHelp = new JMenuItem("Help");
 		this.menuItemAbout = new JMenuItem("About");
-		this.menuItemReloadStudents.addActionListener(e -> {
+		this.menuItemReloadStudents.addActionListener(event -> {
 			this.students = CSV.getStudents(this.studentsFile);
 			updateList();
 		});
-		this.menuItemExit.addActionListener(e -> {
+		this.menuItemExit.addActionListener(event -> {
 			Utils.exit(0);
 		});
-		this.menuItemHelp.addActionListener(e -> {
+		this.menuItemHelp.addActionListener(event -> {
 			try
 			{
 				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "Error when opening wiki page", e1);
+				Utils.logger.log(Level.WARNING, "Error when opening wiki page", exception);
 			}
 		});
-		this.menuItemAbout.addActionListener(e -> {
+		this.menuItemAbout.addActionListener(event -> {
 			new AboutFrame(MainFrame.this);
 		});
 		this.menuFile.add(this.menuItemReloadStudents);
@@ -185,67 +185,67 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.tableChecked.addMouseListener(new MouseListener()
 		{
 			@Override
-			public void mouseClicked(MouseEvent e)
+			public void mouseClicked(MouseEvent event)
 			{}
 
 			@Override
-			public void mouseEntered(MouseEvent e)
+			public void mouseEntered(MouseEvent event)
 			{}
 
 			@Override
-			public void mouseExited(MouseEvent e)
+			public void mouseExited(MouseEvent event)
 			{}
 
 			@Override
-			public void mousePressed(MouseEvent e)
+			public void mousePressed(MouseEvent event)
 			{}
 
 			@Override
-			public void mouseReleased(MouseEvent e)
+			public void mouseReleased(MouseEvent event)
 			{
 				if(MainFrame.this.currentStudent == null || !MainFrame.this.currentStudent.isStaff())
 					return;
-				int row = MainFrame.this.tableChecked.rowAtPoint(e.getPoint());
+				int row = MainFrame.this.tableChecked.rowAtPoint(event.getPoint());
 				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
 					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
 				else
 					MainFrame.this.tableChecked.clearSelection();
 				int rowindex = MainFrame.this.tableChecked.getSelectedRow();
-				if(e.isPopupTrigger() && e.getComponent() instanceof JTable)
+				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
 					Student student = getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString(), false);
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deleteStudent = new JMenuItem("Delete student");
-					deleteStudent.addActionListener(event -> {
+					deleteStudent.addActionListener(event1 -> {
 						try
 						{
 							removeStudent(student);
 						}
-						catch(Exception e1)
+						catch(Exception exception)
 						{
-							Utils.logger.log(Level.WARNING, "", e1);
+							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
 					JMenuItem checkStudent = new JMenuItem("Check student");
-					checkStudent.addActionListener(event -> {
+					checkStudent.addActionListener(event1 -> {
 						try
 						{
 							checkStudent(student, true);
 						}
-						catch(Exception e1)
+						catch(Exception exception)
 						{
-							Utils.logger.log(Level.WARNING, "", e1);
+							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
 					JMenuItem uncheckStudent = new JMenuItem("Uncheck student");
-					uncheckStudent.addActionListener(event -> {
+					uncheckStudent.addActionListener(event1 -> {
 						try
 						{
 							uncheckStudent(student);
 						}
-						catch(Exception e1)
+						catch(Exception exception)
 						{
-							Utils.logger.log(Level.WARNING, "", e1);
+							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
 					if(!hasChecked(student))
@@ -253,7 +253,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					else
 						popup.add(uncheckStudent);
 					popup.add(deleteStudent);
-					popup.show(e.getComponent(), e.getX(), e.getY());
+					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
 			}
 		});
@@ -299,15 +299,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		studentManuallyAddArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		studentManuallyAddArea.setPreferredSize(new Dimension(100, 25));
 		JButton addManuallyButton = new JButton("Add manually");
-		addManuallyButton.addActionListener(e -> {
+		addManuallyButton.addActionListener(event -> {
 			try
 			{
 				MainFrame.this.addStudentManually(studentManuallyAddArea.getText());
 				studentManuallyAddArea.setText("");
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", e1);
+				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
 		JTextArea studentManuallyCheckArea = new JTextArea();
@@ -315,15 +315,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		studentManuallyCheckArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		studentManuallyCheckArea.setPreferredSize(new Dimension(100, 25));
 		JButton checkManuallyButton = new JButton("Check manually");
-		checkManuallyButton.addActionListener(e -> {
+		checkManuallyButton.addActionListener(event -> {
 			try
 			{
 				MainFrame.this.checkStudentManually(studentManuallyCheckArea.getText());
 				studentManuallyCheckArea.setText("");
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", e1);
+				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
 		JTextArea addPeriodArea = new JTextArea();
@@ -331,7 +331,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		addPeriodArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		addPeriodArea.setPreferredSize(new Dimension(100, 25));
 		JButton addPeriodButton = new JButton("Add period");
-		addPeriodButton.addActionListener(e -> {
+		addPeriodButton.addActionListener(event -> {
 			try
 			{
 				try
@@ -346,16 +346,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					else
 						JOptionPane.showMessageDialog(MainFrame.this, "This period is overlapping an other one!", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
 				}
-				catch(Exception e1)
+				catch(Exception exception1)
 				{
 					JOptionPane.showMessageDialog(MainFrame.this, "This period isn't valid: xxHxx-yyHyy", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
-					Utils.logger.log(Level.WARNING, "Can't parse perriod", e1);
+					Utils.logger.log(Level.WARNING, "Can't parse perriod", exception1);
 				}
 				addPeriodArea.setText("");
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", e1);
+				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
 		this.removePeriodArea = new JComboBox<Period>();
@@ -363,7 +363,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			this.removePeriodArea.addItem(period);
 		this.removePeriodArea.setPreferredSize(new Dimension(100, 25));
 		JButton removePeriodButton = new JButton("Remove period");
-		removePeriodButton.addActionListener(e -> {
+		removePeriodButton.addActionListener(event -> {
 			try
 			{
 				Period period = (Period) this.removePeriodArea.getSelectedItem();
@@ -371,9 +371,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Utils.config.getConfigValue(Configuration.PERIODS).removeValue(period);
 				this.removePeriodArea.removeItem(period);
 			}
-			catch(Exception e1)
+			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", e1);
+				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
 		panelAddManually.add(studentManuallyAddArea, BorderLayout.NORTH);
@@ -611,7 +611,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			{
 				Thread.sleep(500);
 			}
-			catch(InterruptedException e)
+			catch(InterruptedException exception)
 			{}
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
@@ -705,9 +705,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			else if(!printMessages)
 				this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
 		}
-		catch(IOException e)
+		catch(IOException exception)
 		{
-			Utils.logger.log(Level.SEVERE, "Error writing student check!", e);
+			Utils.logger.log(Level.SEVERE, "Error writing student check!", exception);
 		}
 	}
 

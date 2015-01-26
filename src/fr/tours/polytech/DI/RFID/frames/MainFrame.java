@@ -93,7 +93,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void windowClosing(WindowEvent arg0)
 			{
-				if(MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isTeatcher())
+				if(MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
 					Utils.exit(0);
 				else
 					JOptionPane.showMessageDialog(MainFrame.this, "A card of a staff member need to be in the reader to exit the app", "NOT AUTHORIZED", JOptionPane.ERROR_MESSAGE);
@@ -193,7 +193,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				if(MainFrame.this.currentStudent == null || !MainFrame.this.currentStudent.isTeatcher())
+				if(MainFrame.this.currentStudent == null || !MainFrame.this.currentStudent.isStaff())
 					return;
 				int row = MainFrame.this.tableChecked.rowAtPoint(e.getPoint());
 				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
@@ -456,9 +456,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 		Utils.logger.log(Level.INFO, "Card infos: " + (student == null ? "" : student) + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
-		this.cardTextLabel.setText("Card detected : " + student.getName() + " " + (student.isTeatcher() ? "(Staff)" : "(Student)"));
+		this.cardTextLabel.setText("Card detected : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
 		checkStudent(student, false);
-		setStaffInfos(student.isTeatcher());
+		setStaffInfos(student.isStaff());
 	}
 
 	@Override
@@ -562,7 +562,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		if(student == null)
 			return;
-		if(!student.isTeatcher())
+		if(!student.isStaff())
 			if(this.checkedStudents.contains(student))
 			{
 				this.checkedStudents.remove(student);

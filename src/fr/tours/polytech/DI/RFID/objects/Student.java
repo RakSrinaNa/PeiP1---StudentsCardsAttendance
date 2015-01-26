@@ -1,49 +1,91 @@
 package fr.tours.polytech.DI.RFID.objects;
 
+import fr.tours.polytech.DI.RFID.utils.SQLManager;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+/**
+ * Class representing a student (or anyone else, maybe we should call it User?).
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class Student
 {
 	private String name;
 	private String uid;
-	private boolean isTeatcher;
+	private boolean isStaff;
 
-	public Student(String uid, String name, boolean isTeatcher)
+	/**
+	 * Constructor.
+	 *
+	 * @param uid The UID of the student card.
+	 * @param name The student's name.
+	 * @param isStaff Either if it's a staff member or not.
+	 */
+	public Student(String uid, String name, boolean isStaff)
 	{
 		this.uid = uid;
 		this.name = name;
-		this.isTeatcher = isTeatcher;
+		this.isStaff = isStaff;
 	}
 
-	public static Student fetch(String name)
+	/**
+	 * Used to get a Student by his name from the database.
+	 *
+	 * @param name The name to fetch.
+	 * @return A Student object.
+	 *
+	 * @see SQLManager#getStudentByName(String)
+	 */
+	public static Student fetchSQL(String name)
 	{
 		return Utils.sql.getStudentByName(name);
 	}
 
+	/**
+	 * Used to get the name of the student.
+	 *
+	 * @return The student's name.
+	 */
 	public String getName()
 	{
 		return this.name;
 	}
 
+	/**
+	 * Used to get the student's card UID.
+	 *
+	 * @return The UID.
+	 */
 	public String getUid()
 	{
 		return this.uid;
 	}
 
+	/**
+	 * Used to compare two objects are the same.
+	 */
 	@Override
 	public int hashCode()
 	{
 		return this.uid.hashCode();
 	}
 
-	public boolean isTeatcher()
+	/**
+	 * Used to know if the student is a staff member.
+	 *
+	 * @return true if from the staff, false if not.
+	 */
+	public boolean isStaff()
 	{
-		return this.isTeatcher;
+		return this.isStaff;
 	}
 
+	/**
+	 * Used to get a String representing the object. Formatted as <b><i>name</i></b> if not from the staff, <b><i>name</i> (Staff)</b> if from the staff.
+	 */
 	@Override
 	public String toString()
 	{
-		return this.name + (this.isTeatcher ? " (Staff)" : "");
+		return this.name + (this.isStaff ? " (Staff)" : "");
 	}
 }

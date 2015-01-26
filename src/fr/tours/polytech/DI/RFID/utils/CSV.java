@@ -33,7 +33,7 @@ public class CSV
 			while((line = bufferedReader.readLine()) != null)
 			{
 				String[] studentLine = line.split(";|,");
-				Student student = Student.fetch(studentLine[0]);
+				Student student = Student.fetchSQL(studentLine[0]);
 				if(student != null)
 					students.add(student);
 			}

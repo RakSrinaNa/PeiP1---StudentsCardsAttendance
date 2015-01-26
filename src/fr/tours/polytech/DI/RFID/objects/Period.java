@@ -83,6 +83,10 @@ public class Period
 
 	public boolean isOverlapped(Period period) // TODO
 	{
+		if(period == null)
+			return false;
+		if(period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()))
+			return true;
 		return false;
 	}
 
@@ -90,5 +94,23 @@ public class Period
 	public String toString()
 	{
 		return getTimeInterval().replaceAll(" ", "");
+	}
+
+	private Date getEndingDate()
+	{
+		Calendar calen = Calendar.getInstance();
+		calen.setTime(new Date());
+		calen.set(Calendar.HOUR, this.endingHour);
+		calen.set(Calendar.MINUTE, this.endingMinute);
+		return calen.getTime();
+	}
+
+	private Date getStartingDate()
+	{
+		Calendar calen = Calendar.getInstance();
+		calen.setTime(new Date());
+		calen.set(Calendar.HOUR, this.startingHour);
+		calen.set(Calendar.MINUTE, this.startingMinute);
+		return calen.getTime();
 	}
 }

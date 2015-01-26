@@ -48,6 +48,11 @@ import fr.tours.polytech.DI.RFID.utils.CSV;
 import fr.tours.polytech.DI.RFID.utils.Configuration;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+/**
+ * Class of the main frame.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
 	private static final long serialVersionUID = -4989573496325827301L;
@@ -70,6 +75,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private Period lastPeriod;
 	private JComboBox<Period> removePeriodArea;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param data The File that represents the Students.csv file.
+	 */
 	public MainFrame(File data)
 	{
 		super("Student presence management");
@@ -430,6 +440,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.thread.start();
 	}
 
+	/**
+	 * used to add a student to the list.
+	 *
+	 * @param student The student to add.
+	 *
+	 * @throws IOException If the Student.CSV file couldn't be modified.
+	 */
 	public void addStudent(Student student) throws IOException
 	{
 		if(student == null || getStudentByUID(student.getUid(), false) != null || getStudentByName(student.getName(), false) != null)
@@ -439,11 +456,25 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		updateList();
 	}
 
+	/**
+	 * Used to add a student by his name.
+	 *
+	 * @param name The name of the student.
+	 *
+	 * @throws IOException If the Student.CSV file couldn't be modified.
+	 *
+	 * @see #addStudent(Student)
+	 */
 	public void addStudentManually(String name) throws IOException
 	{
 		addStudent(getStudentByName(name, true));
 	}
 
+	/**
+	 * Called by the {@link TerminalListener} interface when a card id added.
+	 *
+	 * Check the student if needed and open the staff panel if it should be opened.
+	 */
 	@Override
 	public void cardAdded(RFIDCard rfidCard)
 	{
@@ -461,6 +492,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		setStaffInfos(student.isStaff());
 	}
 
+	/**
+	 * Called by the {@link TerminalListener} interface when a reader is added or removed.
+	 *
+	 * Set the panel text.
+	 */
 	@Override
 	public void cardReader(boolean isPresent)
 	{
@@ -473,6 +509,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 	}
 
+	/**
+	 * Called by the {@link TerminalListener} interface when a card id removed.
+	 *
+	 * Set the panel text and eventually close the staff panel.
+	 */
 	@Override
 	public void cardRemoved()
 	{
@@ -482,11 +523,21 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.cardTextLabel.setText("No card detected");
 	}
 
+	/**
+	 * Used to check a student manually.
+	 *
+	 * @param name The student name.
+	 *
+	 * @see #checkStudent(Student, boolean)
+	 */
 	public void checkStudentManually(String name)
 	{
 		checkStudent(getStudentByName(name, true), true);
 	}
 
+	/**
+	 * Used to exit the frame and stop the thread.
+	 */
 	public void exit()
 	{
 		if(this.thread != null)
@@ -494,16 +545,36 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		dispose();
 	}
 
+	/**
+	 * Used to know if a student have checked.
+	 *
+	 * @param name the name of the student.
+	 * @return true if he has checked, false if not.
+	 *
+	 * @see #hasChecked(Student)
+	 */
 	public boolean hasChecked(String name)
 	{
 		return hasChecked(getStudentByName(name, true));
 	}
 
+	/**
+	 * Used to know if a student have checked.
+	 *
+	 * @param student The student.
+	 * @return true if he has checked, false if not.
+	 */
 	public boolean hasChecked(Student student)
 	{
 		return this.checkedStudents.contains(student);
 	}
 
+	/**
+	 * Used to remove a student.
+	 *
+	 * @param student The student to remove.
+	 * @throws IOException If the Student.CSV file couldn't be modified.
+	 */
 	public void removeStudent(Student student) throws IOException
 	{
 		this.students.remove(student);
@@ -511,11 +582,24 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		updateList();
 	}
 
+	/**
+	 * Used to remove a student by his name.
+	 *
+	 * @param student The student name.
+	 * @throws IOException If the Student.CSV file couldn't be modified.
+	 *
+	 * @see #removeStudent(Student)
+	 */
 	public void removeStudentManually(String name) throws IOException
 	{
 		removeStudent(getStudentByName(name, true));
 	}
 
+	/**
+	 * Thread.
+	 *
+	 * Will update clock, and activate/deactivate periods.
+	 */
 	@Override
 	public void run()
 	{
@@ -553,11 +637,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 	}
 
-	public void uncheckStudent(String name, boolean b)
+	/**
+	 * Used to uncheck a student.
+	 *
+	 * @param name The name of the student.
+	 *
+	 * @see #checkStudent(Student, boolean)
+	 */
+	public void uncheckStudent(String name)
 	{
 		checkStudent(getStudentByName(name, true), true);
 	}
 
+	/**
+	 * Used to uncheck a student.
+	 *
+	 * @param name The student.
+	 */
 	public void uncheckStudent(Student student)
 	{
 		if(student == null)
@@ -570,6 +666,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 	}
 
+	/**
+	 * Used to update the table.
+	 */
 	public synchronized void updateList()
 	{
 		this.modelChecked.setRowCount(0);
@@ -578,7 +677,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.modelChecked.fireTableDataChanged();
 	}
 
-	private void checkStudent(Student student, boolean manually)
+	/**
+	 * Used to check a student manually.
+	 *
+	 * @param student The student to check.
+	 * @param printMessages Should print messages in the bottom?
+	 */
+	private void checkStudent(Student student, boolean printMessages)
 	{
 		if(student == null)
 			return;
@@ -586,18 +691,18 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			if(!isTimeValid())
 			{
-				if(!manually)
+				if(!printMessages)
 					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Not in a period to validate</p></html>");
 			}
 			else if(!this.checkedStudents.contains(student))
 			{
 				Utils.logCheck(student);
-				if(!manually)
+				if(!printMessages)
 					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
 				this.checkedStudents.add(student);
 				updateList();
 			}
-			else if(!manually)
+			else if(!printMessages)
 				this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
 		}
 		catch(IOException e)
@@ -606,6 +711,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		}
 	}
 
+	/**
+	 * Used to get the current period.
+	 *
+	 * @return The current period, null if no period.
+	 */
 	private Period getCurrentPeriod()
 	{
 		Date date = new Date();
@@ -615,6 +725,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return null;
 	}
 
+	/**
+	 * Used to get a student by his name.
+	 *
+	 * @param name The name of the student.
+	 * @param checkDB Should check him in the database if we don't know him?
+	 * @return The student or null if unknown.
+	 */
 	private Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : this.students)
@@ -623,6 +740,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return checkDB ? Utils.sql.getStudentByName(name) : null;
 	}
 
+	/**
+	 * Used to get a student by his UID.
+	 *
+	 * @param uid The student's card UID.
+	 * @param checkDB Should check him in the database if we don't know him?
+	 * @return The student or null if unknown.
+	 */
 	private Student getStudentByUID(String uid, boolean checkDB)
 	{
 		for(Student student : this.students)
@@ -631,6 +755,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return checkDB ? Utils.sql.getStudentByUID(uid.replaceAll("-", "")) : null;
 	}
 
+	/**
+	 * Used to parse the students to an Object[][] for the table.
+	 *
+	 * @param students the students to parse.
+	 * @return The parsed students.
+	 */
 	private Student[][] getTableList(ArrayList<Student> students)
 	{
 		Student[][] student = new Student[this.students.size()][1];
@@ -640,6 +770,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return student;
 	}
 
+	/**
+	 * Used to know if we have changed period since the last check.
+	 *
+	 * @return true if it's a new period, false if not.
+	 */
 	private boolean isNewPeriod()
 	{
 		boolean result = getCurrentPeriod() == this.lastPeriod;
@@ -648,11 +783,22 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return result;
 	}
 
+	/**
+	 * Used to know if we are in a valid period.
+	 *
+	 * @return true id a period is currently running, false if not.
+	 */
 	private boolean isTimeValid()
 	{
 		return getCurrentPeriod() != null;
 	}
 
+	/**
+	 * Used to know if a period overlap any others.
+	 *
+	 * @param period The period to verify.
+	 * @return true if overlapping, false if not.
+	 */
 	private boolean periodOverlap(Period period)
 	{
 		for(Period per : this.periods)
@@ -661,11 +807,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return false;
 	}
 
-	private void setStaffInfos(boolean b)
+	/**
+	 * Used to set the staff panel.
+	 *
+	 * @param staffMember Is it a staff member?
+	 */
+	private void setStaffInfos(boolean staffMember)
 	{
-		this.staffPanel.setVisible(b);
-		this.staffPanel.setEnabled(b);
-		this.menuItemReloadStudents.setEnabled(b);
-		this.menuItemExit.setEnabled(b);
+		this.staffPanel.setVisible(staffMember);
+		this.staffPanel.setEnabled(staffMember);
+		this.menuItemReloadStudents.setEnabled(staffMember);
+		this.menuItemExit.setEnabled(staffMember);
 	}
 }

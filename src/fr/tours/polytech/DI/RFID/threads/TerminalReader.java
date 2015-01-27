@@ -11,6 +11,7 @@ import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import javax.smartcardio.TerminalFactory;
+import fr.tours.polytech.DI.RFID.enums.APDUResponse;
 import fr.tours.polytech.DI.RFID.enums.Commands;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
@@ -140,6 +141,7 @@ public class TerminalReader implements Runnable
 		CommandAPDU command = new CommandAPDU(Commands.UID.getCommand());
 		Utils.logger.log(Level.INFO, "Sending command " + Commands.UID);
 		ResponseAPDU response = cardChannel.transmit(command);
-		return new RFIDCard(Utils.bytesToHex(card.getATR().getBytes()), Utils.bytesToHex(response.getBytes()));
+		Utils.logger.log(Level.INFO, "Got response : " + APDUResponse.getErrorString(response.getSW()));
+		return new RFIDCard(Utils.bytesToHex(card.getATR().getBytes()), Utils.bytesToHex(response.getData()));
 	}
 }

@@ -1,9 +1,20 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.objects;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import fr.tours.polytech.DI.RFID.utils.Configuration;
@@ -26,9 +37,13 @@ public class Period
 	/**
 	 * Constructor.
 	 *
-	 * @param period A string representing the period. This should be formatted as <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i> where <i>xx</i> and <i>yy</i> are the time to set.
+	 * @param period A string representing the period. This should be formatted
+	 *            as
+	 *            <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i>
+	 *            where <i>xx</i> and <i>yy</i> are the time to set.
 	 *
-	 * @throws IllegalArgumentException If the period isn't formatted as it should be.
+	 * @throws IllegalArgumentException If the period isn't formatted as it
+	 *             should be.
 	 */
 	public Period(String period) throws IllegalArgumentException
 	{
@@ -41,7 +56,7 @@ public class Period
 		this.startingMinute = Integer.parseInt(starting.substring(starting.indexOf("H") + 1));
 		this.endingHour = Integer.parseInt(ending.substring(0, ending.indexOf("H")));
 		this.endingMinute = Integer.parseInt(ending.substring(ending.indexOf("H") + 1));
-		this.calendar = Calendar.getInstance();
+		this.calendar = Calendar.getInstance(Locale.getDefault());
 		this.decimalFormat = new DecimalFormat("00");
 	}
 
@@ -85,7 +100,7 @@ public class Period
 	public boolean isInPeriod(Date date)
 	{
 		this.calendar.setTime(date);
-		int hours = this.calendar.get(Calendar.HOUR);
+		int hours = this.calendar.get(Calendar.HOUR_OF_DAY);
 		int minutes = this.calendar.get(Calendar.MINUTE);
 		if(this.startingHour == this.endingHour)
 		{
@@ -125,7 +140,9 @@ public class Period
 	}
 
 	/**
-	 * Used to get a String representing this interval. This is mostly used when saving the object to the config, should use {@link getTimeInterval} instead.
+	 * Used to get a String representing this interval. This is mostly used when
+	 * saving the object to the config, should use {@link getTimeInterval}
+	 * instead.
 	 *
 	 * @return A string formatted as <b>xxHxx-yyHyy</b>
 	 */
@@ -142,9 +159,9 @@ public class Period
 	 */
 	private Date getEndingDate()
 	{
-		Calendar calen = Calendar.getInstance();
+		Calendar calen = Calendar.getInstance(Locale.getDefault());
 		calen.setTime(new Date());
-		calen.set(Calendar.HOUR, this.endingHour);
+		calen.set(Calendar.HOUR_OF_DAY, this.endingHour);
 		calen.set(Calendar.MINUTE, this.endingMinute);
 		return calen.getTime();
 	}
@@ -156,9 +173,9 @@ public class Period
 	 */
 	private Date getStartingDate()
 	{
-		Calendar calen = Calendar.getInstance();
+		Calendar calen = Calendar.getInstance(Locale.getDefault());
 		calen.setTime(new Date());
-		calen.set(Calendar.HOUR, this.startingHour);
+		calen.set(Calendar.HOUR_OF_DAY, this.startingHour);
 		calen.set(Calendar.MINUTE, this.startingMinute);
 		return calen.getTime();
 	}

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.frames;
 
 import java.awt.BorderLayout;
@@ -17,7 +27,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
@@ -70,7 +79,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private Student currentStudent;
 	private JMenuBar menuBar;
 	private JMenu menuFile, menuHelp;
-	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp, menuItemAbout;
+	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp,
+	        menuItemAbout;
 	private Color backColor;
 	private Period lastPeriod;
 	private JComboBox<Period> removePeriodArea;
@@ -94,11 +104,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void windowActivated(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void windowClosed(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void windowClosing(WindowEvent event)
@@ -111,19 +123,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 			@Override
 			public void windowDeactivated(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void windowDeiconified(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void windowIconified(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void windowOpened(WindowEvent event)
-			{}
+			{
+			}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.menuBar = new JMenuBar();
@@ -186,19 +202,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void mouseClicked(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseEntered(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseExited(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mousePressed(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseReleased(MouseEvent event)
@@ -451,8 +471,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		if(student == null || getStudentByUID(student.getUid(), false) != null || getStudentByName(student.getName(), false) != null)
 			return;
-		Utils.addStudentToFile(student, this.studentsFile);
 		this.students.add(student);
+		Utils.writeStudentsToFile(this.students, this.studentsFile);
 		updateList();
 	}
 
@@ -473,7 +493,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	/**
 	 * Called by the {@link TerminalListener} interface when a card id added.
 	 *
-	 * Check the student if needed and open the staff panel if it should be opened.
+	 * Check the student if needed and open the staff panel if it should be
+	 * opened.
 	 */
 	@Override
 	public void cardAdded(RFIDCard rfidCard)
@@ -493,7 +514,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	}
 
 	/**
-	 * Called by the {@link TerminalListener} interface when a reader is added or removed.
+	 * Called by the {@link TerminalListener} interface when a reader is added
+	 * or removed.
 	 *
 	 * Set the panel text.
 	 */
@@ -614,8 +636,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			catch(InterruptedException exception)
 			{}
 			Date date = new Date();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(date);
 			boolean validPeriod = isTimeValid();
 			boolean newPeriod = isNewPeriod();
 			if(validPeriod)
@@ -696,11 +716,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			else if(!this.checkedStudents.contains(student))
 			{
-				Utils.logCheck(student);
-				if(!printMessages)
-					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
-				this.checkedStudents.add(student);
-				updateList();
+				if(hasToValidate(student))
+				{
+					Utils.logCheck(student);
+					if(!printMessages)
+						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
+					this.checkedStudents.add(student);
+					updateList();
+				}
+				else
+					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />You do not belong to this list</p></html>");
 			}
 			else if(!printMessages)
 				this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card already validated</p></html>");
@@ -768,6 +793,14 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		for(Student stu : this.students)
 			student[i++][0] = stu;
 		return student;
+	}
+
+	private boolean hasToValidate(Student student)
+	{
+		for(int i = 0; i < this.modelChecked.getRowCount(); i++)
+			if(student.toString().equalsIgnoreCase(this.tableChecked.getValueAt(i, 0).toString()))
+				return true;
+		return false;
 	}
 
 	/**

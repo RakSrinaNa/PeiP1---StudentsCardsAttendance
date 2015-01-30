@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.utils;
 
 import java.sql.Connection;
@@ -16,7 +26,8 @@ import fr.tours.polytech.DI.RFID.objects.Student;
  */
 public class SQLManager
 {
-	private String UID_LABEL = "UID", NAME_LABEL = "Name", STAFF_LABEL = "Staff";
+	private String UID_LABEL = "UID", NAME_LABEL = "Name",
+	        STAFF_LABEL = "Staff";
 	private Connection connection;
 	private String tableName;
 	private String databaseURL;
@@ -65,6 +76,8 @@ public class SQLManager
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
 		}
+		catch(NullPointerException exception)
+		{}
 		return null;
 	}
 

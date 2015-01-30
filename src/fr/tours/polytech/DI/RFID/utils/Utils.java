@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.utils;
 
 import java.io.BufferedWriter;
@@ -13,6 +23,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -30,20 +41,6 @@ public class Utils
 	public static Logger logger;
 	public static Configuration config;
 	public static SQLManager sql;
-
-	/**
-	 * Used to add a student that need to check in the CSV file.
-	 *
-	 * @param student The student to add.
-	 * @param file The CSV file.
-	 * @throws IOException If the file can't be modified.
-	 */
-	public static void addStudentToFile(Student student, File file) throws IOException
-	{
-		ArrayList<Student> students = new ArrayList<Student>();
-		students.add(student);
-		writeStudentsToFile(students, file);
-	}
 
 	/**
 	 * Used to transform an array of bytes to a String like FF-FF-FF...
@@ -81,19 +78,21 @@ public class Utils
 	}
 
 	/**
-	 * Call when the program is starting. Initalize some variables like configuration, logger, reader and SQL connection.
+	 * Call when the program is starting. Initalize some variables like
+	 * configuration, logger, reader and SQL connection.
 	 *
 	 * @throws SecurityException If the Student.csv file can't be read.
 	 * @throws IOException If the Student.csv file can't be read.
 	 *
-	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String, boolean)
+	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String,
+	 *      boolean)
 	 */
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("RFID");
 		config = new Configuration();
 		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager("db4free.net", 3306, "rfid", "rfid", "polytechDI26");
+		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "polytechDI26");
 		mainFrame = new MainFrame(new File(".", "Students.csv"));
 		terminalReader.addListener(mainFrame);
 	}
@@ -107,28 +106,56 @@ public class Utils
 	 */
 	public static void logCheck(Student student) throws IOException
 	{
-		DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy HH:mm:ss");
-		Date date = new Date();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		File file = new File("." + File.separator + "checked_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + (calendar.get(Calendar.WEEK_OF_MONTH) + 1) + ".csv");
-		if(!file.exists())
+		FileWriter fileWriter = null;
+		BufferedWriter bufferedWriter = null;
+		PrintWriter printWriter = null;
+		try
 		{
-			file.getParentFile().mkdirs();
+			DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy HH:mm:ss");
+			Date date = new Date();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			File file = new File("." + File.separator + "checked_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + (calendar.get(Calendar.WEEK_OF_MONTH) + 1) + ".csv");
+			if(!file.exists())
+			{
+				file.getParentFile().mkdirs();
+				try
+				{
+					file.createNewFile();
+				}
+				catch(IOException exception)
+				{}
+			}
+			fileWriter = new FileWriter(file, true);
+			bufferedWriter = new BufferedWriter(fileWriter);
+			printWriter = new PrintWriter(bufferedWriter);
+			printWriter.print(dateFormat.format(date) + ";" + student.getName() + ";" + student.getUid().replaceAll("-", "") + "\n");
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
+		}
+		if(printWriter != null)
 			try
 			{
-				file.createNewFile();
+				printWriter.close();
 			}
-			catch(IOException exception)
+			catch(Exception exception)
 			{}
-		}
-		FileWriter fileWriter = new FileWriter(file, true);
-		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		printWriter.print(dateFormat.format(date) + ";" + student.getName() + ";" + student.getUid().replaceAll("-", "") + "\n");
-		printWriter.close();
-		bufferedWriter.close();
-		fileWriter.close();
+		if(bufferedWriter != null)
+			try
+			{
+				bufferedWriter.close();
+			}
+			catch(Exception exception)
+			{}
+		if(fileWriter != null)
+			try
+			{
+				fileWriter.close();
+			}
+			catch(Exception exception)
+			{}
 	}
 
 	/**

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.utils;
 
 import java.io.BufferedReader;
@@ -30,7 +40,8 @@ public class Configuration
 	private Object syncing;
 
 	/**
-	 * Constructor, will use {@link #Configuration(boolean)} with a true parameter.
+	 * Constructor, will use {@link #Configuration(boolean)} with a true
+	 * parameter.
 	 *
 	 * @see fr.tours.polytech.DI.RFID.utils.Configuration#Configuration(boolean)
 	 */
@@ -40,9 +51,13 @@ public class Configuration
 	}
 
 	/**
-	 * Constructor, will create a Configuration Object. The file loaded is in the save folder as the JAR file and named with the valeu of {@link #normalConfigName}.It will be able to read and write configuration values.
+	 * Constructor, will create a Configuration Object. The file loaded is in
+	 * the save folder as the JAR file and named with the valeu of
+	 * {@link #normalConfigName}.It will be able to read and write configuration
+	 * values.
 	 *
-	 * @param start Either to start the auto save thread or not after loading the text file.
+	 * @param start Either to start the auto save thread or not after loading
+	 *            the text file.
 	 */
 	public Configuration(boolean start)
 	{
@@ -66,7 +81,8 @@ public class Configuration
 	}
 
 	/**
-	 * Should be called when the object will not be used anymore. Save the config.
+	 * Should be called when the object will not be used anymore. Save the
+	 * config.
 	 */
 	public void close()
 	{
@@ -122,7 +138,8 @@ public class Configuration
 	 *
 	 * @param key The key of the config value.
 	 *
-	 * @return The {@link ConfigurationValue} object corresponding to the key. If none is found, a new one with a blank value is returned.
+	 * @return The {@link ConfigurationValue} object corresponding to the key.
+	 *         If none is found, a new one with a blank value is returned.
 	 */
 	public ConfigValue getConfigValue(String key)
 	{
@@ -134,13 +151,14 @@ public class Configuration
 		for(ConfigValue configurationValue : this.configValues)
 			if(configurationValue.isKey(key))
 				return configurationValue;
-		ConfigValue cv = new ConfigValue(key, "");
+		ConfigValue cv = new ConfigValue(this, key, "");
 		this.configValues.add(cv);
 		return cv;
 	}
 
 	/**
-	 * Used to remove values in a config value (useful if the value is an array).
+	 * Used to remove values in a config value (useful if the value is an
+	 * array).
 	 *
 	 * @param key The key where to remove the values.
 	 * @param values The values to remove if they exists.
@@ -152,7 +170,8 @@ public class Configuration
 	}
 
 	/**
-	 * Used to remove a value in a config value (useful if the value is an array).
+	 * Used to remove a value in a config value (useful if the value is an
+	 * array).
 	 *
 	 * @param key The key where to remove the value.
 	 * @param values The value to remove if it exists.
@@ -166,7 +185,8 @@ public class Configuration
 	/**
 	 * Set the status of the auto saving.
 	 *
-	 * @param status If true it will save the config every two minutes, if false will not save automatically.
+	 * @param status If true it will save the config every two minutes, if false
+	 *            will not save automatically.
 	 */
 	public void setAutoSaveStatus(boolean status)
 	{
@@ -259,7 +279,7 @@ public class Configuration
 		}
 		catch(IOException e)
 		{}
-		return ConfigValue.getAllConfigs(fileLines);
+		return ConfigValue.getAllConfigs(this, fileLines);
 	}
 
 	/**
@@ -273,7 +293,8 @@ public class Configuration
 	}
 
 	/**
-	 * Function used by the auto save thread to save the config file. It will block the config from any modifications while saving.
+	 * Function used by the auto save thread to save the config file. It will
+	 * block the config from any modifications while saving.
 	 */
 	private void sync()
 	{

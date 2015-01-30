@@ -1,7 +1,18 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import fr.tours.polytech.DI.RFID.utils.Configuration;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
 /**
@@ -13,14 +24,18 @@ public class ConfigValue
 {
 	private String key;
 	private String value;
+	private Configuration config;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param configLine A line in the config that should be formated as <b>[key]:[value]</b>.
+	 * @param The parent Configuration.
+	 * @param configLine A line in the config that should be formated as
+	 *            <b>[key]:[value]</b>.
 	 */
-	public ConfigValue(String configLine)
+	public ConfigValue(Configuration config, String configLine)
 	{
+		this.config = config;
 		if(configLine == null || !configLine.contains(":"))
 			throw new IllegalArgumentException("The string must be formatted as <key>:<value>!");
 		this.key = configLine.substring(0, configLine.indexOf(":"));
@@ -32,11 +47,13 @@ public class ConfigValue
 	/**
 	 * Constructor.
 	 *
+	 * @param Configuration config,
 	 * @param key The key of this config.
 	 * @param value The value.
 	 */
-	public ConfigValue(String key, String value)
+	public ConfigValue(Configuration config, String key, String value)
 	{
+		this.config = config;
 		if(key == null || key.equals(""))
 			throw new IllegalArgumentException("Key must not be null/empty!");
 		this.key = key;
@@ -46,18 +63,19 @@ public class ConfigValue
 	/**
 	 * Used to get all config values from an array of lines.
 	 *
+	 * @param The parent Configuration.
 	 * @param lines The array of lines.
 	 * @return A list of config values.
 	 *
 	 * @see #ConfigValue(String)
 	 */
-	public static List<ConfigValue> getAllConfigs(List<String> lines)
+	public static List<ConfigValue> getAllConfigs(Configuration config, List<String> lines)
 	{
 		List<ConfigValue> list = new ArrayList<ConfigValue>();
 		for(String line : lines)
 			try
 			{
-				list.add(new ConfigValue(line));
+				list.add(new ConfigValue(config, line));
 			}
 			catch(Exception e)
 			{}
@@ -65,10 +83,12 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to add a double to the current value. (! It suppose that the value is a double !)
+	 * Used to add a double to the current value. (! It suppose that the value
+	 * is a double !)
 	 *
 	 * @param toAdd The value to add.
-	 * @param defaultValue The default value if the variable is not set or isn't a double.
+	 * @param defaultValue The default value if the variable is not set or isn't
+	 *            a double.
 	 */
 	public void addDouble(double toAdd, double defaultValue)
 	{
@@ -76,10 +96,12 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to add an integer to the current value. (! It suppose that the value is an integer !)
+	 * Used to add an integer to the current value. (! It suppose that the value
+	 * is an integer !)
 	 *
 	 * @param toAdd The value to add.
-	 * @param defaultValue The default value if the variable is not set or isn't an integer.
+	 * @param defaultValue The default value if the variable is not set or isn't
+	 *            an integer.
 	 */
 	public void addInt(int toAdd, int defaultValue)
 	{
@@ -87,9 +109,11 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to add the object in the array of the values. (! It suppose that the value is an array !)
+	 * Used to add the object in the array of the values. (! It suppose that the
+	 * value is an array !)
 	 *
-	 * @param value the object to add (will use {@link Object#toString()} to save it).
+	 * @param value the object to add (will use {@link Object#toString()} to
+	 *            save it).
 	 */
 	public void addValue(Object value)
 	{
@@ -98,6 +122,7 @@ public class ConfigValue
 		ArrayList<String> list = getStringList();
 		list.add(value.toString());
 		setListValue(list);
+		this.config.writeVars();
 	}
 
 	/**
@@ -119,7 +144,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a boolean.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public boolean getBoolean(boolean defaultValue)
@@ -138,7 +164,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a double.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public double getDouble(double defaultValue)
@@ -157,7 +184,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as an integer.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public int getInt(int defaultValue)
@@ -186,7 +214,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a long.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public long getLong(long defaultValue)
@@ -205,7 +234,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a string.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public String getString(String defaultValue)
@@ -216,7 +246,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a string array.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public String[] getStringArray()
@@ -230,7 +261,8 @@ public class ConfigValue
 	/**
 	 * Used to get the value as a string list.
 	 *
-	 * @param defaultValue The value to return if the value isn't set or isn't of that type.
+	 * @param defaultValue The value to return if the value isn't set or isn't
+	 *            of that type.
 	 * @return The value parsed.
 	 */
 	public ArrayList<String> getStringList()
@@ -272,7 +304,8 @@ public class ConfigValue
 	/**
 	 * Used to remove an object from the value.
 	 *
-	 * @param value The object to remove (will use {@link Object#toString()} to save it).
+	 * @param value The object to remove (will use {@link Object#toString()} to
+	 *            save it).
 	 */
 	public void removeValue(Object value)
 	{
@@ -295,7 +328,8 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to set the object as the value only if the value isn't currently defined.
+	 * Used to set the object as the value only if the value isn't currently
+	 * defined.
 	 *
 	 * @param value The value to set.
 	 */
@@ -318,7 +352,8 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to get a representation of this object. Will return the same format at what should be parsed in {@link #ConfigValue(String)}.
+	 * Used to get a representation of this object. Will return the same format
+	 * at what should be parsed in {@link #ConfigValue(String)}.
 	 */
 	@Override
 	public String toString()
@@ -327,10 +362,12 @@ public class ConfigValue
 	}
 
 	/**
-	 * Used to add a long to the current value. (! It suppose that the value is a long !)
+	 * Used to add a long to the current value. (! It suppose that the value is
+	 * a long !)
 	 *
 	 * @param toAdd The value to add.
-	 * @param defaultValue The default value if the variable is not set or isn't a long.
+	 * @param defaultValue The default value if the variable is not set or isn't
+	 *            a long.
 	 */
 	public void updateLong(long toAdd, long defaultValue)
 	{

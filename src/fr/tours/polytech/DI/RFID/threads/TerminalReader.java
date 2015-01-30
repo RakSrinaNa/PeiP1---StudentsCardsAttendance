@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package fr.tours.polytech.DI.RFID.threads;
 
 import java.util.ArrayList;
@@ -60,8 +70,12 @@ public class TerminalReader implements Runnable
 	/**
 	 * What is doing the thread.
 	 *
-	 * Will check if there is a reader available containing the wanted name (will call {@link TerminalListener#cardReader(boolean)} if a listener is removed or added).
-	 * If it is the case it will wait for a card placed, call {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be removed then call {@link TerminalListener#cardRemoved()}
+	 * Will check if there is a reader available containing the wanted name
+	 * (will call {@link TerminalListener#cardReader(boolean)} if a listener is
+	 * removed or added).
+	 * If it is the case it will wait for a card placed, call
+	 * {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be
+	 * removed then call {@link TerminalListener#cardRemoved()}
 	 */
 	@Override
 	public void run()

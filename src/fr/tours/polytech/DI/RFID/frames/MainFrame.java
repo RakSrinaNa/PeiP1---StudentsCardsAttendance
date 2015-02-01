@@ -47,6 +47,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import fr.tours.polytech.DI.RFID.enums.Sounds;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
@@ -498,7 +499,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		Utils.logger.log(Level.INFO, "Card infos: " + (student == null ? "" : student) + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
 		this.cardTextLabel.setText("Card detected : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
-		checkStudent(student, false);
+		if(checkStudent(student, false))
+			Sounds.CARD_CHECKED.playSound();
 		setStaffInfos(student.isStaff());
 	}
 
@@ -660,7 +662,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 */
 	public void uncheckStudent(String name)
 	{
-		checkStudent(getStudentByName(name, true), true);
+		uncheckStudent(getStudentByName(name, true));
 	}
 
 	/**
@@ -672,12 +674,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		if(student == null)
 			return;
-		if(!student.isStaff())
-			if(this.checkedStudents.contains(student))
-			{
-				this.checkedStudents.remove(student);
-				updateList();
-			}
+		this.checkedStudents.remove(student);
+		updateList();
 	}
 
 	/**
@@ -696,11 +694,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 *
 	 * @param student The student to check.
 	 * @param printMessages Should print messages in the bottom?
+	 * @return True if the user is now checked, false if not.
 	 */
-	private void checkStudent(Student student, boolean printMessages)
+	private boolean checkStudent(Student student, boolean printMessages)
 	{
+		boolean checked = false;
 		if(student == null)
-			return;
+			return false;
 		try
 		{
 			if(!isTimeValid())
@@ -717,6 +717,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />Card validated</p></html>");
 					this.checkedStudents.add(student);
 					updateList();
+					checked = true;
 				}
 				else
 					this.cardTextLabel.setText("<html><p align=\"center\">" + this.cardTextLabel.getText() + "<br />You do not belong to this list</p></html>");
@@ -728,6 +729,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			Utils.logger.log(Level.SEVERE, "Error writing student check!", exception);
 		}
+		return checked;
 	}
 
 	/**

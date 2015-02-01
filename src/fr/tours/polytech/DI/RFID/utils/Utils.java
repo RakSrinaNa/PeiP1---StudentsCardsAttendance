@@ -84,8 +84,7 @@ public class Utils
 	 * @throws SecurityException If the Student.csv file can't be read.
 	 * @throws IOException If the Student.csv file can't be read.
 	 *
-	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String,
-	 *      boolean)
+	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String, boolean)
 	 */
 	public static void init() throws SecurityException, IOException
 	{

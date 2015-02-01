@@ -62,7 +62,10 @@ public class TerminalReader implements Runnable
 	public void addListener(TerminalListener listener)
 	{
 		this.listenersTerminal.add(listener);
-		listener.cardReader(this.isPresent);
+		if(this.isPresent)
+			listener.cardReaderAdded();
+		else
+			listener.cardReaderRemoved();
 		if(this.lastCard != null)
 			listener.cardAdded(this.lastCard);
 	}
@@ -73,8 +76,7 @@ public class TerminalReader implements Runnable
 	 * Will check if there is a reader available containing the wanted name
 	 * (will call {@link TerminalListener#cardReader(boolean)} if a listener is
 	 * removed or added).
-	 * If it is the case it will wait for a card placed, call
-	 * {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be
+	 * If it is the case it will wait for a card placed, call {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be
 	 * removed then call {@link TerminalListener#cardRemoved()}
 	 */
 	@Override
@@ -109,7 +111,10 @@ public class TerminalReader implements Runnable
 					else
 						Utils.logger.log(Level.INFO, "Stopped listening");
 					for(TerminalListener listener : this.listenersTerminal)
-						listener.cardReader(this.isPresent);
+						if(this.isPresent)
+							listener.cardReaderAdded();
+						else
+							listener.cardReaderRemoved();
 				}
 				if(!this.isPresent)
 					continue;

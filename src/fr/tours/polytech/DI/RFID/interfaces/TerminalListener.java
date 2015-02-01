@@ -28,11 +28,16 @@ public interface TerminalListener
 	void cardAdded(RFIDCard rfidCard);
 
 	/**
-	 * Called when a reader is added or removed.
+	 * Called when a reader is added.
+	 */
+	void cardReaderAdded();
+
+	/**
+	 * Called when a reader is removed.
 	 *
 	 * @param isPresent If there is a reader currently present or not.
 	 */
-	void cardReader(boolean isPresent);
+	void cardReaderRemoved();
 
 	/**
 	 * Called when a card is removed from the reader.

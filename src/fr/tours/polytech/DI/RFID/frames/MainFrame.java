@@ -79,8 +79,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private Student currentStudent;
 	private JMenuBar menuBar;
 	private JMenu menuFile, menuHelp;
-	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp,
-	        menuItemAbout;
+	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp, menuItemAbout;
 	private Color backColor;
 	private Period lastPeriod;
 	private JComboBox<Period> removePeriodArea;
@@ -104,13 +103,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void windowActivated(WindowEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void windowClosed(WindowEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void windowClosing(WindowEvent event)
@@ -123,23 +120,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 			@Override
 			public void windowDeactivated(WindowEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void windowDeiconified(WindowEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void windowIconified(WindowEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void windowOpened(WindowEvent event)
-			{
-			}
+			{}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.menuBar = new JMenuBar();
@@ -202,23 +195,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void mouseClicked(MouseEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseEntered(MouseEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseExited(MouseEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void mousePressed(MouseEvent event)
-			{
-			}
+			{}
 
 			@Override
 			public void mouseReleased(MouseEvent event)
@@ -514,21 +503,26 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	}
 
 	/**
-	 * Called by the {@link TerminalListener} interface when a reader is added
-	 * or removed.
+	 * Called by the {@link TerminalListener} interface when a reader is added.
 	 *
 	 * Set the panel text.
 	 */
 	@Override
-	public void cardReader(boolean isPresent)
+	public void cardReaderAdded()
 	{
-		if(isPresent)
-			cardRemoved();
-		else
-		{
-			this.cardPanel.setBackground(Color.RED);
-			this.cardTextLabel.setText("NO DEVICE CONNECTED!");
-		}
+		cardRemoved();
+	}
+
+	/**
+	 * Called by the {@link TerminalListener} interface when a reader is removed.
+	 *
+	 * Set the panel text.
+	 */
+	@Override
+	public void cardReaderRemoved()
+	{
+		this.cardPanel.setBackground(Color.RED);
+		this.cardTextLabel.setText("NO DEVICE CONNECTED!");
 	}
 
 	/**

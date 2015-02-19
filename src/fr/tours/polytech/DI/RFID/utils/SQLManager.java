@@ -26,8 +26,7 @@ import fr.tours.polytech.DI.RFID.objects.Student;
  */
 public class SQLManager
 {
-	private String UID_LABEL = "UID", NAME_LABEL = "Name",
-	        STAFF_LABEL = "Staff";
+	private String UID_LABEL = "UID", NAME_LABEL = "Name", STAFF_LABEL = "Staff";
 	private Connection connection;
 	private String tableName;
 	private String databaseURL;
@@ -56,6 +55,11 @@ public class SQLManager
 		Utils.logger.log(Level.INFO, "Initializing SQL connection...");
 		this.tableName = "Users";
 		createBaseTable();
+	}
+
+	public void addStudentToDatabase(Student student)
+	{
+		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.NAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getUid() + "\",\"" + student.getName() + "\",\"" + student.isStaffSQL() + "\")");
 	}
 
 	/**

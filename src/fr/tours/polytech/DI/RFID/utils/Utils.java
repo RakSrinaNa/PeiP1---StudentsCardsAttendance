@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
+import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
 
@@ -41,6 +42,7 @@ public class Utils
 	public static Logger logger;
 	public static Configuration config;
 	public static SQLManager sql;
+	public static boolean logAll, addNewCards;
 
 	/**
 	 * Used to transform an array of bytes to a String like FF-FF-FF...
@@ -89,11 +91,73 @@ public class Utils
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("RFID");
+		logAll = true;
+		addNewCards = true;
 		config = new Configuration();
 		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "polytechDI26");
+		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "PolytechDI26");
 		mainFrame = new MainFrame(new File(".", "Students.csv"));
 		terminalReader.addListener(mainFrame);
+	}
+
+	/**
+	 * Used to log all absents students in a CSV file with their name.
+	 *
+	 * @param all The list of all the students that need to check.
+	 * @param checked The students that have checked.
+	 * @param period The period when the students checked.
+	 *
+	 * @throws IOException If file can't be opened or wrote.
+	 */
+	public static void logAbsents(List<Student> all, List<Student> checked, Period period) throws IOException
+	{
+		DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy");
+		Date date = new Date();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		for(Student student : all)
+			if(!checked.contains(student))
+			{
+				FileWriter fileWriter = null;
+				BufferedWriter bufferedWriter = null;
+				PrintWriter printWriter = null;
+				File file = new File("." + File.separator + "absent_" + student.getName().replace(" ", "_") + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
+				if(!file.exists())
+				{
+					file.getParentFile().mkdirs();
+					try
+					{
+						file.createNewFile();
+					}
+					catch(IOException exception)
+					{}
+				}
+				fileWriter = new FileWriter(file, true);
+				bufferedWriter = new BufferedWriter(fileWriter);
+				printWriter = new PrintWriter(bufferedWriter);
+				printWriter.print(dateFormat.format(date) + period.getTimeInterval() + "\n");
+				if(printWriter != null)
+					try
+					{
+						printWriter.close();
+					}
+					catch(Exception exception)
+					{}
+				if(bufferedWriter != null)
+					try
+					{
+						bufferedWriter.close();
+					}
+					catch(Exception exception)
+					{}
+				if(fileWriter != null)
+					try
+					{
+						fileWriter.close();
+					}
+					catch(Exception exception)
+					{}
+			}
 	}
 
 	/**
@@ -105,6 +169,8 @@ public class Utils
 	 */
 	public static void logCheck(Student student) throws IOException
 	{
+		if(!logAll)
+			return;
 		FileWriter fileWriter = null;
 		BufferedWriter bufferedWriter = null;
 		PrintWriter printWriter = null;
@@ -114,7 +180,7 @@ public class Utils
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
-			File file = new File("." + File.separator + "checked_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + (calendar.get(Calendar.WEEK_OF_MONTH) + 1) + ".csv");
+			File file = new File("." + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
 				file.getParentFile().mkdirs();

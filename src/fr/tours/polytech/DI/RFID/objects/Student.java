@@ -81,6 +81,16 @@ public class Student
 	}
 
 	/**
+	 * Used to know if a student have a valid name.
+	 *
+	 * @return True if have a valid name, false if not.
+	 */
+	public boolean hasValidName()
+	{
+		return this.name != null && !this.name.equals("");
+	}
+
+	/**
 	 * Used to know if the student is a staff member.
 	 *
 	 * @return true if from the staff, false if not.
@@ -88,6 +98,16 @@ public class Student
 	public boolean isStaff()
 	{
 		return this.isStaff;
+	}
+
+	/**
+	 * Used to know if the student is a staff member.
+	 *
+	 * @return 1 if from the staff, 0 if not.
+	 */
+	public int isStaffSQL()
+	{
+		return isStaff() ? 1 : 0;
 	}
 
 	/**

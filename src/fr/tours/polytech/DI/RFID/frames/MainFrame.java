@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -300,10 +301,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JPanel panelCheckManually = new JPanel(new BorderLayout());
 		JPanel panelAddPeriod = new JPanel(new BorderLayout());
 		JPanel panelRemovePeriod = new JPanel(new BorderLayout());
+		JPanel panelSettings = new JPanel(new BorderLayout());
 		panelAddManually.setBackground(this.backColor);
 		panelCheckManually.setBackground(this.backColor);
 		panelAddPeriod.setBackground(this.backColor);
 		panelRemovePeriod.setBackground(this.backColor);
+		panelSettings.setBackground(this.backColor);
 		JTextArea studentManuallyAddArea = new JTextArea();
 		studentManuallyAddArea.setLineWrap(true);
 		studentManuallyAddArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
@@ -386,6 +389,18 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
+		JCheckBox addNewCardCheck = new JCheckBox("Add new cards to database");
+		addNewCardCheck.setBackground(this.backColor);
+		addNewCardCheck.setSelected(Utils.addNewCards);
+		addNewCardCheck.addActionListener(event -> {
+			Utils.addNewCards = ((JCheckBox) event.getSource()).isSelected();
+		});
+		JCheckBox logAllCheck = new JCheckBox("Log all checks");
+		logAllCheck.setBackground(this.backColor);
+		logAllCheck.setSelected(Utils.addNewCards);
+		logAllCheck.addActionListener(event -> {
+			Utils.logAll = ((JCheckBox) event.getSource()).isSelected();
+		});
 		panelAddManually.add(studentManuallyAddArea, BorderLayout.NORTH);
 		panelAddManually.add(addManuallyButton, BorderLayout.SOUTH);
 		panelCheckManually.add(studentManuallyCheckArea, BorderLayout.NORTH);
@@ -394,6 +409,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		panelAddPeriod.add(addPeriodButton, BorderLayout.SOUTH);
 		panelRemovePeriod.add(this.removePeriodArea, BorderLayout.NORTH);
 		panelRemovePeriod.add(removePeriodButton, BorderLayout.SOUTH);
+		panelSettings.add(addNewCardCheck, BorderLayout.NORTH);
+		panelSettings.add(logAllCheck, BorderLayout.SOUTH);
 		line = 0;
 		gcb.anchor = GridBagConstraints.NORTH;
 		gcb.fill = GridBagConstraints.HORIZONTAL;
@@ -406,6 +423,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(panelAddPeriod, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(panelRemovePeriod, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(panelSettings, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		this.scrollPaneChecked = new JScrollPane(this.tableChecked);
 		this.scrollPaneChecked.setAutoscrolls(false);
@@ -448,6 +467,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.thread = new Thread(this);
 		this.thread.setName("RefreshInfoPanel");
 		this.thread.start();
+		cardAdded(new RFIDCard("a", "b"));
 	}
 
 	/**
@@ -494,6 +514,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		if(student == null)
 		{
 			this.cardTextLabel.setText("Card detected : " + rfidCard);
+			if(Utils.addNewCards)
+			{
+				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, "Entrez le nom de l'étudiant:", ""), false);
+				if(student.hasValidName())
+					Utils.sql.addStudentToDatabase(student);
+			}
 			return;
 		}
 		Utils.logger.log(Level.INFO, "Card infos: " + (student == null ? "" : student) + " " + rfidCard);
@@ -791,6 +817,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		return student;
 	}
 
+	/**
+	 * Used to know if a student needs to check during this period.
+	 *
+	 * @param student The student.
+	 * @return True if he needs to, false if not.
+	 */
 	private boolean hasToValidate(Student student)
 	{
 		for(int i = 0; i < this.modelChecked.getRowCount(); i++)

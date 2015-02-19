@@ -13,6 +13,8 @@ package fr.tours.polytech.DI.RFID.objects;
 import fr.tours.polytech.DI.RFID.utils.SQLManager;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
+import java.io.*;
+
 /**
  * Class representing a student (or anyone else, maybe we should call it User?).
  *
@@ -59,6 +61,16 @@ public class Student
 	public String getName()
 	{
 		return this.name;
+	}
+
+	/**
+	 * Used to get the student's card UID without any tirets.
+	 *
+	 * @return The UID.
+	 */
+	public String getRawUid()
+	{
+		return this.uid.replace("-", "");
 	}
 
 	/**
@@ -117,5 +129,17 @@ public class Student
 	public String toString()
 	{
 		return this.name + (this.isStaff ? " (Staff)" : "");
+	}
+
+	private Student readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException
+	{
+		return new Student((String)ois.readObject(), (String)ois.readObject(), (boolean)ois.readObject());
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException
+	{
+		oos.writeObject(getUid());
+		oos.writeObject(getName());
+		oos.writeBoolean(isStaff());
 	}
 }

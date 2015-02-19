@@ -10,25 +10,17 @@
  *******************************************************************************/
 package fr.tours.polytech.DI.RFID.utils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
+
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class, contain useful methods for the application.
@@ -86,7 +78,7 @@ public class Utils
 	 * @throws SecurityException If the Student.csv file can't be read.
 	 * @throws IOException If the Student.csv file can't be read.
 	 *
-	 * @see java.util.logging.FileHandler.FileHandler#FileHandler(String, boolean)
+	 * @see java.util.logging.FileHandler#FileHandler(String, boolean)
 	 */
 	public static void init() throws SecurityException, IOException
 	{
@@ -189,7 +181,9 @@ public class Utils
 					file.createNewFile();
 				}
 				catch(IOException exception)
-				{}
+				{
+					exception.printStackTrace();
+				}
 			}
 			fileWriter = new FileWriter(file, true);
 			bufferedWriter = new BufferedWriter(fileWriter);
@@ -266,5 +260,67 @@ public class Utils
 		printWriter.close();
 		bufferedWriter.close();
 		fileWriter.close();
+	}
+
+	public static void writeAbsents(Period period, ArrayList<Student> students, ArrayList<Student> checkedStudents)
+	{
+		for(Student student : students)
+			if(!checkedStudents.contains(student))
+			{
+				logger.log(Level.INFO, student + " is missing");
+				FileWriter fileWriter = null;
+				BufferedWriter bufferedWriter = null;
+				PrintWriter printWriter = null;
+				try
+				{
+					DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+					Date date = new Date();
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(date);
+					File file = new File("." + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
+					if(!file.exists())
+					{
+						file.getParentFile().mkdirs();
+						try
+						{
+							file.createNewFile();
+						}
+						catch(IOException exception)
+						{
+							exception.printStackTrace();
+						}
+					}
+					fileWriter = new FileWriter(file, true);
+					bufferedWriter = new BufferedWriter(fileWriter);
+					printWriter = new PrintWriter(bufferedWriter);
+
+					printWriter.print(dateFormat.format(date) + ";" + period.getTimeInterval() + ";" + student.getName() + "\n");
+				}
+				catch(Exception exception)
+				{
+					Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
+				}
+				if(printWriter != null)
+					try
+					{
+						printWriter.close();
+					}
+					catch(Exception exception)
+					{}
+				if(bufferedWriter != null)
+					try
+					{
+						bufferedWriter.close();
+					}
+					catch(Exception exception)
+					{}
+				if(fileWriter != null)
+					try
+					{
+						fileWriter.close();
+					}
+					catch(Exception exception)
+					{}
+			}
 	}
 }

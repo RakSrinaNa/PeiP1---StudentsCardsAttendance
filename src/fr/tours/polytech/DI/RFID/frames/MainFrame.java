@@ -10,13 +10,22 @@
  *******************************************************************************/
 package fr.tours.polytech.DI.RFID.frames;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import fr.tours.polytech.DI.RFID.enums.Sounds;
+import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
+import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
+import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
+import fr.tours.polytech.DI.RFID.objects.Group;
+import fr.tours.polytech.DI.RFID.objects.Period;
+import fr.tours.polytech.DI.RFID.objects.RFIDCard;
+import fr.tours.polytech.DI.RFID.objects.Student;
+import fr.tours.polytech.DI.RFID.utils.CSV;
+import fr.tours.polytech.DI.RFID.utils.Utils;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
@@ -29,35 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import fr.tours.polytech.DI.RFID.enums.Sounds;
-import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
-import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
-import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
-import fr.tours.polytech.DI.RFID.objects.Period;
-import fr.tours.polytech.DI.RFID.objects.RFIDCard;
-import fr.tours.polytech.DI.RFID.objects.Student;
-import fr.tours.polytech.DI.RFID.utils.CSV;
-import fr.tours.polytech.DI.RFID.utils.Configuration;
-import fr.tours.polytech.DI.RFID.utils.Utils;
 
 /**
  * Class of the main frame.
@@ -73,6 +53,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private ArrayList<Student> students;
 	private ArrayList<Student> checkedStudents;
 	private ArrayList<Period> periods;
+	private ArrayList<Group> groups;
 	private JPanel infoPanel, cardPanel, staffPanel;
 	private JLabel cardTextLabel, infoTextLabel;
 	private JScrollPane scrollPaneChecked;
@@ -84,7 +65,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private JMenuItem menuItemReloadStudents, menuItemExit, menuItemHelp, menuItemAbout;
 	private Color backColor;
 	private Period lastPeriod;
-	private JComboBox<Period> removePeriodArea;
 
 	/**
 	 * Constructor.
@@ -96,8 +76,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		super("Student presence management");
 		this.studentsFile = data;
 		this.students = CSV.getStudents(this.studentsFile);
-		this.checkedStudents = new ArrayList<Student>();
+		this.checkedStudents = new ArrayList<>();
 		this.periods = Period.loadPeriods();
+		this.groups = Group.loadGroups();
 		this.backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(800, 600));
@@ -114,7 +95,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void windowClosing(WindowEvent event)
 			{
-				if(MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
+				if(true || MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
 					Utils.exit(0);
 				else
 					JOptionPane.showMessageDialog(MainFrame.this, "A card of a staff member need to be in the reader to exit the app", "NOT AUTHORIZED", JOptionPane.ERROR_MESSAGE);
@@ -148,9 +129,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			this.students = CSV.getStudents(this.studentsFile);
 			updateList();
 		});
-		this.menuItemExit.addActionListener(event -> {
-			Utils.exit(0);
-		});
+		this.menuItemExit.addActionListener(event -> Utils.exit(0));
 		this.menuItemHelp.addActionListener(event -> {
 			try
 			{
@@ -161,9 +140,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Utils.logger.log(Level.WARNING, "Error when opening wiki page", exception);
 			}
 		});
-		this.menuItemAbout.addActionListener(event -> {
-			new AboutFrame(MainFrame.this);
-		});
+		this.menuItemAbout.addActionListener(event -> new AboutFrame(MainFrame.this));
 		this.menuFile.add(this.menuItemReloadStudents);
 		this.menuFile.addSeparator();
 		this.menuFile.add(this.menuItemExit);
@@ -299,19 +276,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		Border border = BorderFactory.createLineBorder(Color.BLACK);
 		JPanel panelAddManually = new JPanel(new BorderLayout());
 		JPanel panelCheckManually = new JPanel(new BorderLayout());
-		JPanel panelAddPeriod = new JPanel(new BorderLayout());
-		JPanel panelRemovePeriod = new JPanel(new BorderLayout());
-		JPanel panelSettings = new JPanel(new BorderLayout());
+				JPanel panelSettings = new JPanel(new BorderLayout());
 		panelAddManually.setBackground(this.backColor);
 		panelCheckManually.setBackground(this.backColor);
-		panelAddPeriod.setBackground(this.backColor);
-		panelRemovePeriod.setBackground(this.backColor);
 		panelSettings.setBackground(this.backColor);
 		JTextArea studentManuallyAddArea = new JTextArea();
 		studentManuallyAddArea.setLineWrap(true);
 		studentManuallyAddArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		studentManuallyAddArea.setPreferredSize(new Dimension(100, 25));
 		JButton addManuallyButton = new JButton("Add manually");
+		addManuallyButton.setBackground(this.backColor);
 		addManuallyButton.addActionListener(event -> {
 			try
 			{
@@ -328,6 +302,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		studentManuallyCheckArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		studentManuallyCheckArea.setPreferredSize(new Dimension(100, 25));
 		JButton checkManuallyButton = new JButton("Check manually");
+		checkManuallyButton.setBackground(this.backColor);
 		checkManuallyButton.addActionListener(event -> {
 			try
 			{
@@ -339,77 +314,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Utils.logger.log(Level.WARNING, "", exception);
 			}
 		});
-		JTextArea addPeriodArea = new JTextArea();
-		addPeriodArea.setLineWrap(true);
-		addPeriodArea.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(2, 2, 2, 2)));
-		addPeriodArea.setPreferredSize(new Dimension(100, 25));
-		JButton addPeriodButton = new JButton("Add period");
-		addPeriodButton.addActionListener(event -> {
-			try
-			{
-				try
-				{
-					Period period = new Period(addPeriodArea.getText());
-					if(!periodOverlap(period))
-					{
-						this.periods.add(period);
-						this.removePeriodArea.addItem(period);
-						Utils.config.getConfigValue(Configuration.PERIODS).addValue(period);
-					}
-					else
-						JOptionPane.showMessageDialog(MainFrame.this, "This period is overlapping an other one!", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
-				}
-				catch(Exception exception1)
-				{
-					JOptionPane.showMessageDialog(MainFrame.this, "This period isn't valid: xxHxx-yyHyy", "Couldn't add this period", JOptionPane.WARNING_MESSAGE);
-					Utils.logger.log(Level.WARNING, "Can't parse perriod", exception1);
-				}
-				addPeriodArea.setText("");
-			}
-			catch(Exception exception)
-			{
-				Utils.logger.log(Level.WARNING, "", exception);
-			}
-		});
-		this.removePeriodArea = new JComboBox<Period>();
-		for(Period period : this.periods)
-			this.removePeriodArea.addItem(period);
-		this.removePeriodArea.setPreferredSize(new Dimension(100, 25));
-		JButton removePeriodButton = new JButton("Remove period");
-		removePeriodButton.addActionListener(event -> {
-			try
-			{
-				Period period = (Period) this.removePeriodArea.getSelectedItem();
-				this.periods.remove(period);
-				Utils.config.getConfigValue(Configuration.PERIODS).removeValue(period);
-				this.removePeriodArea.removeItem(period);
-			}
-			catch(Exception exception)
-			{
-				Utils.logger.log(Level.WARNING, "", exception);
-			}
-		});
 		JCheckBox addNewCardCheck = new JCheckBox("Add new cards to database");
 		addNewCardCheck.setBackground(this.backColor);
 		addNewCardCheck.setSelected(Utils.addNewCards);
-		addNewCardCheck.addActionListener(event -> {
-			Utils.addNewCards = ((JCheckBox) event.getSource()).isSelected();
-		});
+		addNewCardCheck.addActionListener(event -> Utils.addNewCards = ((JCheckBox) event.getSource()).isSelected());
 		JCheckBox logAllCheck = new JCheckBox("Log all checks");
 		logAllCheck.setBackground(this.backColor);
 		logAllCheck.setSelected(Utils.addNewCards);
-		logAllCheck.addActionListener(event -> {
-			Utils.logAll = ((JCheckBox) event.getSource()).isSelected();
-		});
+		logAllCheck.addActionListener(event -> Utils.logAll = ((JCheckBox) event.getSource()).isSelected());
+		JButton groupSettings = new JButton("Group settings");
+		groupSettings.setBackground(this.backColor);
+		groupSettings.addActionListener(event -> new GroupSettingsFrame(MainFrame.this, MainFrame.this.groups));
 		panelAddManually.add(studentManuallyAddArea, BorderLayout.NORTH);
 		panelAddManually.add(addManuallyButton, BorderLayout.SOUTH);
 		panelCheckManually.add(studentManuallyCheckArea, BorderLayout.NORTH);
 		panelCheckManually.add(checkManuallyButton, BorderLayout.SOUTH);
-		panelAddPeriod.add(addPeriodArea, BorderLayout.NORTH);
-		panelAddPeriod.add(addPeriodButton, BorderLayout.SOUTH);
-		panelRemovePeriod.add(this.removePeriodArea, BorderLayout.NORTH);
-		panelRemovePeriod.add(removePeriodButton, BorderLayout.SOUTH);
-		panelSettings.add(addNewCardCheck, BorderLayout.NORTH);
+		panelSettings.add(groupSettings, BorderLayout.NORTH);
+		panelSettings.add(addNewCardCheck, BorderLayout.CENTER);
 		panelSettings.add(logAllCheck, BorderLayout.SOUTH);
 		line = 0;
 		gcb.anchor = GridBagConstraints.NORTH;
@@ -419,10 +340,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(panelAddManually, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(panelCheckManually, gcb);
-		gcb.gridy = line++;
-		this.staffPanel.add(panelAddPeriod, gcb);
-		gcb.gridy = line++;
-		this.staffPanel.add(panelRemovePeriod, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(panelSettings, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -467,7 +384,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.thread = new Thread(this);
 		this.thread.setName("RefreshInfoPanel");
 		this.thread.start();
-		cardAdded(new RFIDCard("a", "b"));
 	}
 
 	/**
@@ -516,13 +432,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			this.cardTextLabel.setText("Card detected : " + rfidCard);
 			if(Utils.addNewCards)
 			{
-				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, "Entrez le nom de l'étudiant:", ""), false);
+				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, "Entrez le nom de l'étudiant (NOM Prénom):", ""), false);
 				if(student.hasValidName())
 					Utils.sql.addStudentToDatabase(student);
 			}
 			return;
 		}
-		Utils.logger.log(Level.INFO, "Card infos: " + (student == null ? "" : student) + " " + rfidCard);
+		Utils.logger.log(Level.INFO, "Card infos: " + student + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
 		this.cardTextLabel.setText("Card detected : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
 		if(checkStudent(student, false))
@@ -584,6 +500,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 */
 	public void exit()
 	{
+		if(isTimeValid())
+		{
+
+		}
 		if(this.thread != null)
 			this.thread.interrupt();
 		dispose();
@@ -629,7 +549,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	/**
 	 * Used to remove a student by his name.
 	 *
-	 * @param student The student name.
+	 * @param name The student name.
 	 * @throws IOException If the Student.CSV file couldn't be modified.
 	 *
 	 * @see #removeStudent(Student)
@@ -649,7 +569,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		boolean hasBeenReset = false;
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		while(!this.thread.interrupted())
+		while(!Thread.interrupted())
 		{
 			try
 			{
@@ -669,6 +589,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				this.infoTextLabel.setText("<html><p align=\"center\">Current time : " + dateFormat.format(date) + "<br />Not in a scan period</p></html>");
 			if(!hasBeenReset && newPeriod)
 			{
+				Utils.writeAbsents(lastPeriod, students, checkedStudents);
 				this.checkedStudents.clear();
 				updateList();
 				hasBeenReset = true;
@@ -694,7 +615,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	/**
 	 * Used to uncheck a student.
 	 *
-	 * @param name The student.
+	 * @param student The student.
 	 */
 	public void uncheckStudent(Student student)
 	{

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package fr.tours.polytech.DI.RFID.objects;
 
+import fr.tours.polytech.DI.RFID.utils.Configuration;
+import fr.tours.polytech.DI.RFID.utils.Utils;
+
+import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,8 +21,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import fr.tours.polytech.DI.RFID.utils.Configuration;
-import fr.tours.polytech.DI.RFID.utils.Utils;
 
 /**
  * Class representing a period for checking.
@@ -141,7 +143,7 @@ public class Period
 
 	/**
 	 * Used to get a String representing this interval. This is mostly used when
-	 * saving the object to the config, should use {@link getTimeInterval}
+	 * saving the object to the config, should use {@link #getTimeInterval}
 	 * instead.
 	 *
 	 * @return A string formatted as <b>xxHxx-yyHyy</b>
@@ -178,5 +180,15 @@ public class Period
 		calen.set(Calendar.HOUR_OF_DAY, this.startingHour);
 		calen.set(Calendar.MINUTE, this.startingMinute);
 		return calen.getTime();
+	}
+
+	private Period readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException
+	{
+		return new Period((String)ois.readObject());
+	}
+
+	public void writeObject(ObjectOutputStream oos) throws IOException
+	{
+		oos.writeObject(this.toString());
 	}
 }

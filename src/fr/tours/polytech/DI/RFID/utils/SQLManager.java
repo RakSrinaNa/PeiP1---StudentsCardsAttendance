@@ -10,14 +10,11 @@
  *******************************************************************************/
 package fr.tours.polytech.DI.RFID.utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
+
+import java.sql.*;
+import java.util.logging.Level;
 
 /**
  * Class that allow us to interact with a SQL database.
@@ -59,7 +56,7 @@ public class SQLManager
 
 	public void addStudentToDatabase(Student student)
 	{
-		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.NAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getUid() + "\",\"" + student.getName() + "\",\"" + student.isStaffSQL() + "\")");
+		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.NAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getName() + "\",\"" + student.isStaffSQL() + "\")");
 	}
 
 	/**

@@ -10,10 +10,9 @@
  *******************************************************************************/
 package fr.tours.polytech.DI.RFID.objects;
 
-import fr.tours.polytech.DI.RFID.utils.Configuration;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
-import java.io.*;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,8 +26,9 @@ import java.util.regex.Pattern;
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
-public class Period
+public class Period implements Serializable
 {
+	private static final long serialVersionUID = 546546521L;
 	private int startingHour;
 	private int startingMinute;
 	private int endingHour;
@@ -60,27 +60,6 @@ public class Period
 		this.endingMinute = Integer.parseInt(ending.substring(ending.indexOf("H") + 1));
 		this.calendar = Calendar.getInstance(Locale.getDefault());
 		this.decimalFormat = new DecimalFormat("00");
-	}
-
-	/**
-	 * Used to get all the periods from the config file.
-	 *
-	 * @return An array list of the periods.
-	 */
-	public static ArrayList<Period> loadPeriods()
-	{
-		ArrayList<Period> periods = new ArrayList<Period>();
-		String[] stringPeriods = Utils.config.getConfigValue(Configuration.PERIODS).getStringArray();
-		for(String stringPeriod : stringPeriods)
-			try
-			{
-				periods.add(new Period(stringPeriod));
-			}
-			catch(Exception exception)
-			{
-				Utils.logger.log(Level.WARNING, "Can't load perriod " + stringPeriod, exception);
-			}
-		return periods;
 	}
 
 	/**
@@ -182,13 +161,16 @@ public class Period
 		return calen.getTime();
 	}
 
-	private Period readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException
+	@Override
+	public boolean equals(Object o)
 	{
-		return new Period((String)ois.readObject());
+		if(o instanceof Period || o instanceof String)
+			return isSame(o.toString());
+		return o == this;
 	}
 
-	public void writeObject(ObjectOutputStream oos) throws IOException
+	private boolean isSame(String name)
 	{
-		oos.writeObject(this.toString());
+		return this.toString().equalsIgnoreCase(name.replaceAll(" ", ""));
 	}
 }

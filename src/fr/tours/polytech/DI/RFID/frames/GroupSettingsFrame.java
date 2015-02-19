@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -25,20 +27,54 @@ public class GroupSettingsFrame extends JDialog
 		super(parent);
 		this.parent = parent;
 		this.groups = groups;
-		this.groups.add(new Group("G1"));
-		this.groups.add(new Group("G2"));
-		this.groups.add(new Group("G3"));
-		this.groups.add(new Group("G4"));
-		this.groups.add(new Group("G5"));
+		this.setTitle("Group list");
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
+		this.addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e)
+			{
+				Utils.groups = groups;
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e)
+			{
+			}
+		});
 		/**************************************************************************/
 		JButton addButton = new JButton("Add group");
 		addButton.addActionListener(event -> addGroup());
+		addButton.setBackground(MainFrame.backColor);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 		this.modelGroups = new JTableUneditableModel(getTableList(this.groups), new String[]
-				{"Name"});
+				{"Groups"});
 		this.tableGroups = new JTable(this.modelGroups)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -79,7 +115,7 @@ public class GroupSettingsFrame extends JDialog
 					JMenuItem editGroup = new JMenuItem("Edit group");
 					editGroup.addActionListener(event1 -> {
 						try {
-							editGroup(row,group);
+							editGroup(group);
 						} catch (Exception exception) {
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
@@ -87,7 +123,7 @@ public class GroupSettingsFrame extends JDialog
 					JMenuItem deleteGroup = new JMenuItem("Delete group");
 					deleteGroup.addActionListener(event1 -> {
 						try {
-							removeGroup(row,group);
+							removeGroup(row, group);
 						} catch (Exception exception) {
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
@@ -124,12 +160,13 @@ public class GroupSettingsFrame extends JDialog
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addButton, gcb);
+		this.getContentPane().setBackground(MainFrame.backColor);
 		this.setLocationRelativeTo(this.parent);
 		pack();
 		this.setVisible(true);
 	}
 
-	private void editGroup(int row, Group group)
+	private void editGroup(Group group)
 	{
 		new GroupEditFrame(this, group);
 	}
@@ -151,17 +188,23 @@ public class GroupSettingsFrame extends JDialog
 		return array;
 	}
 
+	private void addGroup()
+	{
+		Group group = new Group(JOptionPane.showInputDialog(this, "Entrez le nom du groupe:", ""));
+		for(Group grp : groups)
+			if(grp.equals(group))
+			{
+				JOptionPane.showMessageDialog(this, "A group with that name already exists!", "ERROR", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		this.groups.add(group);
+		this.modelGroups.addRow(new Group[]{group});
+	}
+
 	private void removeGroup(int index, Group group)
 	{
 		groups.remove(group);
 		modelGroups.removeRow(index);
 		modelGroups.fireTableDataChanged();
-	}
-
-	private void addGroup()
-	{
-		Group group = new Group(JOptionPane.showInputDialog(this, "Entrez le nom du groupe:", ""));
-		this.groups.add(group);
-		this.modelGroups.addRow(new Group[]{group});
 	}
 }

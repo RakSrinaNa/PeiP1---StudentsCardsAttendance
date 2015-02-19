@@ -15,6 +15,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
+import fr.tours.polytech.DI.RFID.utils.Utils;
 
 /**
  * Renderer for the students table.
@@ -46,7 +47,7 @@ public class StudentsRenderer implements TableCellRenderer
 	 */
 	public Color getTableBackgroundColour(Object value)
 	{
-		return this.parent.hasChecked(value.toString()) ? Color.GREEN : Color.ORANGE;
+		return this.parent.hasChecked(Utils.getStudentByName(value.toString(), true)) ? Color.GREEN : Color.ORANGE;
 	}
 
 	/**

@@ -14,6 +14,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 /**
@@ -214,5 +215,21 @@ public class SQLManager
 			Utils.logger.log(Level.WARNING, "SQL ERROR", exception);
 		}
 		return result;
+	}
+
+	public ArrayList<Student> getAllStudents()
+	{
+		ArrayList<Student> students = new ArrayList<Student>();
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + "," + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + ";");
+		try
+		{
+			while(result.next())
+				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1));
+		}
+		catch(SQLException exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+		return students;
 	}
 }

@@ -11,6 +11,7 @@
 package fr.tours.polytech.DI.RFID.utils;
 
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
+import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
@@ -32,8 +33,9 @@ public class Utils
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
 	public static Logger logger;
-	public static Configuration config;
 	public static SQLManager sql;
+	public static ArrayList<Student> students;
+	public static ArrayList<Group> groups;
 	public static boolean logAll, addNewCards;
 
 	/**
@@ -66,8 +68,8 @@ public class Utils
 	public static void exit(int exitStaus)
 	{
 		mainFrame.exit();
+		Group.saveGroups(Utils.groups);
 		terminalReader.stop();
-		config.close();
 		System.exit(exitStaus);
 	}
 
@@ -85,11 +87,42 @@ public class Utils
 		logger = Logger.getLogger("RFID");
 		logAll = true;
 		addNewCards = true;
-		config = new Configuration();
 		terminalReader = new TerminalReader("Contactless");
 		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "PolytechDI26");
-		mainFrame = new MainFrame(new File(".", "Students.csv"));
+		students = Utils.sql.getAllStudents();
+		groups = Group.loadGroups();
+		mainFrame = new MainFrame();
 		terminalReader.addListener(mainFrame);
+	}
+
+	/**
+	 * Used to get a student by his name.
+	 *
+	 * @param name The name of the student.
+	 * @param checkDB Should check him in the database if we don't know him?
+	 * @return The student or null if unknown.
+	 */
+	public static Student getStudentByName(String name, boolean checkDB)
+	{
+		for(Student student : students)
+			if(student != null && student.toString().equalsIgnoreCase(name))
+				return student;
+		return checkDB ? Utils.sql.getStudentByName(name) : null;
+	}
+
+	/**
+	 * Used to get a student by his UID.
+	 *
+	 * @param uid The student's card UID.
+	 * @param checkDB Should check him in the database if we don't know him?
+	 * @return The student or null if unknown.
+	 */
+	public static Student getStudentByUID(String uid, boolean checkDB)
+	{
+		for(Student student : students)
+			if(student != null && student.getUid().equals(uid.replaceAll("-", "")))
+				return student;
+		return checkDB ? Utils.sql.getStudentByUID(uid.replaceAll("-", "")) : null;
 	}
 
 	/**
@@ -293,7 +326,6 @@ public class Utils
 					fileWriter = new FileWriter(file, true);
 					bufferedWriter = new BufferedWriter(fileWriter);
 					printWriter = new PrintWriter(bufferedWriter);
-
 					printWriter.print(dateFormat.format(date) + ";" + period.getTimeInterval() + ";" + student.getName() + "\n");
 				}
 				catch(Exception exception)
@@ -322,5 +354,26 @@ public class Utils
 					catch(Exception exception)
 					{}
 			}
+	}
+
+	public static boolean containsStudent(Collection collection, Student student)
+	{
+		if(collection.size() < 1)
+			return false;
+		if(collection.iterator().next() instanceof Vector)
+		{
+			for(Object obj : collection)
+			{
+				Vector<Student> vec = (Vector<Student>)obj;
+				for (Student stu : vec)
+					if(stu.equals(student))
+						return true;
+			}
+		}
+		else
+			for(Student stu : (Collection<Student>)collection)
+				if(stu.equals(student))
+					return true;
+		return false;
 	}
 }

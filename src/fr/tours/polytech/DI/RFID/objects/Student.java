@@ -20,8 +20,9 @@ import java.io.*;
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
-public class Student
+public class Student implements Serializable
 {
+	private static final long serialVersionUID = 546546596L;
 	private String name;
 	private String uid;
 	private boolean isStaff;
@@ -131,15 +132,18 @@ public class Student
 		return this.name + (this.isStaff ? " (Staff)" : "");
 	}
 
-	private Student readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException
+	@Override
+	public boolean equals(Object o)
 	{
-		return new Student((String)ois.readObject(), (String)ois.readObject(), (boolean)ois.readObject());
+		if(o instanceof Student)
+			return isSameName(((Student)o).getName());
+		else if(o instanceof String)
+			return isSameName(o.toString());
+		return o == this;
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException
+	private boolean isSameName(String name)
 	{
-		oos.writeObject(getUid());
-		oos.writeObject(getName());
-		oos.writeBoolean(isStaff());
+		return this.getName().equalsIgnoreCase(name);
 	}
 }

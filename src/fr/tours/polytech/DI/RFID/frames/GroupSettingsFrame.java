@@ -45,6 +45,7 @@ public class GroupSettingsFrame extends JDialog
 			public void windowClosed(WindowEvent e)
 			{
 				Utils.groups = groups;
+				Group.saveGroups(groups);
 			}
 
 			@Override

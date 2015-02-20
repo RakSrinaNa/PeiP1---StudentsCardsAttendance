@@ -12,6 +12,7 @@ package fr.tours.polytech.DI.RFID.objects;
 
 import fr.tours.polytech.DI.RFID.utils.SQLManager;
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.*;
 
@@ -61,7 +62,7 @@ public class Student implements Serializable
 	 */
 	public String getName()
 	{
-		return this.name;
+		return WordUtils.capitalize(this.name.toLowerCase());
 	}
 
 	/**
@@ -138,7 +139,7 @@ public class Student implements Serializable
 		if(o instanceof Student)
 			return isSameName(((Student)o).getName());
 		else if(o instanceof String)
-			return isSameName(o.toString());
+			return isSameName(o.toString().replace("(Staff)", "").trim());
 		return o == this;
 	}
 

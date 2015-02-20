@@ -22,7 +22,7 @@ public class Group implements Serializable
 		this.students = new ArrayList<Student>();
 		this.checkedStudents = new ArrayList<Student>();
 		this.periods = new ArrayList<Period>();
-			}
+	}
 
 	public Group(String name, ArrayList<Student> students, ArrayList<Period> periods)
 	{
@@ -53,7 +53,16 @@ public class Group implements Serializable
 			return false;
 		if(Utils.containsStudent(checkedStudents, student))
 			return false;
-		return this.checkedStudents.add(student);
+		try
+		{
+			this.checkedStudents.add(student);
+		}
+		catch(NullPointerException e)
+		{
+			this.checkedStudents = new ArrayList<Student>();
+			this.checkedStudents.add(student);
+		}
+		return true;
 	}
 
 	public void serialize(File file) throws IOException
@@ -124,14 +133,6 @@ public class Group implements Serializable
 		return getName();
 	}
 
-	public Student getStudentByName(String name)
-	{
-		for(Student student : students)
-			if(student.equals(name))
-				return student;
-		return null;
-	}
-
 	public Period getPeriodByName(String name)
 	{
 		for(Period period : periods)
@@ -147,7 +148,11 @@ public class Group implements Serializable
 
 	public void remove(Student student)
 	{
-		this.students.remove(student);
+		ArrayList<Student> toRemove = new ArrayList<Student>();
+		for(Student stu : students)
+			if(stu.equals(student))
+				toRemove.add(stu);
+		this.students.removeAll(toRemove);
 	}
 
 	@Override
@@ -156,9 +161,16 @@ public class Group implements Serializable
 		return name.hashCode() + this.students.hashCode() + this.periods.hashCode();
 	}
 
-	public void addStudent(Student student)
+	public boolean addStudent(Student student)
 	{
-		this.students.add(student);
+		if(student == null)
+			return false;
+		if(!Utils.containsStudent(students, student))
+		{
+			this.students.add(Utils.getStudentByName(student.getName(), true));
+			return true;
+		}
+		return false;
 	}
 
 	public boolean addPeriod(Period period)
@@ -197,6 +209,12 @@ public class Group implements Serializable
 		return this.checkedStudents.contains(student);
 	}
 
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+		this.checkedStudents = new ArrayList<Student>();
+	}
+
 	public ArrayList<Student> getAllToCheck()
 	{
 		if(isCurrentlyPeriod())
@@ -211,10 +229,20 @@ public class Group implements Serializable
 
 	public void uncheckStudent(Student student)
 	{
+		if(checkedStudents == null)
+			this.checkedStudents = new ArrayList<Student>();
 		ArrayList<Student> toRemove = new ArrayList<Student>();
 		for(Student stu : checkedStudents)
 			if(stu.equals(student))
 				toRemove.add(stu);
 		checkedStudents.removeAll(toRemove);
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Group)
+			return ((Group) o).getName().equals(this.getName());
+		return false;
 	}
 }

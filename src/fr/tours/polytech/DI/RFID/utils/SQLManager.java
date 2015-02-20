@@ -232,4 +232,9 @@ public class SQLManager
 		}
 		return students;
 	}
+
+	public boolean isConnected()
+	{
+		return connection != null;
+	}
 }

@@ -15,6 +15,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
+import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 
 /**
@@ -45,9 +46,9 @@ public class StudentsRenderer implements TableCellRenderer
 	 * @param value The value of the cell (in that case the name of the student).
 	 * @return
 	 */
-	public Color getTableBackgroundColour(Object value)
+	public Color getTableBackgroundColour(Student value)
 	{
-		return this.parent.hasChecked(Utils.getStudentByName(value.toString(), true)) ? Color.GREEN : Color.ORANGE;
+		return this.parent.hasChecked(value) ? Color.GREEN : Color.ORANGE;
 	}
 
 	/**
@@ -59,7 +60,8 @@ public class StudentsRenderer implements TableCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		Component component = this.wrappedRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		component.setBackground(getTableBackgroundColour(value));
+		if(value instanceof Student)
+			component.setBackground(getTableBackgroundColour((Student)value));
 		return component;
 	}
 }

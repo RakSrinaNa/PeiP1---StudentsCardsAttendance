@@ -16,6 +16,7 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
 
+import javax.swing.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,7 +76,7 @@ public class Utils
 
 	/**
 	 * Call when the program is starting. Initalize some variables like
-	 * configuration, logger, reader and SQL connection.
+	 * groups, students, logger, reader and SQL connection.
 	 *
 	 * @throws SecurityException If the Student.csv file can't be read.
 	 * @throws IOException If the Student.csv file can't be read.
@@ -89,6 +90,11 @@ public class Utils
 		addNewCards = true;
 		terminalReader = new TerminalReader("Contactless");
 		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "PolytechDI26");
+		if(!sql.isConnected())
+		{
+			JOptionPane.showMessageDialog(null, "Can't connect to database!", "ERROR", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
 		students = Utils.sql.getAllStudents();
 		groups = Group.loadGroups();
 		mainFrame = new MainFrame();
@@ -105,7 +111,7 @@ public class Utils
 	public static Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : students)
-			if(student != null && student.toString().equalsIgnoreCase(name))
+			if(student != null && student.equals(name))
 				return student;
 		return checkDB ? Utils.sql.getStudentByName(name) : null;
 	}
@@ -123,66 +129,6 @@ public class Utils
 			if(student != null && student.getUid().equals(uid.replaceAll("-", "")))
 				return student;
 		return checkDB ? Utils.sql.getStudentByUID(uid.replaceAll("-", "")) : null;
-	}
-
-	/**
-	 * Used to log all absents students in a CSV file with their name.
-	 *
-	 * @param all The list of all the students that need to check.
-	 * @param checked The students that have checked.
-	 * @param period The period when the students checked.
-	 *
-	 * @throws IOException If file can't be opened or wrote.
-	 */
-	public static void logAbsents(List<Student> all, List<Student> checked, Period period) throws IOException
-	{
-		DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy");
-		Date date = new Date();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		for(Student student : all)
-			if(!checked.contains(student))
-			{
-				FileWriter fileWriter = null;
-				BufferedWriter bufferedWriter = null;
-				PrintWriter printWriter = null;
-				File file = new File("." + File.separator + "absent_" + student.getName().replace(" ", "_") + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
-				if(!file.exists())
-				{
-					file.getParentFile().mkdirs();
-					try
-					{
-						file.createNewFile();
-					}
-					catch(IOException exception)
-					{}
-				}
-				fileWriter = new FileWriter(file, true);
-				bufferedWriter = new BufferedWriter(fileWriter);
-				printWriter = new PrintWriter(bufferedWriter);
-				printWriter.print(dateFormat.format(date) + period.getTimeInterval() + "\n");
-				if(printWriter != null)
-					try
-					{
-						printWriter.close();
-					}
-					catch(Exception exception)
-					{}
-				if(bufferedWriter != null)
-					try
-					{
-						bufferedWriter.close();
-					}
-					catch(Exception exception)
-					{}
-				if(fileWriter != null)
-					try
-					{
-						fileWriter.close();
-					}
-					catch(Exception exception)
-					{}
-			}
 	}
 
 	/**
@@ -205,7 +151,7 @@ public class Utils
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
-			File file = new File("." + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
+			File file = new File("." + File.separator + "log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
 				file.getParentFile().mkdirs();
@@ -265,36 +211,14 @@ public class Utils
 	}
 
 	/**
-	 * Used to write the student list that need to check to the CSV file.
+	 * Used to log all absents students in a CSV file with their name.
 	 *
-	 * @param students The students list.
-	 * @param file The CSV file.
+	 * @param period The period when the students haven't checked.
+	 * @param students The list of all the students that need to check.
+	 * @param checkedStudents The students that have checked.
 	 *
-	 * @throws IOException If the file can't be modified.
+	 * @throws IOException If file can't be opened or wrote.
 	 */
-	public static void writeStudentsToFile(List<Student> students, File file) throws IOException
-	{
-		file.delete();
-		if(!file.exists())
-		{
-			file.getParentFile().mkdirs();
-			try
-			{
-				file.createNewFile();
-			}
-			catch(IOException exception)
-			{}
-		}
-		FileWriter fileWriter = new FileWriter(file, true);
-		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		for(Student student : students)
-			printWriter.print(student.getName() + "\n");
-		printWriter.close();
-		bufferedWriter.close();
-		fileWriter.close();
-	}
-
 	public static void writeAbsents(Period period, ArrayList<Student> students, ArrayList<Student> checkedStudents)
 	{
 		for(Student student : students)
@@ -310,7 +234,7 @@ public class Utils
 					Date date = new Date();
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(date);
-					File file = new File("." + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
+					File file = new File("." + File.separator + "absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
 					if(!file.exists())
 					{
 						file.getParentFile().mkdirs();
@@ -356,9 +280,16 @@ public class Utils
 			}
 	}
 
+	/**
+	 * Used to know if a collection contains a student.
+	 *
+	 * @param collection The collection to verify.
+	 * @param student The student to search for.
+	 * @return True if in the collection, false if not.
+	 */
 	public static boolean containsStudent(Collection collection, Student student)
 	{
-		if(collection.size() < 1)
+		if(collection == null || collection.size() < 1)
 			return false;
 		if(collection.iterator().next() instanceof Vector)
 		{

@@ -73,7 +73,7 @@ public class AboutFrame extends JWindow
 		logoPanel.setPreferredSize(new Dimension(250, 77));
 		try
 		{
-			logoPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("resources/images/logo_polytech.jpg")));
+			logoPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_polytech.jpg")));
 		}
 		catch(IOException exception)
 		{

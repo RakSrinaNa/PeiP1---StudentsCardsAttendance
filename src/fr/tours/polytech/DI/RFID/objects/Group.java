@@ -140,6 +140,11 @@ public class Group implements Serializable
 		return o != null && o instanceof Group && ((Group) o).getName().equals(this.getName());
 	}
 
+	public ArrayList<Student> getAddableStudents()
+	{
+		return Utils.removeStudentsInList(new ArrayList<>(Utils.students), this.students);
+	}
+
 	@Override
 	public String toString()
 	{

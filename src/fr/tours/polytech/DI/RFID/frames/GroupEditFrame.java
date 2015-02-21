@@ -257,7 +257,13 @@ public class GroupEditFrame extends JDialog
 
 	private void addStudent()
 	{
-		Student student = Utils.getStudentByName(JOptionPane.showInputDialog(this, "Entrez le nom de l'\351l\350ve (Nom Pr\351nom):", ""), true);
+		ArrayList<Student> students = group.getAddableStudents();
+		if(students.size() < 1)
+		{
+			JOptionPane.showMessageDialog(this, "Aucun \351tudiant n'est disponible pour l'ajout!", "ERREUR", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		Student student = (Student) JOptionPane.showInputDialog(this, "S\351lectionnez l'\351tudiant \340 ajouter:", "Ajouter un \351tudiant", JOptionPane.QUESTION_MESSAGE, null, students.toArray(new Student[students.size()]), students.get(0));
 		if(!group.addStudent(student))
 		{
 			JOptionPane.showMessageDialog(this, "L'\351tudiant est inconnu dans la base de donn\351es ou est d\351j\340 dans la liste!", "ERREUR", JOptionPane.ERROR_MESSAGE);

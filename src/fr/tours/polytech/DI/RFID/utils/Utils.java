@@ -305,4 +305,18 @@ public class Utils
 					return true;
 		return false;
 	}
+
+	public static ArrayList<Student> removeStudentsInList(ArrayList<Student> base, Collection<Student> toRemove)
+	{
+		ArrayList<Student> toRem = new ArrayList<>();
+		for(Student student : toRemove)
+		{
+			for(Student stu : base)
+				if(student.equals(stu))
+					toRem.add(stu);
+			base.removeAll(toRem);
+			toRem.clear();
+		}
+		return base;
+	}
 }

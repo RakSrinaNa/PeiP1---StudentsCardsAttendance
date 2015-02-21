@@ -24,6 +24,7 @@ public class GroupSettingsFrame extends JDialog
 	{
 		super(parent);
 		this.groups = groups;
+		this.setIconImages(Utils.icons);
 		this.setTitle("R\351glage des groupes");
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
@@ -173,8 +174,8 @@ public class GroupSettingsFrame extends JDialog
 		gcb.weighty = 1;
 		this.getContentPane().add(addButton, gcb);
 		this.getContentPane().setBackground(MainFrame.backColor);
-		this.setLocationRelativeTo(parent);
 		pack();
+		this.setLocationRelativeTo(parent);
 		this.setVisible(true);
 	}
 

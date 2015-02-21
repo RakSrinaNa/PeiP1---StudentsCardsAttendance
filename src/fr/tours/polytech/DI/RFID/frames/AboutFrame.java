@@ -28,7 +28,7 @@ import java.util.logging.Level;
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
-public class AboutFrame extends JWindow
+public class AboutFrame extends JDialog
 {
 	private static final long serialVersionUID = -475220568920430189L;
 
@@ -40,6 +40,9 @@ public class AboutFrame extends JWindow
 	public AboutFrame(JFrame parent)
 	{
 		super(parent);
+		this.setIconImages(Utils.icons);
+		this.setUndecorated(true);
+		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
 		addMouseListener(new MouseListener()
 		{
@@ -69,11 +72,21 @@ public class AboutFrame extends JWindow
 			{
 			}
 		});
-		ImagePanel logoPanel = new ImagePanel();
-		logoPanel.setPreferredSize(new Dimension(250, 77));
+		ImagePanel logoPolytechPanel = new ImagePanel();
+		logoPolytechPanel.setPreferredSize(new Dimension(250, 77));
 		try
 		{
-			logoPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_polytech.jpg")));
+			logoPolytechPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_polytech.jpg")));
+		}
+		catch(IOException exception)
+		{
+			Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
+		}
+		ImagePanel logoAppPanel = new ImagePanel();
+		logoAppPanel.setPreferredSize(new Dimension(250, 77));
+		try
+		{
+			logoAppPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_app.jpg")));
 		}
 		catch(IOException exception)
 		{
@@ -96,13 +109,15 @@ public class AboutFrame extends JWindow
 		gcb.gridwidth = 1;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
-		getContentPane().add(logoPanel, gcb);
+		getContentPane().add(logoPolytechPanel, gcb);
+		gcb.gridy = line++;
+		getContentPane().add(logoAppPanel, gcb);
 		gcb.weighty = 10;
 		gcb.gridy = line++;
 		getContentPane().add(infoPanel, gcb);
 		getContentPane().setBackground(Color.WHITE);
 		pack();
+		setLocationRelativeTo(parent);
 		setVisible(true);
-		setLocationRelativeTo(getParent());
 	}
 }

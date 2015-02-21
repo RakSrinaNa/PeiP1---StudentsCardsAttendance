@@ -17,7 +17,9 @@ import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,6 +41,8 @@ public class Utils
 	public static boolean logAll, addNewCards;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
+	public static ResourceBundle resourceBundle;
+	public static ArrayList<BufferedImage> icons;
 
 	/**
 	 * Used to transform an array of bytes to a String like FF-FF-FF...
@@ -81,9 +85,14 @@ public class Utils
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see java.util.logging.FileHandler#FileHandler(String, boolean)
 	 */
-	public static void init() throws SecurityException
+	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("RFID");
+		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
+		icons = new ArrayList<>();
+		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
+		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
+		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		logAll = true;
 		addNewCards = true;
 		terminalReader = new TerminalReader("Contactless");

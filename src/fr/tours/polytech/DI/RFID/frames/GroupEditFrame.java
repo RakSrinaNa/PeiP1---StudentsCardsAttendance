@@ -28,6 +28,7 @@ public class GroupEditFrame extends JDialog
 	{
 		super(parent);
 		this.group = group;
+		this.setIconImages(Utils.icons);
 		this.setTitle("Edition du groupe : " + group.getName());
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setBackground(MainFrame.backColor);
@@ -250,8 +251,8 @@ public class GroupEditFrame extends JDialog
 		this.getContentPane().add(addStudent, gcb);
 		gcb.gridx = 1;
 		this.getContentPane().add(addPeriod, gcb);
-		this.setLocationRelativeTo(parent);
 		pack();
+		this.setLocationRelativeTo(parent);
 		this.setVisible(true);
 	}
 

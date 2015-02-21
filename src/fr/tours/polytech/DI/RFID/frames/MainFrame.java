@@ -62,6 +62,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	public MainFrame()
 	{
 		super("Gestion de pr\351sence des \351tudiants");
+		this.setIconImages(Utils.icons);
 		backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(800, 600));
@@ -306,8 +307,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		setStaffInfos(false);
 		cardRemoved();
 		pack();
-		setVisible(true);
 		setLocationRelativeTo(null);
+		setVisible(true);
 		this.thread = new Thread(this);
 		this.thread.setName("RefreshInfoPanel");
 		this.thread.start();

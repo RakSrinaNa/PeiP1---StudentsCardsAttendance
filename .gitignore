@@ -1,7 +1,1 @@
-/bin/
 /target/
-
-*.log
-*.lck
-*.1
-checked*csv

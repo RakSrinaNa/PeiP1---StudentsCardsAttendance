@@ -1,13 +1,15 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.utils;
 
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
@@ -15,7 +17,6 @@ import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.threads.TerminalReader;
-
 import javax.swing.*;
 import java.io.*;
 import java.text.DateFormat;
@@ -31,13 +32,13 @@ import java.util.logging.Logger;
  */
 public class Utils
 {
-	private static TerminalReader terminalReader;
-	private static MainFrame mainFrame;
 	public static Logger logger;
 	public static SQLManager sql;
 	public static ArrayList<Student> students;
 	public static ArrayList<Group> groups;
 	public static boolean logAll, addNewCards;
+	private static TerminalReader terminalReader;
+	private static MainFrame mainFrame;
 
 	/**
 	 * Used to transform an array of bytes to a String like FF-FF-FF...
@@ -63,7 +64,6 @@ public class Utils
 	 * Call when we need to exit the program.
 	 *
 	 * @param exitStaus The parameter given to {@link System#exit(int)}
-	 *
 	 * @see System#exit(int)
 	 */
 	public static void exit(int exitStaus)
@@ -78,12 +78,10 @@ public class Utils
 	 * Call when the program is starting. Initalize some variables like
 	 * groups, students, logger, reader and SQL connection.
 	 *
-	 * @throws SecurityException If the Student.csv file can't be read.
-	 * @throws IOException If the Student.csv file can't be read.
-	 *
+	 * @throws SecurityException If the database connection can't be made.
 	 * @see java.util.logging.FileHandler#FileHandler(String, boolean)
 	 */
-	public static void init() throws SecurityException, IOException
+	public static void init() throws SecurityException
 	{
 		logger = Logger.getLogger("RFID");
 		logAll = true;
@@ -111,7 +109,7 @@ public class Utils
 	public static Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : students)
-			if(student != null && student.equals(name))
+			if(student != null && student.is(name))
 				return student;
 		return checkDB ? Utils.sql.getStudentByName(name) : null;
 	}
@@ -135,10 +133,8 @@ public class Utils
 	 * Used to log a check in the CSV file.
 	 *
 	 * @param student The student that checked.
-	 *
-	 * @throws IOException If file can't be opened or wrote.
 	 */
-	public static void logCheck(Student student) throws IOException
+	public static void logCheck(Student student)
 	{
 		if(!logAll)
 			return;
@@ -151,7 +147,7 @@ public class Utils
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
-			File file = new File("." + File.separator + "log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
+			File file = new File("." + File.separator + "RFID" + File.separator + "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
 				file.getParentFile().mkdirs();
@@ -179,21 +175,24 @@ public class Utils
 				printWriter.close();
 			}
 			catch(Exception exception)
-			{}
+			{
+			}
 		if(bufferedWriter != null)
 			try
 			{
 				bufferedWriter.close();
 			}
 			catch(Exception exception)
-			{}
+			{
+			}
 		if(fileWriter != null)
 			try
 			{
 				fileWriter.close();
 			}
 			catch(Exception exception)
-			{}
+			{
+			}
 	}
 
 	/**
@@ -204,7 +203,7 @@ public class Utils
 	 */
 	public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list)
 	{
-		Set<T> setItems = new LinkedHashSet<T>(list);
+		Set<T> setItems = new LinkedHashSet<>(list);
 		list.clear();
 		list.addAll(setItems);
 		return list;
@@ -216,8 +215,6 @@ public class Utils
 	 * @param period The period when the students haven't checked.
 	 * @param students The list of all the students that need to check.
 	 * @param checkedStudents The students that have checked.
-	 *
-	 * @throws IOException If file can't be opened or wrote.
 	 */
 	public static void writeAbsents(Period period, ArrayList<Student> students, ArrayList<Student> checkedStudents)
 	{
@@ -234,7 +231,7 @@ public class Utils
 					Date date = new Date();
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(date);
-					File file = new File("." + File.separator + "absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
+					File file = new File("." + File.separator + "RFID" + File.separator + "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
 					if(!file.exists())
 					{
 						file.getParentFile().mkdirs();
@@ -262,21 +259,24 @@ public class Utils
 						printWriter.close();
 					}
 					catch(Exception exception)
-					{}
+					{
+					}
 				if(bufferedWriter != null)
 					try
 					{
 						bufferedWriter.close();
 					}
 					catch(Exception exception)
-					{}
+					{
+					}
 				if(fileWriter != null)
 					try
 					{
 						fileWriter.close();
 					}
 					catch(Exception exception)
-					{}
+					{
+					}
 			}
 	}
 
@@ -292,17 +292,15 @@ public class Utils
 		if(collection == null || collection.size() < 1)
 			return false;
 		if(collection.iterator().next() instanceof Vector)
-		{
 			for(Object obj : collection)
 			{
-				Vector<Student> vec = (Vector<Student>)obj;
-				for (Student stu : vec)
+				Vector<Student> vec = (Vector<Student>) obj;
+				for(Student stu : vec)
 					if(stu.equals(student))
 						return true;
 			}
-		}
 		else
-			for(Student stu : (Collection<Student>)collection)
+			for(Student stu : (Collection<Student>) collection)
 				if(stu.equals(student))
 					return true;
 		return false;

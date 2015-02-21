@@ -1,13 +1,15 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.frames;
 
 import fr.tours.polytech.DI.RFID.enums.Sounds;
@@ -18,9 +20,7 @@ import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
-
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -28,11 +28,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Vector;
 import java.util.logging.Level;
 
 /**
@@ -42,18 +43,18 @@ import java.util.logging.Level;
  */
 public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
-	private static final long serialVersionUID = -4989573496325827301L;
 	public static final String VERSION = "1.0";
+	private static final long serialVersionUID = -4989573496325827301L;
 	public static Color backColor;
-	private Thread thread;
-	private JPanel cardPanel;
-	private JPanel staffPanel;
-	private JLabel cardTextLabel;
-	private JLabel infoTextLabel;
-	private JTable tableChecked;
+	private final Thread thread;
+	private final JPanel cardPanel;
+	private final JPanel staffPanel;
+	private final JLabel cardTextLabel;
+	private final JLabel groupsInfoLabel;
+	private final JTable tableChecked;
 	private Student currentStudent;
-	private JMenuItem menuItemExit;
-	private JTableUneditableModel modelChecked;
+	private final JMenuItem menuItemExit;
+	private final JTableUneditableModel modelChecked;
 
 	/**
 	 * Constructor.
@@ -67,12 +68,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		addWindowListener(new WindowListener()
 		{
 			@Override
-			public void windowActivated(WindowEvent event)
-			{}
-
-			@Override
-			public void windowClosed(WindowEvent event)
-			{}
+			public void windowOpened(WindowEvent event)
+			{
+			}
 
 			@Override
 			public void windowClosing(WindowEvent event)
@@ -84,20 +82,29 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 
 			@Override
-			public void windowDeactivated(WindowEvent event)
-			{}
-
-			@Override
-			public void windowDeiconified(WindowEvent event)
-			{}
+			public void windowClosed(WindowEvent event)
+			{
+			}
 
 			@Override
 			public void windowIconified(WindowEvent event)
-			{}
+			{
+			}
 
 			@Override
-			public void windowOpened(WindowEvent event)
-			{}
+			public void windowDeiconified(WindowEvent event)
+			{
+			}
+
+			@Override
+			public void windowActivated(WindowEvent event)
+			{
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent event)
+			{
+			}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JMenuBar menuBar = new JMenuBar();
@@ -112,7 +119,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			{
 				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
 			}
-			catch (Exception exception)
+			catch(Exception exception)
 			{
 				Utils.logger.log(Level.WARNING, "Error when opening wiki page", exception);
 			}
@@ -128,9 +135,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.cardTextLabel = new JLabel();
 		this.cardTextLabel.setVerticalAlignment(JLabel.CENTER);
 		this.cardTextLabel.setHorizontalAlignment(JLabel.CENTER);
-		infoTextLabel = new JLabel();
-		infoTextLabel.setVerticalAlignment(JLabel.CENTER);
-		infoTextLabel.setHorizontalAlignment(JLabel.CENTER);
+		groupsInfoLabel = new JLabel();
+		groupsInfoLabel.setVerticalAlignment(JLabel.CENTER);
+		groupsInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 		modelChecked = new JTableUneditableModel(new Student[][]{}, new String[]{"Nom"});
@@ -148,19 +155,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			@Override
 			public void mouseClicked(MouseEvent event)
-			{}
-
-			@Override
-			public void mouseEntered(MouseEvent event)
-			{}
-
-			@Override
-			public void mouseExited(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mousePressed(MouseEvent event)
-			{}
+			{
+			}
 
 			@Override
 			public void mouseReleased(MouseEvent event)
@@ -189,8 +190,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						}
 					});
 					JMenuItem uncheckStudent = new JMenuItem("D\351valider l'étudiant");
-					uncheckStudent.addActionListener(event1 ->
-					{
+					uncheckStudent.addActionListener(event1 -> {
 						try
 						{
 							uncheckStudent(student);
@@ -206,6 +206,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						popup.add(uncheckStudent);
 					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseExited(MouseEvent event)
+			{
 			}
 		});
 		this.tableChecked.setBackground(backColor);
@@ -228,7 +238,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		JPanel infoPanel = new JPanel();
-		infoPanel.add(infoTextLabel, gcb);
+		infoPanel.add(groupsInfoLabel, gcb);
 		infoPanel.setBackground(backColor);
 		this.cardPanel = new JPanel(new GridBagLayout());
 		this.cardPanel.add(this.cardTextLabel, gcb);
@@ -311,7 +321,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	/**
 	 * Called by the {@link TerminalListener} interface when a card id added.
-	 *
+	 * <p>
 	 * Check the student if needed and open the staff panel if it should be
 	 * opened.
 	 */
@@ -336,31 +346,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.cardTextLabel.setText("Carte d\351tect\351e : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
 		if(checkStudent(student))
 		{
-			try
-			{
-				Utils.logCheck(student);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			Utils.logCheck(student);
 			Sounds.CARD_CHECKED.playSound();
 		}
 		setStaffInfos(student.isStaff());
 	}
 
-	private boolean checkStudent(Student student)
-	{
-		boolean checked = false;
-		for(Group group : Utils.groups)
-			if(group.checkStudent(student))
-				checked |= true;
-		return checked;
-	}
-
 	/**
 	 * Called by the {@link TerminalListener} interface when a reader is added.
-	 *
+	 * <p>
 	 * Set the panel text.
 	 */
 	@Override
@@ -371,7 +365,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	/**
 	 * Called by the {@link TerminalListener} interface when a reader is removed.
-	 *
+	 * <p>
 	 * Set the panel text.
 	 */
 	@Override
@@ -383,7 +377,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	/**
 	 * Called by the {@link TerminalListener} interface when a card id removed.
-	 *
+	 * <p>
 	 * Set the panel text and eventually close the staff panel.
 	 */
 	@Override
@@ -393,6 +387,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.currentStudent = null;
 		this.cardPanel.setBackground(Color.ORANGE);
 		this.cardTextLabel.setText("Aucune carte d\351tect\351e");
+	}
+
+	private boolean checkStudent(Student student)
+	{
+		boolean checked = false;
+		for(Group group : Utils.groups)
+			if(group.checkStudent(student))
+				checked |= true;
+		return checked;
 	}
 
 	/**
@@ -407,7 +410,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 
 	/**
 	 * Thread.
-	 *
+	 * <p>
 	 * Will update clock, and activate/deactivate periods.
 	 */
 	@Override
@@ -421,15 +424,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				Thread.sleep(500);
 			}
 			catch(InterruptedException exception)
-			{}
+			{
+			}
 			Date date = new Date();
-			this.infoTextLabel.setText(dateFormat.format(date));
-			ArrayList<Student> toCheck = new ArrayList<Student>();
+			StringBuffer groupsInfo = new StringBuffer("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
+			ArrayList<Student> toCheck = new ArrayList<>();
 			for(Group group : Utils.groups)
 			{
 				group.update();
 				toCheck.addAll(group.getAllToCheck());
+				if(group.isCurrentlyPeriod())
+					groupsInfo.append("Groupe ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
 			}
+			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
 			Utils.removeDuplicates(toCheck);
 			Vector vec = modelChecked.getDataVector();
 			for(Student student : toCheck)

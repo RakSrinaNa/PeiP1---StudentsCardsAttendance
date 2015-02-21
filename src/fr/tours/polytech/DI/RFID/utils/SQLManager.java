@@ -1,18 +1,19 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.utils;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -24,14 +25,16 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	private String UID_LABEL = "UID", NAME_LABEL = "Name", STAFF_LABEL = "Staff";
+	private final String UID_LABEL = "UID";
+	private final String NAME_LABEL = "Name";
+	private final String STAFF_LABEL = "Staff";
 	private Connection connection;
-	private String tableName;
-	private String databaseURL;
-	private int port;
-	private String databaseName;
-	private String user;
-	private String password;
+	private final String tableName;
+	private final String databaseURL;
+	private final int port;
+	private final String databaseName;
+	private final String user;
+	private final String password;
 
 	/**
 	 * Constructor.
@@ -79,7 +82,8 @@ public class SQLManager
 			Utils.logger.log(Level.WARNING, "", exception);
 		}
 		catch(NullPointerException exception)
-		{}
+		{
+		}
 		return null;
 	}
 
@@ -219,7 +223,7 @@ public class SQLManager
 
 	public ArrayList<Student> getAllStudents()
 	{
-		ArrayList<Student> students = new ArrayList<Student>();
+		ArrayList<Student> students = new ArrayList<>();
 		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + "," + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + ";");
 		try
 		{

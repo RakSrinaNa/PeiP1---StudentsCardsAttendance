@@ -1,24 +1,22 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.objects;
-
-import fr.tours.polytech.DI.RFID.utils.Utils;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 /**
@@ -40,12 +38,11 @@ public class Period implements Serializable
 	 * Constructor.
 	 *
 	 * @param period A string representing the period. This should be formatted
-	 *            as
-	 *            <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i>
-	 *            where <i>xx</i> and <i>yy</i> are the time to set.
-	 *
+	 * as
+	 * <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i>
+	 * where <i>xx</i> and <i>yy</i> are the time to set.
 	 * @throws IllegalArgumentException If the period isn't formatted as it
-	 *             should be.
+	 * should be.
 	 */
 	public Period(String period) throws IllegalArgumentException
 	{
@@ -95,11 +92,6 @@ public class Period implements Serializable
 				if(minutes >= this.startingMinute)
 					return true;
 			}
-			else if(hours == this.endingHour)
-			{
-				if(minutes < this.endingMinute)
-					return true;
-			}
 			else
 				return true;
 		return false;
@@ -113,24 +105,7 @@ public class Period implements Serializable
 	 */
 	public boolean isOverlapped(Period period)
 	{
-		if(period == null)
-			return false;
-		if(period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()))
-			return true;
-		return false;
-	}
-
-	/**
-	 * Used to get a String representing this interval. This is mostly used when
-	 * saving the object to the config, should use {@link #getTimeInterval}
-	 * instead.
-	 *
-	 * @return A string formatted as <b>xxHxx-yyHyy</b>
-	 */
-	@Override
-	public String toString()
-	{
-		return getTimeInterval().replaceAll(" ", "");
+		return period != null && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
 	}
 
 	/**
@@ -164,13 +139,31 @@ public class Period implements Serializable
 	@Override
 	public boolean equals(Object o)
 	{
-		if(o instanceof Period || o instanceof String)
+		if(o instanceof Period)
 			return isSame(o.toString());
 		return o == this;
+	}
+
+	/**
+	 * Used to get a String representing this interval. This is mostly used when
+	 * saving the object to the config, should use {@link #getTimeInterval}
+	 * instead.
+	 *
+	 * @return A string formatted as <b>xxHxx-yyHyy</b>
+	 */
+	@Override
+	public String toString()
+	{
+		return getTimeInterval().replaceAll(" ", "");
 	}
 
 	private boolean isSame(String name)
 	{
 		return this.toString().equalsIgnoreCase(name.replaceAll(" ", ""));
+	}
+
+	public boolean is(String name)
+	{
+		return isSame(name);
 	}
 }

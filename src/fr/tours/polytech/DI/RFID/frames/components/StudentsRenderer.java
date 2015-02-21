@@ -1,22 +1,22 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.frames.components;
 
-import java.awt.Color;
-import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Student;
-import fr.tours.polytech.DI.RFID.utils.Utils;
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  * Renderer for the students table.
@@ -26,11 +26,11 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 public class StudentsRenderer implements TableCellRenderer
 {
 	private final TableCellRenderer wrappedRenderer;
-	private MainFrame parent;
+	private final MainFrame parent;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param wrappedRenderer The default renderer wrapped to the table.
 	 * @param frame The MainFrame where this table is.
 	 */
@@ -44,7 +44,7 @@ public class StudentsRenderer implements TableCellRenderer
 	 * Used to get the colour of the cell.
 	 *
 	 * @param value The value of the cell (in that case the name of the student).
-	 * @return
+	 * @return The color to set for this student.
 	 */
 	public Color getTableBackgroundColour(Student value)
 	{
@@ -61,7 +61,7 @@ public class StudentsRenderer implements TableCellRenderer
 	{
 		Component component = this.wrappedRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if(value instanceof Student)
-			component.setBackground(getTableBackgroundColour((Student)value));
+			component.setBackground(getTableBackgroundColour((Student) value));
 		return component;
 	}
 }

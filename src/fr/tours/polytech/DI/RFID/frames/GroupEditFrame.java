@@ -5,7 +5,6 @@ import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -23,7 +22,7 @@ public class GroupEditFrame extends JDialog
 	private final JTable tablePeriods;
 	private final JTableUneditableModel modelPeriods;
 	private final JTableUneditableModel modelStudents;
-	private Group group;
+	private final Group group;
 
 	public GroupEditFrame(GroupSettingsFrame parent, Group group)
 	{
@@ -33,7 +32,8 @@ public class GroupEditFrame extends JDialog
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setBackground(MainFrame.backColor);
 		this.getContentPane().setLayout(new GridBagLayout());
-		this.addWindowListener(new WindowListener() {
+		this.addWindowListener(new WindowListener()
+		{
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
@@ -78,8 +78,7 @@ public class GroupEditFrame extends JDialog
 		/**************************************************************************/
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-		this.modelStudents = new JTableUneditableModel(getStudentsTableList(group.getStudents()), new String[]
-				{"Etudiants"});
+		this.modelStudents = new JTableUneditableModel(getStudentsTableList(group.getStudents()), new String[]{"Etudiants"});
 		this.tableStudents = new JTable(this.modelStudents)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -90,30 +89,38 @@ public class GroupEditFrame extends JDialog
 				return String.class;
 			}
 		};
-		this.tableStudents.addMouseListener(new MouseListener() {
+		this.tableStudents.addMouseListener(new MouseListener()
+		{
 			@Override
-			public void mouseClicked(MouseEvent event) {
+			public void mouseClicked(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent event) {
+			public void mouseEntered(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseExited(MouseEvent event) {
+			public void mouseExited(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mousePressed(MouseEvent event) {
+			public void mousePressed(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent event) {
+			public void mouseReleased(MouseEvent event)
+			{
 				int row = GroupEditFrame.this.tableStudents.rowAtPoint(event.getPoint());
-				if (row >= 0 && row < GroupEditFrame.this.tableStudents.getRowCount()) GroupEditFrame.this.tableStudents.setRowSelectionInterval(row, row);
-				else GroupEditFrame.this.tableStudents.clearSelection();
+				if(row >= 0 && row < GroupEditFrame.this.tableStudents.getRowCount())
+					GroupEditFrame.this.tableStudents.setRowSelectionInterval(row, row);
+				else
+					GroupEditFrame.this.tableStudents.clearSelection();
 				int rowindex = GroupEditFrame.this.tableStudents.getSelectedRow();
-				if (event.isPopupTrigger() && event.getComponent() instanceof JTable)
+				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
 					Student student = Utils.getStudentByName(GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), true);
 					JPopupMenu popup = new JPopupMenu();
@@ -122,7 +129,9 @@ public class GroupEditFrame extends JDialog
 						try
 						{
 							removeStudent(student, rowindex);
-						} catch (Exception exception) {
+						}
+						catch(Exception exception)
+						{
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
@@ -142,8 +151,7 @@ public class GroupEditFrame extends JDialog
 		scrollPaneStudents.setAutoscrolls(false);
 		scrollPaneStudents.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		/**************************************************************************/
-		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]
-				{"P\351riodes"});
+		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{"P\351riodes"});
 		this.tablePeriods = new JTable(this.modelPeriods)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -154,41 +162,48 @@ public class GroupEditFrame extends JDialog
 				return String.class;
 			}
 		};
-		this.tablePeriods.addMouseListener(new MouseListener() {
+		this.tablePeriods.addMouseListener(new MouseListener()
+		{
 			@Override
-			public void mouseClicked(MouseEvent event) {
+			public void mouseClicked(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent event) {
+			public void mouseEntered(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseExited(MouseEvent event) {
+			public void mouseExited(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mousePressed(MouseEvent event) {
+			public void mousePressed(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent event) {
+			public void mouseReleased(MouseEvent event)
+			{
 				int row = GroupEditFrame.this.tablePeriods.rowAtPoint(event.getPoint());
-				if (row >= 0 && row < GroupEditFrame.this.tablePeriods.getRowCount()) GroupEditFrame.this.tablePeriods.setRowSelectionInterval(row, row);
-				else GroupEditFrame.this.tablePeriods.clearSelection();
+				if(row >= 0 && row < GroupEditFrame.this.tablePeriods.getRowCount())
+					GroupEditFrame.this.tablePeriods.setRowSelectionInterval(row, row);
+				else
+					GroupEditFrame.this.tablePeriods.clearSelection();
 				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
-				if (event.isPopupTrigger() && event.getComponent() instanceof JTable)
+				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
 					Period period = getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deletePeriod = new JMenuItem("Supprimer la p\351riode");
-					deletePeriod.addActionListener(event1 ->
-					{
+					deletePeriod.addActionListener(event1 -> {
 						try
 						{
 							removePeriod(period, rowindex);
 						}
-						catch (Exception exception)
+						catch(Exception exception)
 						{
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
@@ -265,7 +280,7 @@ public class GroupEditFrame extends JDialog
 			else
 				JOptionPane.showMessageDialog(this, "Cette p\351riode en chevauche une autre!", "ERREUR", JOptionPane.ERROR_MESSAGE);
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			JOptionPane.showMessageDialog(this, "La p\351riode n'est pas \351crite de mani\350re correcte!", "ERREUR", JOptionPane.ERROR_MESSAGE);
 		}

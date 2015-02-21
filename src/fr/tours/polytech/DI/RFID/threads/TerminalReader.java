@@ -1,31 +1,26 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.threads;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import javax.smartcardio.Card;
-import javax.smartcardio.CardChannel;
-import javax.smartcardio.CardException;
-import javax.smartcardio.CardTerminal;
-import javax.smartcardio.CardTerminals;
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
-import javax.smartcardio.TerminalFactory;
 import fr.tours.polytech.DI.RFID.enums.APDUResponse;
 import fr.tours.polytech.DI.RFID.enums.Commands;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import javax.smartcardio.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Thread that check the reader if there is one.
@@ -35,9 +30,9 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 public class TerminalReader implements Runnable
 {
 	private boolean isPresent;
-	private List<TerminalListener> listenersTerminal;
-	private String terminalName;
-	private Thread thread;
+	private final List<TerminalListener> listenersTerminal;
+	private final String terminalName;
+	private final Thread thread;
 	private RFIDCard lastCard;
 
 	/**
@@ -47,7 +42,7 @@ public class TerminalReader implements Runnable
 	 */
 	public TerminalReader(String name)
 	{
-		this.listenersTerminal = new ArrayList<TerminalListener>();
+		this.listenersTerminal = new ArrayList<>();
 		this.terminalName = name;
 		this.thread = new Thread(this);
 		this.thread.setName("TerminalReader");
@@ -72,9 +67,9 @@ public class TerminalReader implements Runnable
 
 	/**
 	 * What is doing the thread.
-	 *
+	 * <p>
 	 * Will check if there is a reader available containing the wanted name
-	 * (will call {@link TerminalListener#cardReader(boolean)} if a listener is
+	 * (will call {@link TerminalListener#cardReaderRemoved()} ()} if a listener is
 	 * removed or added).
 	 * If it is the case it will wait for a card placed, call {@link TerminalListener#cardAdded(RFIDCard)}, wait for the card to be
 	 * removed then call {@link TerminalListener#cardRemoved()}
@@ -83,7 +78,7 @@ public class TerminalReader implements Runnable
 	public void run()
 	{
 		final TerminalFactory terminalFactory = TerminalFactory.getDefault();
-		while(!this.thread.interrupted())
+		while(!Thread.interrupted())
 		{
 			boolean lastPresent = this.isPresent;
 			try
@@ -101,7 +96,8 @@ public class TerminalReader implements Runnable
 						}
 				}
 				catch(CardException exception)
-				{}
+				{
+				}
 				if(cardTerminal == null)
 					this.isPresent = false;
 				if(this.isPresent != lastPresent)

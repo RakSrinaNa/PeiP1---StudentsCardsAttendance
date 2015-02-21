@@ -1,20 +1,20 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.frames.components;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.swing.JPanel;
 
 /**
  * A panel containing a buffered image.
@@ -28,7 +28,7 @@ public class ImagePanel extends JPanel
 
 	/**
 	 * Constructor.
-	 * Will call {@link #ImagePanel(BufferedImage, Dimension, boolean)} with null, null.
+	 * Will call {@link ImagePanel#ImagePanel(BufferedImage, Dimension)} with null, null.
 	 */
 	public ImagePanel()
 	{
@@ -37,7 +37,7 @@ public class ImagePanel extends JPanel
 
 	/**
 	 * Constructor.
-	 * Will call {@link #ImagePanel(BufferedImage, Dimension, boolean)} with image, null.
+	 * Will call {@link ImagePanel#ImagePanel(BufferedImage, Dimension)} with image, null.
 	 *
 	 * @param image The image to display.
 	 */
@@ -82,7 +82,7 @@ public class ImagePanel extends JPanel
 	private static BufferedImage resizeBufferedImage(BufferedImage image, float width, float height)
 	{
 		if(image == null)
-			return image;
+			return null;
 		int baseWidth = image.getWidth(), baseHeight = image.getHeight();
 		float ratio = baseWidth > baseHeight ? width / baseWidth : height / baseHeight;
 		Image tmp = image.getScaledInstance((int) (ratio * baseWidth), (int) (ratio * baseHeight), BufferedImage.SCALE_SMOOTH);

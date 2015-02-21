@@ -1,20 +1,19 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.objects;
 
-import fr.tours.polytech.DI.RFID.utils.SQLManager;
-import fr.tours.polytech.DI.RFID.utils.Utils;
 import org.apache.commons.lang3.text.WordUtils;
-
-import java.io.*;
+import java.io.Serializable;
 
 /**
  * Class representing a student (or anyone else, maybe we should call it User?).
@@ -24,9 +23,9 @@ import java.io.*;
 public class Student implements Serializable
 {
 	private static final long serialVersionUID = 546546596L;
-	private String name;
-	private String uid;
-	private boolean isStaff;
+	private final String name;
+	private final String uid;
+	private final boolean isStaff;
 
 	/**
 	 * Constructor.
@@ -40,19 +39,6 @@ public class Student implements Serializable
 		this.uid = uid;
 		this.name = name;
 		this.isStaff = isStaff;
-	}
-
-	/**
-	 * Used to get a Student by his name from the database.
-	 *
-	 * @param name The name to fetch.
-	 * @return A Student object.
-	 *
-	 * @see SQLManager#getStudentByName(String)
-	 */
-	public static Student fetchSQL(String name)
-	{
-		return Utils.sql.getStudentByName(name);
 	}
 
 	/**
@@ -94,6 +80,23 @@ public class Student implements Serializable
 		return this.uid.hashCode();
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Student)
+			return isSameName(((Student) o).getName());
+		return o == this;
+	}
+
+	/**
+	 * Used to get a String representing the object. Formatted as <b><i>name</i></b> if not from the staff, <b><i>name</i> (Staff)</b> if from the staff.
+	 */
+	@Override
+	public String toString()
+	{
+		return this.name + (this.isStaff ? " (Staff)" : "");
+	}
+
 	/**
 	 * Used to know if a student have a valid name.
 	 *
@@ -124,27 +127,13 @@ public class Student implements Serializable
 		return isStaff() ? 1 : 0;
 	}
 
-	/**
-	 * Used to get a String representing the object. Formatted as <b><i>name</i></b> if not from the staff, <b><i>name</i> (Staff)</b> if from the staff.
-	 */
-	@Override
-	public String toString()
-	{
-		return this.name + (this.isStaff ? " (Staff)" : "");
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if(o instanceof Student)
-			return isSameName(((Student)o).getName());
-		else if(o instanceof String)
-			return isSameName(o.toString().replace("(Staff)", "").trim());
-		return o == this;
-	}
-
 	private boolean isSameName(String name)
 	{
 		return this.getName().equalsIgnoreCase(name);
+	}
+
+	public boolean is(String name)
+	{
+		return isSameName(name.replace("(Staff)", "").trim());
 	}
 }

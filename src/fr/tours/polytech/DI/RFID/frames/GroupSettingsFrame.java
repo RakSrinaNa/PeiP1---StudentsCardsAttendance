@@ -3,7 +3,6 @@ package fr.tours.polytech.DI.RFID.frames;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.utils.Utils;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -17,20 +16,19 @@ import java.util.logging.Level;
 
 public class GroupSettingsFrame extends JDialog
 {
-	private MainFrame parent;
-	private JTable tableGroups;
-	private JTableUneditableModel modelGroups;
-	private ArrayList<Group> groups;
+	private final JTable tableGroups;
+	private final JTableUneditableModel modelGroups;
+	private final ArrayList<Group> groups;
 
 	public GroupSettingsFrame(MainFrame parent, ArrayList<Group> groups)
 	{
 		super(parent);
-		this.parent = parent;
 		this.groups = groups;
 		this.setTitle("R\351glage des groupes");
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
-		this.addWindowListener(new WindowListener() {
+		this.addWindowListener(new WindowListener()
+		{
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
@@ -74,8 +72,7 @@ public class GroupSettingsFrame extends JDialog
 		addButton.setBackground(MainFrame.backColor);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-		this.modelGroups = new JTableUneditableModel(getTableList(this.groups), new String[]
-				{"Groupes"});
+		this.modelGroups = new JTableUneditableModel(getTableList(this.groups), new String[]{"Groupes"});
 		this.tableGroups = new JTable(this.modelGroups)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -86,46 +83,50 @@ public class GroupSettingsFrame extends JDialog
 				return String.class;
 			}
 		};
-		this.tableGroups.addMouseListener(new MouseListener() {
+		this.tableGroups.addMouseListener(new MouseListener()
+		{
 			@Override
-			public void mouseClicked(MouseEvent event) {
+			public void mouseClicked(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent event) {
+			public void mousePressed(MouseEvent event)
+			{
 			}
 
 			@Override
-			public void mouseExited(MouseEvent event) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent event) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent event) {
+			public void mouseReleased(MouseEvent event)
+			{
 				int row = GroupSettingsFrame.this.tableGroups.rowAtPoint(event.getPoint());
-				if (row >= 0 && row < GroupSettingsFrame.this.tableGroups.getRowCount()) GroupSettingsFrame.this.tableGroups.setRowSelectionInterval(row, row);
-				else GroupSettingsFrame.this.tableGroups.clearSelection();
+				if(row >= 0 && row < GroupSettingsFrame.this.tableGroups.getRowCount())
+					GroupSettingsFrame.this.tableGroups.setRowSelectionInterval(row, row);
+				else
+					GroupSettingsFrame.this.tableGroups.clearSelection();
 				int rowindex = GroupSettingsFrame.this.tableGroups.getSelectedRow();
-				if (event.isPopupTrigger() && event.getComponent() instanceof JTable)
+				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
 					Group group = getGroupByName(GroupSettingsFrame.this.tableGroups.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem editGroup = new JMenuItem("Modifier le groupe");
 					editGroup.addActionListener(event1 -> {
-						try {
+						try
+						{
 							editGroup(group);
-						} catch (Exception exception) {
+						}
+						catch(Exception exception)
+						{
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
 					JMenuItem deleteGroup = new JMenuItem("Supprimer le groupe");
 					deleteGroup.addActionListener(event1 -> {
-						try {
+						try
+						{
 							removeGroup(row, group);
-						} catch (Exception exception) {
+						}
+						catch(Exception exception)
+						{
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
@@ -133,6 +134,16 @@ public class GroupSettingsFrame extends JDialog
 					popup.add(deleteGroup);
 					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseExited(MouseEvent event)
+			{
 			}
 		});
 		this.tableGroups.setDefaultRenderer(String.class, centerRenderer);
@@ -162,7 +173,7 @@ public class GroupSettingsFrame extends JDialog
 		gcb.weighty = 1;
 		this.getContentPane().add(addButton, gcb);
 		this.getContentPane().setBackground(MainFrame.backColor);
-		this.setLocationRelativeTo(this.parent);
+		this.setLocationRelativeTo(parent);
 		pack();
 		this.setVisible(true);
 	}

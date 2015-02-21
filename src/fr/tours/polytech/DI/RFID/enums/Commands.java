@@ -1,13 +1,15 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p>
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * IBM Corporation - initial API and implementation
+ * *****************************************************************************
+ */
 package fr.tours.polytech.DI.RFID.enums;
 
 import fr.tours.polytech.DI.RFID.utils.Utils;
@@ -19,10 +21,9 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
  */
 public enum Commands
 {
-	UID("UID", new byte[]
-	{(byte) 0xFF, (byte) 0xCA, (byte) 0x00, (byte) 0x00, (byte) 0x00});
-	private byte[] command;
-	private String name;
+	UID("UID", new byte[]{(byte) 0xFF, (byte) 0xCA, (byte) 0x00, (byte) 0x00, (byte) 0x00});
+	private final byte[] command;
+	private final String name;
 
 	/**
 	 * Constructor.

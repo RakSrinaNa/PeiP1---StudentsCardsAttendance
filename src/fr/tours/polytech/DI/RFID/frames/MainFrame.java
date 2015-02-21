@@ -45,23 +45,23 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
 	public static final String VERSION = "1.0";
 	private static final long serialVersionUID = -4989573496325827301L;
-	public static Color backColor;
 	private final Thread thread;
 	private final JPanel cardPanel;
 	private final JPanel staffPanel;
 	private final JLabel cardTextLabel;
 	private final JLabel groupsInfoLabel;
 	private final JTable tableChecked;
-	private Student currentStudent;
 	private final JMenuItem menuItemExit;
 	private final JTableUneditableModel modelChecked;
+	public static Color backColor;
+	private Student currentStudent;
 
 	/**
 	 * Constructor.
 	 */
 	public MainFrame()
 	{
-		super("Gestion de pr\351sence des \351tudiants");
+		super(Utils.resourceBundle.getString("app_title"));
 		this.setIconImages(Utils.icons);
 		backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				if(true || MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
 					Utils.exit(0);
 				else
-					JOptionPane.showMessageDialog(MainFrame.this, "Une carte du personnel est requise pour fermer l'application!", "NON AUTORISE", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(MainFrame.this, Utils.resourceBundle.getString("require_staff_card_close"), Utils.resourceBundle.getString("not_allowed").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			}
 
 			@Override
@@ -109,11 +109,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menuFile = new JMenu("Fichier");
-		JMenu menuHelp = new JMenu("?");
-		this.menuItemExit = new JMenuItem("Quitter");
-		JMenuItem menuItemHelp = new JMenuItem("Aide");
-		JMenuItem menuItemAbout = new JMenuItem("A propos");
+		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
+		JMenu menuHelp = new JMenu(Utils.resourceBundle.getString("menu_help"));
+		this.menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
+		JMenuItem menuItemHelp = new JMenuItem(Utils.resourceBundle.getString("menu_item_help"));
+		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
 		this.menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
@@ -141,7 +141,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		groupsInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-		modelChecked = new JTableUneditableModel(new Student[][]{}, new String[]{"Nom"});
+		modelChecked = new JTableUneditableModel(new Student[][]{}, new String[]{Utils.resourceBundle.getString("name")});
 		this.tableChecked = new JTable(modelChecked)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -179,7 +179,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				{
 					Student student = Utils.getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), false);
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem checkStudent = new JMenuItem("Valider \351tudiant");
+					JMenuItem checkStudent = new JMenuItem(Utils.resourceBundle.getString("check_student"));
 					checkStudent.addActionListener(event1 -> {
 						try
 						{
@@ -190,7 +190,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
-					JMenuItem uncheckStudent = new JMenuItem("D\351valider l'étudiant");
+					JMenuItem uncheckStudent = new JMenuItem(Utils.resourceBundle.getString("uncheck_student"));
 					uncheckStudent.addActionListener(event1 -> {
 						try
 						{
@@ -249,15 +249,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JPanel panelSettings = new JPanel(new BorderLayout());
 		panelSettings.setBackground(backColor);
-		JCheckBox addNewCardCheck = new JCheckBox("<html><p align=\"center\">Ajouter les nouvelles cartes<br />d\351tect\351es dans la base de donn\351es</p></html>");
+		JCheckBox addNewCardCheck = new JCheckBox("<html><p align=\"center\">" + Utils.resourceBundle.getString("add_new_card") + "</p></html>");
 		addNewCardCheck.setBackground(backColor);
 		addNewCardCheck.setSelected(Utils.addNewCards);
 		addNewCardCheck.addActionListener(event -> Utils.addNewCards = ((JCheckBox) event.getSource()).isSelected());
-		JCheckBox logAllCheck = new JCheckBox("Enregistrer toutes les validations");
+		JCheckBox logAllCheck = new JCheckBox(Utils.resourceBundle.getString("log_all"));
 		logAllCheck.setBackground(backColor);
 		logAllCheck.setSelected(Utils.addNewCards);
 		logAllCheck.addActionListener(event -> Utils.logAll = ((JCheckBox) event.getSource()).isSelected());
-		JButton groupSettings = new JButton("R\351glage des groupes");
+		JButton groupSettings = new JButton(Utils.resourceBundle.getString("group_settings"));
 		groupSettings.setBackground(backColor);
 		groupSettings.addActionListener(event -> new GroupSettingsFrame(MainFrame.this, Utils.groups));
 		line = 0;
@@ -333,18 +333,18 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.currentStudent = student;
 		if(student == null)
 		{
-			this.cardTextLabel.setText("Carte d\351tect\351e : " + rfidCard);
+			this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + rfidCard);
 			if(Utils.addNewCards)
 			{
-				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, "Entrez le nom de l'étudiant (Nom Prénom):", ""), false);
+				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name") + ":", ""), false);
 				if(student.hasValidName())
 					Utils.sql.addStudentToDatabase(student);
 			}
 			return;
 		}
-		Utils.logger.log(Level.INFO, "Card infos: " + student + " " + rfidCard);
+		Utils.logger.log(Level.INFO, Utils.resourceBundle.getString("card_info") + ": " + student + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
-		this.cardTextLabel.setText("Carte d\351tect\351e : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
+		this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
 		if(checkStudent(student))
 		{
 			Utils.logCheck(student);
@@ -373,7 +373,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	public void cardReaderRemoved()
 	{
 		this.cardPanel.setBackground(Color.RED);
-		this.cardTextLabel.setText("AUCUN LECTEUR DETECTE!");
+		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_reader").toUpperCase() + "!");
 	}
 
 	/**
@@ -387,7 +387,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		setStaffInfos(false);
 		this.currentStudent = null;
 		this.cardPanel.setBackground(Color.ORANGE);
-		this.cardTextLabel.setText("Aucune carte d\351tect\351e");
+		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_card"));
 	}
 
 	private boolean checkStudent(Student student)
@@ -435,7 +435,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				group.update();
 				toCheck.addAll(group.getAllToCheck());
 				if(group.isCurrentlyPeriod())
-					groupsInfo.append("Groupe ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
+					groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
 			}
 			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
 			Utils.removeDuplicates(toCheck);

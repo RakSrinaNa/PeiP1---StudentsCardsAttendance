@@ -28,13 +28,13 @@ public class SQLManager
 	private final String UID_LABEL = "UID";
 	private final String NAME_LABEL = "Name";
 	private final String STAFF_LABEL = "Staff";
-	private Connection connection;
 	private final String tableName;
 	private final String databaseURL;
 	private final int port;
 	private final String databaseName;
 	private final String user;
 	private final String password;
+	private Connection connection;
 
 	/**
 	 * Constructor.

@@ -39,10 +39,11 @@ public class Utils
 	public static ArrayList<Student> students;
 	public static ArrayList<Group> groups;
 	public static boolean logAll, addNewCards;
-	private static TerminalReader terminalReader;
-	private static MainFrame mainFrame;
 	public static ResourceBundle resourceBundle;
 	public static ArrayList<BufferedImage> icons;
+	public static File baseFile;
+	private static TerminalReader terminalReader;
+	private static MainFrame mainFrame;
 
 	/**
 	 * Used to transform an array of bytes to a String like FF-FF-FF...
@@ -89,6 +90,7 @@ public class Utils
 	{
 		logger = Logger.getLogger("RFID");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
+		baseFile = new File("." + File.separator + "RFID");
 		icons = new ArrayList<>();
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
@@ -99,7 +101,7 @@ public class Utils
 		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "PolytechDI26");
 		if(!sql.isConnected())
 		{
-			JOptionPane.showMessageDialog(null, "Can't connect to database!", "ERROR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Utils.resourceBundle.getString("database_error"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
 		students = Utils.sql.getAllStudents();
@@ -156,7 +158,7 @@ public class Utils
 			Date date = new Date();
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
-			File file = new File("." + File.separator + "RFID" + File.separator + "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
+			File file = new File(baseFile, "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
 				file.getParentFile().mkdirs();
@@ -240,7 +242,7 @@ public class Utils
 					Date date = new Date();
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(date);
-					File file = new File("." + File.separator + "RFID" + File.separator + "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
+					File file = new File(baseFile, "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
 					if(!file.exists())
 					{
 						file.getParentFile().mkdirs();

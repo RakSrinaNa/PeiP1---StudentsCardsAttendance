@@ -41,7 +41,7 @@ public class Group implements Serializable
 
 	public static void saveGroups(ArrayList<Group> groups)
 	{
-		for(File file : new File(new File("."), "RFID\\Groups\\").listFiles())
+		for(File file : new File(Utils.baseFile, "Groups").listFiles())
 			file.delete();
 		for(Group group : groups)
 			try
@@ -57,7 +57,7 @@ public class Group implements Serializable
 	public static ArrayList<Group> loadGroups()
 	{
 		ArrayList<Group> groups = new ArrayList<>();
-		File folder = new File(new File("."), "RFID\\Groups\\");
+		File folder = new File(Utils.baseFile, "Groups");
 		folder.mkdirs();
 		for(File file : folder.listFiles())
 			try
@@ -102,8 +102,7 @@ public class Group implements Serializable
 
 	private void saveGroup() throws IOException
 	{
-		File folder = new File(new File("."), "RFID\\Groups\\");
-		this.serialize(new File(folder, this.getName() + ".grp"));
+		this.serialize(new File(Utils.baseFile, "Groups" + File.separator + this.getName() + ".grp"));
 	}
 
 	public Period getPeriodByName(String name)
@@ -140,15 +139,15 @@ public class Group implements Serializable
 		return o != null && o instanceof Group && ((Group) o).getName().equals(this.getName());
 	}
 
-	public ArrayList<Student> getAddableStudents()
-	{
-		return Utils.removeStudentsInList(new ArrayList<>(Utils.students), this.students);
-	}
-
 	@Override
 	public String toString()
 	{
 		return getName();
+	}
+
+	public ArrayList<Student> getAddableStudents()
+	{
+		return Utils.removeStudentsInList(new ArrayList<>(Utils.students), this.students);
 	}
 
 	public boolean addStudent(Student student)

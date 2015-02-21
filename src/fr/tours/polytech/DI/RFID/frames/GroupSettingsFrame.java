@@ -25,7 +25,7 @@ public class GroupSettingsFrame extends JDialog
 		super(parent);
 		this.groups = groups;
 		this.setIconImages(Utils.icons);
-		this.setTitle("R\351glage des groupes");
+		this.setTitle(Utils.resourceBundle.getString("group_setting"));
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
 		this.addWindowListener(new WindowListener()
@@ -68,12 +68,12 @@ public class GroupSettingsFrame extends JDialog
 			}
 		});
 		/**************************************************************************/
-		JButton addButton = new JButton("Ajouter un groupe");
+		JButton addButton = new JButton(Utils.resourceBundle.getString("add_group"));
 		addButton.addActionListener(event -> addGroup());
 		addButton.setBackground(MainFrame.backColor);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-		this.modelGroups = new JTableUneditableModel(getTableList(this.groups), new String[]{"Groupes"});
+		this.modelGroups = new JTableUneditableModel(getTableList(this.groups), new String[]{Utils.resourceBundle.getString("groups")});
 		this.tableGroups = new JTable(this.modelGroups)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -109,7 +109,7 @@ public class GroupSettingsFrame extends JDialog
 				{
 					Group group = getGroupByName(GroupSettingsFrame.this.tableGroups.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem editGroup = new JMenuItem("Modifier le groupe");
+					JMenuItem editGroup = new JMenuItem(Utils.resourceBundle.getString("modify_group"));
 					editGroup.addActionListener(event1 -> {
 						try
 						{
@@ -120,7 +120,7 @@ public class GroupSettingsFrame extends JDialog
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
-					JMenuItem deleteGroup = new JMenuItem("Supprimer le groupe");
+					JMenuItem deleteGroup = new JMenuItem(Utils.resourceBundle.getString("delete_group"));
 					deleteGroup.addActionListener(event1 -> {
 						try
 						{
@@ -203,11 +203,11 @@ public class GroupSettingsFrame extends JDialog
 
 	private void addGroup()
 	{
-		Group group = new Group(JOptionPane.showInputDialog(this, "Entrez le nom du groupe:", ""));
+		Group group = new Group(JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("group_name") + ":", ""));
 		for(Group grp : groups)
 			if(grp.equals(group))
 			{
-				JOptionPane.showMessageDialog(this, "Un groupe avec ce nom existe d\351j\340", "ERREUR", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("group_already_exists"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		this.groups.add(group);

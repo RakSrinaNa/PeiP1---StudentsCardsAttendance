@@ -29,10 +29,10 @@ import java.util.logging.Level;
  */
 public class TerminalReader implements Runnable
 {
-	private boolean isPresent;
 	private final List<TerminalListener> listenersTerminal;
 	private final String terminalName;
 	private final Thread thread;
+	private boolean isPresent;
 	private RFIDCard lastCard;
 
 	/**

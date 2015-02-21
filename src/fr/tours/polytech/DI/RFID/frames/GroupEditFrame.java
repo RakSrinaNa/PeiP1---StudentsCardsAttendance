@@ -29,7 +29,7 @@ public class GroupEditFrame extends JDialog
 		super(parent);
 		this.group = group;
 		this.setIconImages(Utils.icons);
-		this.setTitle("Edition du groupe : " + group.getName());
+		this.setTitle(Utils.resourceBundle.getString("group_edit") + " : " + group.getName());
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setBackground(MainFrame.backColor);
 		this.getContentPane().setLayout(new GridBagLayout());
@@ -79,7 +79,7 @@ public class GroupEditFrame extends JDialog
 		/**************************************************************************/
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-		this.modelStudents = new JTableUneditableModel(getStudentsTableList(group.getStudents()), new String[]{"Etudiants"});
+		this.modelStudents = new JTableUneditableModel(getStudentsTableList(group.getStudents()), new String[]{Utils.resourceBundle.getString("students")});
 		this.tableStudents = new JTable(this.modelStudents)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -125,7 +125,7 @@ public class GroupEditFrame extends JDialog
 				{
 					Student student = Utils.getStudentByName(GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), true);
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem deleteGroup = new JMenuItem("Retirer l'\351tudiant");
+					JMenuItem deleteGroup = new JMenuItem(Utils.resourceBundle.getString("remove_student"));
 					deleteGroup.addActionListener(event1 -> {
 						try
 						{
@@ -152,7 +152,7 @@ public class GroupEditFrame extends JDialog
 		scrollPaneStudents.setAutoscrolls(false);
 		scrollPaneStudents.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		/**************************************************************************/
-		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{"P\351riodes"});
+		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{Utils.resourceBundle.getString("periods")});
 		this.tablePeriods = new JTable(this.modelPeriods)
 		{
 			private static final long serialVersionUID = 4244155500155330717L;
@@ -198,7 +198,7 @@ public class GroupEditFrame extends JDialog
 				{
 					Period period = getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem deletePeriod = new JMenuItem("Supprimer la p\351riode");
+					JMenuItem deletePeriod = new JMenuItem(Utils.resourceBundle.getString("remove_period"));
 					deletePeriod.addActionListener(event1 -> {
 						try
 						{
@@ -224,10 +224,10 @@ public class GroupEditFrame extends JDialog
 		JScrollPane scrollPanePeriods = new JScrollPane(this.tablePeriods);
 		scrollPanePeriods.setAutoscrolls(false);
 		scrollPanePeriods.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		JButton addPeriod = new JButton("Ajouter une p\351riode");
+		JButton addPeriod = new JButton(Utils.resourceBundle.getString("add_period"));
 		addPeriod.setBackground(MainFrame.backColor);
 		addPeriod.addActionListener(event -> addPeriod());
-		JButton addStudent = new JButton("Ajouter un \351tudiant");
+		JButton addStudent = new JButton(Utils.resourceBundle.getString("add_student"));
 		addStudent.setBackground(MainFrame.backColor);
 		addStudent.addActionListener(event -> addStudent());
 		/**************************************************************************/
@@ -261,13 +261,13 @@ public class GroupEditFrame extends JDialog
 		ArrayList<Student> students = group.getAddableStudents();
 		if(students.size() < 1)
 		{
-			JOptionPane.showMessageDialog(this, "Aucun \351tudiant n'est disponible pour l'ajout!", "ERREUR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("no_student"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		Student student = (Student) JOptionPane.showInputDialog(this, "S\351lectionnez l'\351tudiant \340 ajouter:", "Ajouter un \351tudiant", JOptionPane.QUESTION_MESSAGE, null, students.toArray(new Student[students.size()]), students.get(0));
+		Student student = (Student) JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("select_student") + ":", Utils.resourceBundle.getString("add_student"), JOptionPane.QUESTION_MESSAGE, null, students.toArray(new Student[students.size()]), students.get(0));
 		if(!group.addStudent(student))
 		{
-			JOptionPane.showMessageDialog(this, "L'\351tudiant est inconnu dans la base de donn\351es ou est d\351j\340 dans la liste!", "ERREUR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("already_in_list"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		modelStudents.addRow(new Student[]{student});
@@ -278,18 +278,18 @@ public class GroupEditFrame extends JDialog
 	{
 		try
 		{
-			Period period = new Period(JOptionPane.showInputDialog(this, "Entrez la periode (xxHxx-yyHyy):", ""));
+			Period period = new Period(JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("enter_period") + " (xxHxx-yyHyy):", ""));
 			if(group.addPeriod(period))
 			{
 				modelPeriods.addRow(new Period[]{period});
 				modelPeriods.fireTableDataChanged();
 			}
 			else
-				JOptionPane.showMessageDialog(this, "Cette p\351riode en chevauche une autre!", "ERREUR", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("period_overlapping"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(this, "La p\351riode n'est pas \351crite de mani\350re correcte!", "ERREUR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("wrong_period"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

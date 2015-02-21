@@ -94,7 +94,7 @@ public class AboutFrame extends JDialog
 		}
 		JPanel infoPanel = new JPanel();
 		infoPanel.setBackground(Color.WHITE);
-		JLabel infoText = new JLabel("<html><p align=\"center\">" + parent.getTitle() + " v" + MainFrame.VERSION + "<br/>COLEAU Victor<br />COUCHOUD Thomas</p></html>");
+		JLabel infoText = new JLabel("<html><p align=\"center\">" + parent.getTitle() + " v" + MainFrame.VERSION + "<br/>COLEAU Victor<br />COUCHOUD Thomas<br /><br />Projet Peip1 2014-2015</p></html>");
 		infoText.setHorizontalAlignment(JLabel.CENTER);
 		infoText.setVerticalAlignment(JLabel.CENTER);
 		infoPanel.add(infoText);
@@ -112,6 +112,7 @@ public class AboutFrame extends JDialog
 		getContentPane().add(logoPolytechPanel, gcb);
 		gcb.gridy = line++;
 		getContentPane().add(logoAppPanel, gcb);
+		gcb.insets = new Insets(15, 0, 0, 0);
 		gcb.weighty = 10;
 		gcb.gridy = line++;
 		getContentPane().add(infoPanel, gcb);

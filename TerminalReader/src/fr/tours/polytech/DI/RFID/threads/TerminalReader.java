@@ -168,7 +168,7 @@ public class TerminalReader implements Runnable
 	 * @param bytes The array of bytes to transform.
 	 * @return The String representing this array.
 	 */
-	private static String bytesToHex(byte[] bytes)
+	public static String bytesToHex(byte[] bytes)
 	{
 		char[] hexArray = "0123456789ABCDEF".toCharArray();
 		char[] hexChars = new char[bytes.length * 3];

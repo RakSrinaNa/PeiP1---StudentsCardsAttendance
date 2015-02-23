@@ -12,7 +12,7 @@
  */
 package fr.tours.polytech.DI.RFID.enums;
 
-import fr.tours.polytech.DI.RFID.utils.Utils;
+import fr.tours.polytech.DI.RFID.threads.TerminalReader;
 import javax.smartcardio.CommandAPDU;
 
 /**
@@ -75,6 +75,6 @@ public enum Commands
 	@Override
 	public String toString()
 	{
-		return this.name + " (" + Utils.bytesToHex(this.command) + ")";
+		return this.name + " (" + TerminalReader.bytesToHex(this.command) + ")";
 	}
 }

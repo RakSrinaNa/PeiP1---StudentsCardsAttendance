@@ -1,3 +1,7 @@
-.idea/codeStyleSettings.xml
-.idea/inspectionProfiles
-target
+/.idea/codeStyleSettings.xml
+/.idea/workspace.xml
+/.idea/tasks.xml
+/.idea/inspectionProfiles/
+/target/
+/.idea/dictionaries/
+*.iws

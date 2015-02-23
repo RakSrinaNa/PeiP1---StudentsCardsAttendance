@@ -16,6 +16,11 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+/**
+ * Class of the group editing frame.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class GroupEditFrame extends JDialog
 {
 	private final JTable tableStudents;
@@ -24,6 +29,12 @@ public class GroupEditFrame extends JDialog
 	private final JTableUneditableModel modelStudents;
 	private final Group group;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param parent The parent frame.
+	 * @param group The group to edit.
+	 */
 	public GroupEditFrame(GroupSettingsFrame parent, Group group)
 	{
 		super(parent);
@@ -196,7 +207,7 @@ public class GroupEditFrame extends JDialog
 				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
 				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
-					Period period = getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
+					Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deletePeriod = new JMenuItem(Utils.resourceBundle.getString("remove_period"));
 					deletePeriod.addActionListener(event1 -> {
@@ -246,6 +257,7 @@ public class GroupEditFrame extends JDialog
 		gcb.gridx = 1;
 		this.getContentPane().add(scrollPanePeriods, gcb);
 		gcb.gridx = 0;
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addStudent, gcb);
@@ -256,6 +268,9 @@ public class GroupEditFrame extends JDialog
 		this.setVisible(true);
 	}
 
+	/**
+	 * Used when we need to add a student.
+	 */
 	private void addStudent()
 	{
 		ArrayList<Student> students = group.getAddableStudents();
@@ -274,6 +289,9 @@ public class GroupEditFrame extends JDialog
 		modelStudents.fireTableDataChanged();
 	}
 
+	/**
+	 * Used when we need to add a period.
+	 */
 	private void addPeriod()
 	{
 		try
@@ -293,6 +311,12 @@ public class GroupEditFrame extends JDialog
 		}
 	}
 
+	/**
+	 * Used to remove a period.
+	 *
+	 * @param period The period to remove.
+	 * @param index The index in the table of the period.
+	 */
 	private void removePeriod(Period period, int index)
 	{
 		group.remove(period);
@@ -300,6 +324,12 @@ public class GroupEditFrame extends JDialog
 		modelPeriods.fireTableDataChanged();
 	}
 
+	/**
+	 * Used to remove a student.
+	 *
+	 * @param student The student to remove.
+	 * @param index The index in the table of the student.
+	 */
 	private void removeStudent(Student student, int index)
 	{
 		group.remove(student);
@@ -307,11 +337,12 @@ public class GroupEditFrame extends JDialog
 		modelStudents.fireTableDataChanged();
 	}
 
-	private Period getPeriodByName(String name)
-	{
-		return group.getPeriodByName(name);
-	}
-
+	/**
+	 * Used to create the period table.
+	 *
+	 * @param period The periods in the table.
+	 * @return An array representing the list.
+	 */
 	private Period[][] getPeriodsTableList(ArrayList<Period> period)
 	{
 		Period[][] periods = new Period[period.size()][1];
@@ -321,6 +352,12 @@ public class GroupEditFrame extends JDialog
 		return periods;
 	}
 
+	/**
+	 * Used to create the student table.
+	 *
+	 * @param students The students in the table.
+	 * @return An array representing the list.
+	 */
 	private Student[][] getStudentsTableList(ArrayList<Student> students)
 	{
 		Student[][] student = new Student[students.size()][1];

@@ -1,15 +1,3 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.objects;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -71,9 +59,6 @@ public class Student implements Serializable
 		return this.uid;
 	}
 
-	/**
-	 * Used to compare two objects are the same.
-	 */
 	@Override
 	public int hashCode()
 	{
@@ -88,9 +73,6 @@ public class Student implements Serializable
 		return o == this;
 	}
 
-	/**
-	 * Used to get a String representing the object. Formatted as <b><i>name</i></b> if not from the staff, <b><i>name</i> (Staff)</b> if from the staff.
-	 */
 	@Override
 	public String toString()
 	{
@@ -127,11 +109,23 @@ public class Student implements Serializable
 		return isStaff() ? 1 : 0;
 	}
 
+	/**
+	 * Used to know if the names are the same.
+	 *
+	 * @param name The name to test.
+	 * @return True if they are the same, false if not.
+	 */
 	private boolean isSameName(String name)
 	{
 		return this.getName().equalsIgnoreCase(name);
 	}
 
+	/**
+	 * Used to know if this student have this name.
+	 *
+	 * @param name The name to test.
+	 * @return True if this is his name, false if not.
+	 */
 	public boolean is(String name)
 	{
 		return isSameName(name.replace("(Staff)", "").trim());

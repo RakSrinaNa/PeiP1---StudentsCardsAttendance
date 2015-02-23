@@ -1,19 +1,7 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.frames.components;
 
-import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Student;
+import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
@@ -26,18 +14,15 @@ import java.awt.*;
 public class StudentsRenderer implements TableCellRenderer
 {
 	private final TableCellRenderer wrappedRenderer;
-	private final MainFrame parent;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param wrappedRenderer The default renderer wrapped to the table.
-	 * @param frame The MainFrame where this table is.
 	 */
-	public StudentsRenderer(TableCellRenderer wrappedRenderer, MainFrame frame)
+	public StudentsRenderer(TableCellRenderer wrappedRenderer)
 	{
 		this.wrappedRenderer = wrappedRenderer;
-		this.parent = frame;
 	}
 
 	/**
@@ -48,7 +33,7 @@ public class StudentsRenderer implements TableCellRenderer
 	 */
 	public Color getTableBackgroundColour(Student value)
 	{
-		return this.parent.hasChecked(value) ? Color.GREEN : Color.ORANGE;
+		return Utils.hasChecked(value) ? Color.GREEN : Color.ORANGE;
 	}
 
 	/**

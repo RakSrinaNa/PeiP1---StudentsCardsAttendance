@@ -5,6 +5,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * An object representing a group.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ * @version 1.0
+ */
 public class Group implements Serializable
 {
 	private static final long serialVersionUID = 546546546L;
@@ -14,6 +20,11 @@ public class Group implements Serializable
 	private transient Period currentPeriod;
 	private ArrayList<Student> checkedStudents;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param name The group name.
+	 */
 	public Group(String name)
 	{
 		this.name = name;
@@ -22,6 +33,15 @@ public class Group implements Serializable
 		this.periods = new ArrayList<>();
 	}
 
+	/**
+	 * Used to deserialize a group file.
+	 *
+	 * @param file The serialized file.
+	 * @return The group correcponding to the serialized object.
+	 *
+	 * @throws IOException If the file cannot be read.
+	 * @throws ClassNotFoundException If teh filed couldn't be deserialized.
+	 */
 	public static Group deserialize(File file) throws IOException, ClassNotFoundException
 	{
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
@@ -39,9 +59,16 @@ public class Group implements Serializable
 		return group;
 	}
 
+	/**
+	 * Used to save all groups into serialized file.
+	 *
+	 * @param groups The groups to save.
+	 */
 	public static void saveGroups(ArrayList<Group> groups)
 	{
+		//noinspection ConstantConditions
 		for(File file : new File(Utils.baseFile, "Groups").listFiles())
+			//noinspection ResultOfMethodCallIgnored
 			file.delete();
 		for(Group group : groups)
 			try
@@ -54,11 +81,18 @@ public class Group implements Serializable
 			}
 	}
 
+	/**
+	 * Used to load all groups from serialized files.
+	 *
+	 * @return The groups deserialized.
+	 */
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public static ArrayList<Group> loadGroups()
 	{
 		ArrayList<Group> groups = new ArrayList<>();
 		File folder = new File(Utils.baseFile, "Groups");
 		folder.mkdirs();
+		//noinspection ConstantConditions
 		for(File file : folder.listFiles())
 			try
 			{
@@ -71,40 +105,79 @@ public class Group implements Serializable
 		return groups;
 	}
 
+	/**
+	 * Used to get the students of the group.
+	 *
+	 * @return The students.
+	 */
 	public ArrayList<Student> getStudents()
 	{
 		return students;
 	}
 
+	/**
+	 * Used to get the periods of the group.
+	 *
+	 * @return The periods.
+	 */
 	public ArrayList<Period> getPeriods()
 	{
 		return periods;
 	}
 
+	/**
+	 * Used to get the groupe's name.
+	 *
+	 * @return The name.
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * Used to check a student.
+	 *
+	 * @param student The student to check.
+	 * @return True if checked, false if already checked, not in a checking period or not in this group.
+	 */
 	public boolean checkStudent(Student student)
 	{
 		return isCurrentlyPeriod() && !Utils.containsStudent(checkedStudents, student) && this.checkedStudents.add(student);
 	}
 
+	/**
+	 * Used to serialize this object to a file.
+	 *
+	 * @param file The file where to serialize.
+	 * @throws IOException If the file couldn't be done.
+	 */
 	public void serialize(File file) throws IOException
 	{
 		if(!file.getParentFile().exists())
+			//noinspection ResultOfMethodCallIgnored
 			file.getParentFile().mkdirs();
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 		oos.writeObject(this);
 		oos.close();
 	}
 
+	/**
+	 * Used to serialize the group.
+	 *
+	 * @throws IOException If the file couldn't be done.
+	 */
 	private void saveGroup() throws IOException
 	{
 		this.serialize(new File(Utils.baseFile, "Groups" + File.separator + this.getName() + ".grp"));
 	}
 
+	/**
+	 * Used to get a period by his name.
+	 *
+	 * @param name The period name.
+	 * @return The corresponding period.
+	 */
 	public Period getPeriodByName(String name)
 	{
 		for(Period period : periods)
@@ -113,11 +186,21 @@ public class Group implements Serializable
 		return null;
 	}
 
+	/**
+	 * Used to remove a period.
+	 *
+	 * @param period The period to remove.
+	 */
 	public void remove(Period period)
 	{
 		this.periods.remove(period);
 	}
 
+	/**
+	 * used to remove a student.
+	 *
+	 * @param student The student to remove.
+	 */
 	public void remove(Student student)
 	{
 		ArrayList<Student> toRemove = new ArrayList<>();
@@ -145,11 +228,22 @@ public class Group implements Serializable
 		return getName();
 	}
 
+	/**
+	 * Used to get the students that can be added to this group.
+	 *
+	 * @return A list of students.
+	 */
 	public ArrayList<Student> getAddableStudents()
 	{
 		return Utils.removeStudentsInList(new ArrayList<>(Utils.students), this.students);
 	}
 
+	/**
+	 * Used to add a student to the group.
+	 *
+	 * @param student The student to add.
+	 * @return True if added, false if not.
+	 */
 	public boolean addStudent(Student student)
 	{
 		if(student == null)
@@ -162,6 +256,12 @@ public class Group implements Serializable
 		return false;
 	}
 
+	/**
+	 * Used to add a period to the group.
+	 *
+	 * @param period The period to add.
+	 * @return True if added, false if not.
+	 */
 	public boolean addPeriod(Period period)
 	{
 		for(Period per : periods)
@@ -171,6 +271,9 @@ public class Group implements Serializable
 		return true;
 	}
 
+	/**
+	 * Used to update the current group. Will update current period and write absents file if needed.
+	 */
 	public void update()
 	{
 		if(currentPeriod == null)
@@ -183,6 +286,11 @@ public class Group implements Serializable
 		}
 	}
 
+	/**
+	 * Used to get a new period.
+	 *
+	 * @return A period if we are in one, null if no period for the current time.
+	 */
 	private Period getNewPeriod()
 	{
 		Date date = new Date();
@@ -192,17 +300,35 @@ public class Group implements Serializable
 		return null;
 	}
 
+	/**
+	 * Used to know if a student have checked.
+	 *
+	 * @param student The student.
+	 * @return True if he have checked, false if not.
+	 */
 	public boolean hasChecked(Student student)
 	{
 		return this.checkedStudents.contains(student);
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+	/**
+	 * Used to read a serialized object.
+	 *
+	 * @param in The input stream.
+	 * @throws IOException If the stream can't be read.
+	 * @throws ClassNotFoundException If the file couldn't be deserialized.
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		in.defaultReadObject();
 		this.checkedStudents = new ArrayList<>();
 	}
 
+	/**
+	 * Used to get the students that should check for this period.
+	 *
+	 * @return A list of students.
+	 */
 	public ArrayList<Student> getAllToCheck()
 	{
 		if(isCurrentlyPeriod())
@@ -210,11 +336,21 @@ public class Group implements Serializable
 		return new ArrayList<>();
 	}
 
+	/**
+	 * Used to know if this group is currently in a period.
+	 *
+	 * @return True if in a period, false if not.
+	 */
 	public boolean isCurrentlyPeriod()
 	{
 		return currentPeriod != null;
 	}
 
+	/**
+	 * Used to uncheck a student.
+	 *
+	 * @param student The student.
+	 */
 	public void uncheckStudent(Student student)
 	{
 		ArrayList<Student> toRemove = new ArrayList<>();
@@ -224,10 +360,15 @@ public class Group implements Serializable
 		checkedStudents.removeAll(toRemove);
 	}
 
+	/**
+	 * Used to get the current period as a string.
+	 *
+	 * @return The period string.
+	 */
 	public String getCurrentPeriodString()
 	{
 		if(currentPeriod == null)
-			return "N'est pas dans un cr\351neau de validation";
+			return Utils.resourceBundle.getString("not_in_period");
 		return currentPeriod.getTimeInterval();
 	}
 }

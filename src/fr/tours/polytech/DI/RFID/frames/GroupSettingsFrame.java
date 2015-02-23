@@ -14,12 +14,23 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+/**
+ * Class of the groups list frame.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class GroupSettingsFrame extends JDialog
 {
 	private final JTable tableGroups;
 	private final JTableUneditableModel modelGroups;
 	private final ArrayList<Group> groups;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param parent The parent frame.
+	 * @param groups The current groups.
+	 */
 	public GroupSettingsFrame(MainFrame parent, ArrayList<Group> groups)
 	{
 		super(parent);
@@ -113,7 +124,7 @@ public class GroupSettingsFrame extends JDialog
 					editGroup.addActionListener(event1 -> {
 						try
 						{
-							editGroup(group);
+							new GroupEditFrame(GroupSettingsFrame.this, group);
 						}
 						catch(Exception exception)
 						{
@@ -170,6 +181,7 @@ public class GroupSettingsFrame extends JDialog
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.getContentPane().add(scrollPane, gcb);
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addButton, gcb);
@@ -179,11 +191,12 @@ public class GroupSettingsFrame extends JDialog
 		this.setVisible(true);
 	}
 
-	private void editGroup(Group group)
-	{
-		new GroupEditFrame(this, group);
-	}
-
+	/**
+	 * Used to get a group by his name.
+	 *
+	 * @param name The name of the group.
+	 * @return The group with that name.
+	 */
 	private Group getGroupByName(String name)
 	{
 		for(Group group : this.groups)
@@ -192,6 +205,12 @@ public class GroupSettingsFrame extends JDialog
 		return null;
 	}
 
+	/**
+	 * Used to create the group table.
+	 *
+	 * @param groups The groups of the table.
+	 * @return An array representing the list.
+	 */
 	private Group[][] getTableList(ArrayList<Group> groups)
 	{
 		Group[][] array = new Group[this.groups.size()][1];
@@ -201,6 +220,9 @@ public class GroupSettingsFrame extends JDialog
 		return array;
 	}
 
+	/**
+	 * Used to add a group.
+	 */
 	private void addGroup()
 	{
 		Group group = new Group(JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("group_name") + ":", ""));
@@ -214,6 +236,12 @@ public class GroupSettingsFrame extends JDialog
 		this.modelGroups.addRow(new Group[]{group});
 	}
 
+	/**
+	 * Used to remove a group.
+	 *
+	 * @param index The index of the group in the table.
+	 * @param group The group to remove.
+	 */
 	private void removeGroup(int index, Group group)
 	{
 		groups.remove(group);

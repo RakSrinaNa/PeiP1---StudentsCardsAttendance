@@ -1,15 +1,3 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.frames;
 
 import fr.tours.polytech.DI.RFID.Main;
@@ -76,6 +64,7 @@ public class AboutFrame extends JDialog
 		logoPolytechPanel.setPreferredSize(new Dimension(250, 77));
 		try
 		{
+			//noinspection ConstantConditions
 			logoPolytechPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_polytech.jpg")));
 		}
 		catch(IOException exception)
@@ -86,6 +75,7 @@ public class AboutFrame extends JDialog
 		logoAppPanel.setPreferredSize(new Dimension(250, 77));
 		try
 		{
+			//noinspection ConstantConditions
 			logoAppPanel.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/logo_app.jpg")));
 		}
 		catch(IOException exception)
@@ -114,6 +104,7 @@ public class AboutFrame extends JDialog
 		getContentPane().add(logoAppPanel, gcb);
 		gcb.insets = new Insets(15, 0, 0, 0);
 		gcb.weighty = 10;
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		getContentPane().add(infoPanel, gcb);
 		getContentPane().setBackground(Color.WHITE);

@@ -1,15 +1,3 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.utils;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
@@ -58,6 +46,11 @@ public class SQLManager
 		createBaseTable();
 	}
 
+	/**
+	 * Used to add a student into the database.
+	 *
+	 * @param student The student to add.
+	 */
 	public void addStudentToDatabase(Student student)
 	{
 		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.NAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getName() + "\",\"" + student.isStaffSQL() + "\")");
@@ -72,6 +65,7 @@ public class SQLManager
 	public Student getStudentByName(String name)
 	{
 		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.NAME_LABEL + " = \"" + name + "\";");
+		//noinspection EmptyCatchBlock
 		try
 		{
 			if(result.next())

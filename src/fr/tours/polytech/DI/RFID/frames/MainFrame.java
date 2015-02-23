@@ -1,25 +1,13 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.frames;
 
 import fr.tours.polytech.DI.RFID.enums.Sounds;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
-import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.Group;
-import fr.tours.polytech.DI.RFID.objects.RFIDCard;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
+import fr.tours.polytech.DI.TerminalReader.objects.RFIDCard;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -118,7 +106,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuItemHelp.addActionListener(event -> {
 			try
 			{
-				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
+				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/TerminalReader/wiki").toURI());
 			}
 			catch(Exception exception)
 			{
@@ -183,7 +171,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					checkStudent.addActionListener(event1 -> {
 						try
 						{
-							checkStudent(student);
+							Utils.checkStudent(student);
 						}
 						catch(Exception exception)
 						{
@@ -194,14 +182,14 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					uncheckStudent.addActionListener(event1 -> {
 						try
 						{
-							uncheckStudent(student);
+							Utils.uncheckStudent(student);
 						}
 						catch(Exception exception)
 						{
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
-					if(!hasChecked(student))
+					if(!Utils.hasChecked(student))
 						popup.add(checkStudent);
 					else
 						popup.add(uncheckStudent);
@@ -220,7 +208,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 		});
 		this.tableChecked.setBackground(backColor);
-		this.tableChecked.setDefaultRenderer(Student.class, new StudentsRenderer(centerRenderer, this));
+		this.tableChecked.setDefaultRenderer(Student.class, new StudentsRenderer(centerRenderer));
 		this.tableChecked.getTableHeader().setReorderingAllowed(false);
 		this.tableChecked.getTableHeader().setResizingAllowed(true);
 		this.tableChecked.setRowHeight(20);
@@ -237,6 +225,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridwidth = 1;
 		gcb.gridheight = 1;
 		gcb.gridx = 0;
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		JPanel infoPanel = new JPanel();
 		infoPanel.add(groupsInfoLabel, gcb);
@@ -268,6 +257,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(groupSettings, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(addNewCardCheck, gcb);
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		this.staffPanel.add(logAllCheck, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +292,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridwidth = 2;
 		gcb.weighty = 1;
 		gcb.gridx = 0;
+		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		getContentPane().add(this.cardPanel, gcb);
 		setStaffInfos(false);
@@ -312,12 +303,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.thread = new Thread(this);
 		this.thread.setName("RefreshInfoPanel");
 		this.thread.start();
-	}
-
-	private void uncheckStudent(Student student)
-	{
-		for(Group group : Utils.groups)
-			group.uncheckStudent(student);
 	}
 
 	/**
@@ -345,7 +330,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		Utils.logger.log(Level.INFO, Utils.resourceBundle.getString("card_info") + ": " + student + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
-		if(checkStudent(student))
+		if(Utils.checkStudent(student))
 		{
 			Utils.logCheck(student);
 			Sounds.CARD_CHECKED.playSound();
@@ -390,15 +375,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_card"));
 	}
 
-	private boolean checkStudent(Student student)
-	{
-		boolean checked = false;
-		for(Group group : Utils.groups)
-			if(group.checkStudent(student))
-				checked |= true;
-		return checked;
-	}
-
 	/**
 	 * Used to exit the frame and stop the thread.
 	 */
@@ -410,9 +386,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	}
 
 	/**
-	 * Thread.
-	 * <p>
-	 * Will update clock, and activate/deactivate periods.
+	 * Thread. Will update clock, periods and student list.
 	 */
 	@Override
 	public void run()
@@ -420,6 +394,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		while(!Thread.interrupted())
 		{
+			//noinspection EmptyCatchBlock
 			try
 			{
 				Thread.sleep(500);
@@ -460,13 +435,5 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.setVisible(staffMember);
 		this.staffPanel.setEnabled(staffMember);
 		this.menuItemExit.setEnabled(staffMember);
-	}
-
-	public boolean hasChecked(Student student)
-	{
-		boolean checked = false;
-		for(Group group : Utils.groups)
-			checked |= group.hasChecked(student);
-		return checked;
 	}
 }

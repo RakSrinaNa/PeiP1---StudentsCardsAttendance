@@ -7,6 +7,10 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
 import java.util.logging.Level;
 
+/**
+ * @author COLEAU Victor, COUCHOUD Thomas
+ * @version 1.0
+ */
 public enum Sounds
 {
 	CARD_CHECKED("cardChecked.wav");
@@ -19,6 +23,9 @@ public enum Sounds
 		this.path = srcPach + name;
 	}
 
+	/**
+	 * Called to play the sound.
+	 */
 	public synchronized void playSound()
 	{
 		if(play)

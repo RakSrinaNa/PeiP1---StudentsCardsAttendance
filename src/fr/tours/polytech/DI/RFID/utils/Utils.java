@@ -1,22 +1,10 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.utils;
 
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
-import fr.tours.polytech.DI.RFID.threads.TerminalReader;
+import fr.tours.polytech.DI.TerminalReader.threads.TerminalReader;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
@@ -24,6 +12,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,26 +35,6 @@ public class Utils
 	private static MainFrame mainFrame;
 
 	/**
-	 * Used to transform an array of bytes to a String like FF-FF-FF...
-	 *
-	 * @param bytes The array of bytes to transform.
-	 * @return The String representing this array.
-	 */
-	public static String bytesToHex(byte[] bytes)
-	{
-		char[] hexArray = "0123456789ABCDEF".toCharArray();
-		char[] hexChars = new char[bytes.length * 3];
-		for(int j = 0; j < bytes.length; j++)
-		{
-			int v = bytes[j] & 0xFF;
-			hexChars[j * 3] = hexArray[v >>> 4];
-			hexChars[j * 3 + 1] = hexArray[v & 0x0F];
-			hexChars[j * 3 + 2] = '-';
-		}
-		return new String(hexChars).substring(0, hexChars.length - 1);
-	}
-
-	/**
 	 * Call when we need to exit the program.
 	 *
 	 * @param exitStaus The parameter given to {@link System#exit(int)}
@@ -80,20 +49,64 @@ public class Utils
 	}
 
 	/**
+	 * Used to know if a student have checked.
+	 *
+	 * @param student The student to verify.
+	 * @return True if he have checked in at least one group, false if not.
+	 */
+	public static boolean hasChecked(Student student)
+	{
+		boolean checked = false;
+		for(Group group : groups)
+			checked |= group.hasChecked(student);
+		return checked;
+	}
+
+	/**
+	 * used to check a student.
+	 *
+	 * @param student The student to check.
+	 * @return True if the student is been checked in at least one group, false if not.
+	 */
+	public static boolean checkStudent(Student student)
+	{
+		boolean checked = false;
+		for(Group group : groups)
+			if(group.checkStudent(student))
+				checked |= true;
+		return checked;
+	}
+
+	/**
+	 * Used to uncheck a student.
+	 *
+	 * @param student The student to uncheck.
+	 */
+	public static void uncheckStudent(Student student)
+	{
+		for(Group group : groups)
+			group.uncheckStudent(student);
+	}
+
+	/**
 	 * Call when the program is starting. Initalize some variables like
 	 * groups, students, logger, reader and SQL connection.
 	 *
+	 * @throws IOException If files couldn't be read.
 	 * @throws SecurityException If the database connection can't be made.
-	 * @see java.util.logging.FileHandler#FileHandler(String, boolean)
+	 * @see FileHandler#FileHandler(String, boolean)
 	 */
 	public static void init() throws SecurityException, IOException
 	{
-		logger = Logger.getLogger("RFID");
+		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
-		baseFile = new File("." + File.separator + "RFID");
+		baseFile = new File("." + File.separator + "TerminalReader");
 		icons = new ArrayList<>();
+		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
+		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
+		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		logAll = true;
 		addNewCards = true;
@@ -161,9 +174,11 @@ public class Utils
 			File file = new File(baseFile, "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
+				//noinspection ResultOfMethodCallIgnored
 				file.getParentFile().mkdirs();
 				try
 				{
+					//noinspection ResultOfMethodCallIgnored
 					file.createNewFile();
 				}
 				catch(IOException exception)
@@ -181,6 +196,7 @@ public class Utils
 			Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
 		}
 		if(printWriter != null)
+			//noinspection EmptyCatchBlock
 			try
 			{
 				printWriter.close();
@@ -189,6 +205,7 @@ public class Utils
 			{
 			}
 		if(bufferedWriter != null)
+			//noinspection EmptyCatchBlock
 			try
 			{
 				bufferedWriter.close();
@@ -197,6 +214,7 @@ public class Utils
 			{
 			}
 		if(fileWriter != null)
+			//noinspection EmptyCatchBlock
 			try
 			{
 				fileWriter.close();
@@ -209,6 +227,7 @@ public class Utils
 	/**
 	 * Used to remove duplicates in an ArrayList.
 	 *
+	 * @param <T> The list type.
 	 * @param list The list where to remove duplicates.
 	 * @return The list without duplicates.
 	 */
@@ -245,9 +264,11 @@ public class Utils
 					File file = new File(baseFile, "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
 					if(!file.exists())
 					{
+						//noinspection ResultOfMethodCallIgnored
 						file.getParentFile().mkdirs();
 						try
 						{
+							//noinspection ResultOfMethodCallIgnored
 							file.createNewFile();
 						}
 						catch(IOException exception)
@@ -265,6 +286,7 @@ public class Utils
 					Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
 				}
 				if(printWriter != null)
+					//noinspection EmptyCatchBlock
 					try
 					{
 						printWriter.close();
@@ -273,6 +295,7 @@ public class Utils
 					{
 					}
 				if(bufferedWriter != null)
+					//noinspection EmptyCatchBlock
 					try
 					{
 						bufferedWriter.close();
@@ -281,6 +304,7 @@ public class Utils
 					{
 					}
 				if(fileWriter != null)
+					//noinspection EmptyCatchBlock
 					try
 					{
 						fileWriter.close();
@@ -317,17 +341,24 @@ public class Utils
 		return false;
 	}
 
-	public static ArrayList<Student> removeStudentsInList(ArrayList<Student> base, Collection<Student> toRemove)
+	/**
+	 * Used to remove a student from a list.
+	 *
+	 * @param list The list where to remove.
+	 * @param toRemove The collection of students to remove.
+	 * @return The new list with the students removed.
+	 */
+	public static ArrayList<Student> removeStudentsInList(ArrayList<Student> list, Collection<Student> toRemove)
 	{
 		ArrayList<Student> toRem = new ArrayList<>();
 		for(Student student : toRemove)
 		{
-			for(Student stu : base)
+			for(Student stu : list)
 				if(student.equals(stu))
 					toRem.add(stu);
-			base.removeAll(toRem);
+			list.removeAll(toRem);
 			toRem.clear();
 		}
-		return base;
+		return list;
 	}
 }

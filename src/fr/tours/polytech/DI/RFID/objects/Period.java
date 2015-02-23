@@ -1,15 +1,3 @@
-/**
- * ****************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * <p>
- * Contributors:
- * IBM Corporation - initial API and implementation
- * *****************************************************************************
- */
 package fr.tours.polytech.DI.RFID.objects;
 
 import java.io.Serializable;
@@ -144,13 +132,6 @@ public class Period implements Serializable
 		return o == this;
 	}
 
-	/**
-	 * Used to get a String representing this interval. This is mostly used when
-	 * saving the object to the config, should use {@link #getTimeInterval}
-	 * instead.
-	 *
-	 * @return A string formatted as <b>xxHxx-yyHyy</b>
-	 */
 	@Override
 	public String toString()
 	{

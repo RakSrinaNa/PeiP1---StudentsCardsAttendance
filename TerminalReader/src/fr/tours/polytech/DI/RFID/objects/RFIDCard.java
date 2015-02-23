@@ -12,6 +12,7 @@
  */
 package fr.tours.polytech.DI.RFID.objects;
 
+import javax.smartcardio.CardChannel;
 /**
  * Class representing a RFID card.
  *
@@ -21,17 +22,30 @@ public class RFIDCard
 {
 	private final String atr;
 	private final String uid;
+	private final CardChannel cardChannel;
 
 	/**
 	 * Constructor.
-	 *
 	 * @param atr The ATR of the card.
 	 * @param uid The UID of the card.
+	 * @param cardChannel The card channel of the card.
+	 * @param cardChannel
 	 */
-	public RFIDCard(String atr, String uid)
+	public RFIDCard(String atr, String uid, CardChannel cardChannel)
 	{
 		this.atr = atr;
 		this.uid = uid;
+		this.cardChannel = cardChannel;
+	}
+
+	/**
+	 * Used to get the card channel.
+	 *
+	 * @return The card channel.
+	 */
+	public CardChannel getCardChannel()
+	{
+		return this.cardChannel;
 	}
 
 	/**

@@ -428,7 +428,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			{
 			}
 			Date date = new Date();
-			StringBuffer groupsInfo = new StringBuffer("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
+			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
 			ArrayList<Student> toCheck = new ArrayList<>();
 			for(Group group : Utils.groups)
 			{

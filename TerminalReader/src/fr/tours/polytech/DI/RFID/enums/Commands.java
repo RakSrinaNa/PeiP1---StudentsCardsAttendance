@@ -13,6 +13,7 @@
 package fr.tours.polytech.DI.RFID.enums;
 
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import javax.smartcardio.CommandAPDU;
 
 /**
  * Enumeration for the commands that can be sent to the contactless card.
@@ -55,6 +56,16 @@ public enum Commands
 	public String getName()
 	{
 		return this.name;
+	}
+
+	/**
+	 * Used to get the command as an APDU command.
+	 *
+	 * @return The APDU command.
+	 */
+	public CommandAPDU getAPDU()
+	{
+		return new CommandAPDU(this.getCommand());
 	}
 
 	/**

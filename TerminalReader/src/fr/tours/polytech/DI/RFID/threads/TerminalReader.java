@@ -12,15 +12,15 @@
  */
 package fr.tours.polytech.DI.RFID.threads;
 
+
 import fr.tours.polytech.DI.RFID.enums.APDUResponse;
 import fr.tours.polytech.DI.RFID.enums.Commands;
 import fr.tours.polytech.DI.RFID.interfaces.TerminalListener;
 import fr.tours.polytech.DI.RFID.objects.RFIDCard;
-import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.smartcardio.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Thread that check the reader if there is one.
@@ -29,11 +29,12 @@ import java.util.logging.Level;
  */
 public class TerminalReader implements Runnable
 {
-	private final List<TerminalListener> listenersTerminal;
+	private final ArrayList<TerminalListener> listenersTerminal;
 	private final String terminalName;
 	private final Thread thread;
 	private boolean isPresent;
 	private RFIDCard lastCard;
+	private Logger logger;
 
 	/**
 	 * Constructor.
@@ -44,6 +45,7 @@ public class TerminalReader implements Runnable
 	{
 		this.listenersTerminal = new ArrayList<>();
 		this.terminalName = name;
+		this.logger = Logger.getGlobal();
 		this.thread = new Thread(this);
 		this.thread.setName("TerminalReader");
 		this.thread.start();
@@ -103,9 +105,9 @@ public class TerminalReader implements Runnable
 				if(this.isPresent != lastPresent)
 				{
 					if(this.isPresent)
-						Utils.logger.log(Level.INFO, "Starting listening terminal " + cardTerminal.getName());
+						logger.log(Level.INFO, "Starting listening terminal " + cardTerminal.getName());
 					else
-						Utils.logger.log(Level.INFO, "Stopped listening");
+						logger.log(Level.INFO, "Stopped listening");
 					for(TerminalListener listener : this.listenersTerminal)
 						if(this.isPresent)
 							listener.cardReaderAdded();
@@ -114,21 +116,21 @@ public class TerminalReader implements Runnable
 				}
 				if(!this.isPresent)
 					continue;
-				Utils.logger.log(Level.INFO, "Waiting for card...");
+				logger.log(Level.INFO, "Waiting for card...");
 				cardTerminal.waitForCardPresent(0);
-				Utils.logger.log(Level.INFO, "Card detected");
+				logger.log(Level.INFO, "Card detected");
 				this.lastCard = getCardInfos(cardTerminal.connect("*"));
 				for(TerminalListener listener : this.listenersTerminal)
 					listener.cardAdded(this.lastCard);
 				cardTerminal.waitForCardAbsent(0);
 				this.lastCard = null;
-				Utils.logger.log(Level.INFO, "Card removed");
+				logger.log(Level.INFO, "Card removed");
 				for(TerminalListener listener : this.listenersTerminal)
 					listener.cardRemoved();
 			}
 			catch(Exception exception)
 			{
-				Utils.logger.log(Level.WARNING, "", exception);
+				logger.log(Level.WARNING, "", exception);
 			}
 		}
 	}
@@ -153,10 +155,30 @@ public class TerminalReader implements Runnable
 	private RFIDCard getCardInfos(Card card) throws CardException
 	{
 		CardChannel cardChannel = card.getBasicChannel();
-		CommandAPDU command = new CommandAPDU(Commands.UID.getCommand());
-		Utils.logger.log(Level.INFO, "Sending command " + Commands.UID);
+		CommandAPDU command = Commands.UID.getAPDU();
+		logger.log(Level.INFO, "Sending command " + Commands.UID);
 		ResponseAPDU response = cardChannel.transmit(command);
-		Utils.logger.log(Level.INFO, "Got response : " + APDUResponse.getErrorString(response.getSW()));
-		return new RFIDCard(Utils.bytesToHex(card.getATR().getBytes()), Utils.bytesToHex(response.getData()));
+		logger.log(Level.INFO, "Got response : " + APDUResponse.getErrorString(response.getSW()));
+		return new RFIDCard(bytesToHex(card.getATR().getBytes()), bytesToHex(response.getData()), cardChannel);
+	}
+
+	/**
+	 * Used to transform an array of bytes to a String like FF-FF-FF...
+	 *
+	 * @param bytes The array of bytes to transform.
+	 * @return The String representing this array.
+	 */
+	private static String bytesToHex(byte[] bytes)
+	{
+		char[] hexArray = "0123456789ABCDEF".toCharArray();
+		char[] hexChars = new char[bytes.length * 3];
+		for(int j = 0; j < bytes.length; j++)
+		{
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 3] = hexArray[v >>> 4];
+			hexChars[j * 3 + 1] = hexArray[v & 0x0F];
+			hexChars[j * 3 + 2] = '-';
+		}
+		return new String(hexChars).substring(0, hexChars.length - 1);
 	}
 }

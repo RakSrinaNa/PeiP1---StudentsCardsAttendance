@@ -65,7 +65,6 @@ public class SQLManager
 	public Student getStudentByName(String name)
 	{
 		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.NAME_LABEL + " = \"" + name + "\";");
-		//noinspection EmptyCatchBlock
 		try
 		{
 			if(result.next())

@@ -102,11 +102,8 @@ public class Utils
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
 		baseFile = new File("." + File.separator + "TerminalReader");
 		icons = new ArrayList<>();
-		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
-		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
-		//noinspection ConstantConditions
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		logAll = true;
 		addNewCards = true;
@@ -174,11 +171,9 @@ public class Utils
 			File file = new File(baseFile, "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
 			if(!file.exists())
 			{
-				//noinspection ResultOfMethodCallIgnored
 				file.getParentFile().mkdirs();
 				try
 				{
-					//noinspection ResultOfMethodCallIgnored
 					file.createNewFile();
 				}
 				catch(IOException exception)
@@ -196,7 +191,6 @@ public class Utils
 			Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
 		}
 		if(printWriter != null)
-			//noinspection EmptyCatchBlock
 			try
 			{
 				printWriter.close();
@@ -205,7 +199,6 @@ public class Utils
 			{
 			}
 		if(bufferedWriter != null)
-			//noinspection EmptyCatchBlock
 			try
 			{
 				bufferedWriter.close();
@@ -214,7 +207,6 @@ public class Utils
 			{
 			}
 		if(fileWriter != null)
-			//noinspection EmptyCatchBlock
 			try
 			{
 				fileWriter.close();
@@ -264,11 +256,9 @@ public class Utils
 					File file = new File(baseFile, "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
 					if(!file.exists())
 					{
-						//noinspection ResultOfMethodCallIgnored
 						file.getParentFile().mkdirs();
 						try
 						{
-							//noinspection ResultOfMethodCallIgnored
 							file.createNewFile();
 						}
 						catch(IOException exception)
@@ -286,7 +276,6 @@ public class Utils
 					Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
 				}
 				if(printWriter != null)
-					//noinspection EmptyCatchBlock
 					try
 					{
 						printWriter.close();
@@ -295,7 +284,6 @@ public class Utils
 					{
 					}
 				if(bufferedWriter != null)
-					//noinspection EmptyCatchBlock
 					try
 					{
 						bufferedWriter.close();
@@ -304,7 +292,6 @@ public class Utils
 					{
 					}
 				if(fileWriter != null)
-					//noinspection EmptyCatchBlock
 					try
 					{
 						fileWriter.close();

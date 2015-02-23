@@ -257,7 +257,6 @@ public class GroupEditFrame extends JDialog
 		gcb.gridx = 1;
 		this.getContentPane().add(scrollPanePeriods, gcb);
 		gcb.gridx = 0;
-		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addStudent, gcb);

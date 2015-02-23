@@ -181,7 +181,6 @@ public class GroupSettingsFrame extends JDialog
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.getContentPane().add(scrollPane, gcb);
-		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addButton, gcb);

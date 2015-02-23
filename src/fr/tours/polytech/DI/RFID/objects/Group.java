@@ -66,9 +66,7 @@ public class Group implements Serializable
 	 */
 	public static void saveGroups(ArrayList<Group> groups)
 	{
-		//noinspection ConstantConditions
 		for(File file : new File(Utils.baseFile, "Groups").listFiles())
-			//noinspection ResultOfMethodCallIgnored
 			file.delete();
 		for(Group group : groups)
 			try
@@ -92,7 +90,6 @@ public class Group implements Serializable
 		ArrayList<Group> groups = new ArrayList<>();
 		File folder = new File(Utils.baseFile, "Groups");
 		folder.mkdirs();
-		//noinspection ConstantConditions
 		for(File file : folder.listFiles())
 			try
 			{
@@ -155,7 +152,6 @@ public class Group implements Serializable
 	public void serialize(File file) throws IOException
 	{
 		if(!file.getParentFile().exists())
-			//noinspection ResultOfMethodCallIgnored
 			file.getParentFile().mkdirs();
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 		oos.writeObject(this);

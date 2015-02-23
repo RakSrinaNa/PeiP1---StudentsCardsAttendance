@@ -225,7 +225,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridwidth = 1;
 		gcb.gridheight = 1;
 		gcb.gridx = 0;
-		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		JPanel infoPanel = new JPanel();
 		infoPanel.add(groupsInfoLabel, gcb);
@@ -257,7 +256,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(groupSettings, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(addNewCardCheck, gcb);
-		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		this.staffPanel.add(logAllCheck, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -292,7 +290,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridwidth = 2;
 		gcb.weighty = 1;
 		gcb.gridx = 0;
-		//noinspection UnusedAssignment
 		gcb.gridy = line++;
 		getContentPane().add(this.cardPanel, gcb);
 		setStaffInfos(false);
@@ -394,7 +391,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		while(!Thread.interrupted())
 		{
-			//noinspection EmptyCatchBlock
 			try
 			{
 				Thread.sleep(500);

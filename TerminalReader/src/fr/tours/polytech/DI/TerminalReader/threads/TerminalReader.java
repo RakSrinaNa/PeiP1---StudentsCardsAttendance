@@ -103,7 +103,6 @@ public class TerminalReader implements Runnable
 			{
 				final CardTerminals terminalList = terminalFactory.terminals();
 				CardTerminal cardTerminal = null;
-				//noinspection EmptyCatchBlock
 				try
 				{
 					for(CardTerminal terminal : terminalList.list())
@@ -122,7 +121,6 @@ public class TerminalReader implements Runnable
 				if(this.isPresent != lastPresent)
 				{
 					if(this.isPresent)
-						//noinspection ConstantConditions
 						logger.log(Level.INFO, "Starting listening terminal " + cardTerminal.getName());
 					else
 						logger.log(Level.INFO, "Stopped listening");
@@ -135,7 +133,6 @@ public class TerminalReader implements Runnable
 				if(!this.isPresent)
 					continue;
 				logger.log(Level.INFO, "Waiting for card...");
-				//noinspection ConstantConditions
 				cardTerminal.waitForCardPresent(0);
 				logger.log(Level.INFO, "Card detected");
 				this.lastCard = getCardInfos(cardTerminal.connect("*"));

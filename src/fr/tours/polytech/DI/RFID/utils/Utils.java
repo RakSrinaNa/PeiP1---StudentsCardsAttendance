@@ -1,6 +1,7 @@
 package fr.tours.polytech.DI.RFID.utils;
 
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
+import fr.tours.polytech.DI.RFID.objects.Configuration;
 import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -27,12 +28,12 @@ public class Utils
 	public static SQLManager sql;
 	public static ArrayList<Student> students;
 	public static ArrayList<Group> groups;
-	public static boolean logAll, addNewCards;
 	public static ResourceBundle resourceBundle;
 	public static ArrayList<BufferedImage> icons;
 	public static File baseFile;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
+	public static Configuration configuration;
 
 	/**
 	 * Call when we need to exit the program.
@@ -44,6 +45,7 @@ public class Utils
 	{
 		mainFrame.exit();
 		Group.saveGroups(Utils.groups);
+		configuration.serialize(new File(baseFile, "configuration"));
 		terminalReader.stop();
 		System.exit(exitStaus);
 	}
@@ -100,20 +102,14 @@ public class Utils
 	{
 		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
-		baseFile = new File("." + File.separator + "TerminalReader");
+		baseFile = new File("." + File.separator + "RFID");
 		icons = new ArrayList<>();
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
-		logAll = true;
-		addNewCards = true;
+		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
 		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager("127.0.0.1", 3306, "rfid", "rfid", "PolytechDI26");
-		if(!sql.isConnected())
-		{
-			JOptionPane.showMessageDialog(null, Utils.resourceBundle.getString("database_error"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
-			System.exit(1);
-		}
+		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
 		students = Utils.sql.getAllStudents();
 		groups = Group.loadGroups();
 		mainFrame = new MainFrame();
@@ -157,7 +153,7 @@ public class Utils
 	 */
 	public static void logCheck(Student student)
 	{
-		if(!logAll)
+		if(!configuration.isLogAll())
 			return;
 		FileWriter fileWriter = null;
 		BufferedWriter bufferedWriter = null;
@@ -346,6 +342,14 @@ public class Utils
 			list.removeAll(toRem);
 			toRem.clear();
 		}
+		return list;
+	}
+
+	public static ArrayList<Student> getRefreshedStudents()
+	{
+		ArrayList<Student> list = new ArrayList<>(students);
+		list.addAll(sql.getAllStudents());
+		Utils.removeDuplicates(list);
 		return list;
 	}
 }

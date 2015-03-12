@@ -231,7 +231,7 @@ public class Group implements Serializable
 	 */
 	public ArrayList<Student> getAddableStudents()
 	{
-		return Utils.removeStudentsInList(new ArrayList<>(Utils.students), this.students);
+		return Utils.removeStudentsInList(new ArrayList<>(Utils.getRefreshedStudents()), this.students);
 	}
 
 	/**

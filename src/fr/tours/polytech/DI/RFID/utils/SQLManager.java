@@ -1,8 +1,10 @@
 package fr.tours.polytech.DI.RFID.utils;
 
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import java.sql.*;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -23,6 +25,8 @@ public class SQLManager
 	private final String user;
 	private final String password;
 	private Connection connection;
+	private Date lastTimeConnect;
+	private boolean isLogging;
 
 	/**
 	 * Constructor.
@@ -94,6 +98,7 @@ public class SQLManager
 			if(result.next())
 				return new Student(uid, result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1);
 		}
+		catch(NullPointerException e){}
 		catch(SQLException exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
@@ -138,16 +143,36 @@ public class SQLManager
 	/**
 	 * Used to establish a connection with the database.
 	 */
-	private void login()
+	public boolean login()
 	{
+		if(isLogging)
+			return false;
+		isLogging = true;
+		boolean result = false;
 		try
 		{
 			this.connection = DriverManager.getConnection("jdbc:mysql://" + this.databaseURL + ":" + this.port + "/" + this.databaseName, this.user, this.password);
 		}
+		catch(CommunicationsException e)
+		{}
 		catch(SQLException e)
 		{
 			Utils.logger.log(Level.WARNING, "Error connecting to SQL database!", e);
 		}
+		try
+		{
+			if(connection != null)
+				result = connection.isValid(2500);
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+		if(!result)
+			connection = null;
+		isLogging = false;
+		lastTimeConnect = new Date();
+		return result;
 	}
 
 	/**
@@ -223,7 +248,8 @@ public class SQLManager
 			while(result.next())
 				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1));
 		}
-		catch(SQLException exception)
+		catch(NullPointerException e){}
+		catch(Exception exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
 		}
@@ -232,6 +258,24 @@ public class SQLManager
 
 	public boolean isConnected()
 	{
-		return connection != null;
+		try
+		{
+			return connection != null && connection.isValid(2500);
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public Date getLastConnectTime()
+	{
+		return lastTimeConnect;
+	}
+
+	public boolean isLogging()
+	{
+		return isLogging;
 	}
 }

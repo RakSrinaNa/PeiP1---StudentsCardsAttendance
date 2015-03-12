@@ -8,14 +8,12 @@ import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
 import fr.tours.polytech.DI.TerminalReader.objects.RFIDCard;
+import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -93,6 +91,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void windowDeactivated(WindowEvent event)
 			{
+			}
+		});
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control alt P"), "openStaff");
+		getRootPane().getActionMap().put("openStaff", new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				setStaffInfos(!staffPanel.isVisible());
 			}
 		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
@@ -239,21 +246,26 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		panelSettings.setBackground(backColor);
 		JCheckBox addNewCardCheck = new JCheckBox("<html><p align=\"center\">" + Utils.resourceBundle.getString("add_new_card") + "</p></html>");
 		addNewCardCheck.setBackground(backColor);
-		addNewCardCheck.setSelected(Utils.addNewCards);
-		addNewCardCheck.addActionListener(event -> Utils.addNewCards = ((JCheckBox) event.getSource()).isSelected());
+		addNewCardCheck.setSelected(Utils.configuration.isAddNewStudents());
+		addNewCardCheck.addActionListener(event -> Utils.configuration.setAddNewStudents(((JCheckBox) event.getSource()).isSelected()));
 		JCheckBox logAllCheck = new JCheckBox(Utils.resourceBundle.getString("log_all"));
 		logAllCheck.setBackground(backColor);
-		logAllCheck.setSelected(Utils.addNewCards);
-		logAllCheck.addActionListener(event -> Utils.logAll = ((JCheckBox) event.getSource()).isSelected());
+		logAllCheck.setSelected(Utils.configuration.isLogAll());
+		logAllCheck.addActionListener(event -> Utils.configuration.setLogAll(((JCheckBox) event.getSource()).isSelected()));
 		JButton groupSettings = new JButton(Utils.resourceBundle.getString("group_settings"));
 		groupSettings.setBackground(backColor);
 		groupSettings.addActionListener(event -> new GroupSettingsFrame(MainFrame.this, Utils.groups));
+		JButton sqlSettings = new JButton(Utils.resourceBundle.getString("sql_settings"));
+		sqlSettings.setBackground(backColor);
+		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
 		line = 0;
 		gcb.anchor = GridBagConstraints.CENTER;
 		gcb.fill = GridBagConstraints.HORIZONTAL;
 		gcb.insets = new Insets(10, 20, 10, 20);
 		gcb.gridy = line++;
 		this.staffPanel.add(groupSettings, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(sqlSettings, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(addNewCardCheck, gcb);
 		gcb.gridy = line++;
@@ -316,7 +328,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		if(student == null)
 		{
 			this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + rfidCard);
-			if(Utils.addNewCards)
+			if(Utils.configuration.isAddNewStudents())
 			{
 				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name") + ":", ""), false);
 				if(student.hasValidName())
@@ -399,6 +411,28 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			{
 			}
 			Date date = new Date();
+			if(!Utils.sql.isConnected())
+			{
+				if(date.getTime() > (Utils.sql.getLastConnectTime().getTime() + 15000))
+				{
+					if(!Utils.sql.isLogging())
+					{
+						this.cardPanel.setBackground(Color.ORANGE);
+						this.cardTextLabel.setText(Utils.resourceBundle.getString("sql_retry_now"));
+						if(Utils.sql.login())
+						{
+							this.cardPanel.setBackground(Color.GREEN);
+							this.cardTextLabel.setText(Utils.resourceBundle.getString("sql_connected"));
+							Utils.students = Utils.removeDuplicates(Utils.sql.getAllStudents());
+						}
+					}
+				}
+				else if(!Utils.sql.isLogging())
+				{
+					this.cardPanel.setBackground(Color.RED);
+					this.cardTextLabel.setText(String.format(Utils.resourceBundle.getString("sql_retry"), (15000 - (date.getTime() - Utils.sql.getLastConnectTime().getTime())) / 1000));
+				}
+			}
 			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
 			ArrayList<Student> toCheck = new ArrayList<>();
 			for(Group group : Utils.groups)

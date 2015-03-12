@@ -7,7 +7,6 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.TerminalReader.threads.TerminalReader;
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DateFormat;
@@ -128,7 +127,7 @@ public class Utils
 		for(Student student : students)
 			if(student != null && student.is(name))
 				return student;
-		return checkDB ? Utils.sql.getStudentByName(name) : null;
+		return checkDB ? Utils.sql.getStudentByName(capitalize(name.substring(0, name.lastIndexOf(" ")).trim().toLowerCase()), name.substring(name.lastIndexOf(" ")).trim()) : null;
 	}
 
 	/**
@@ -356,5 +355,20 @@ public class Utils
 	public static void reloadSQLFromConfig()
 	{
 		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+	}
+
+	public static String capitalize(String s)
+	{
+		boolean first = true;
+		StringBuilder sb = new StringBuilder();
+		for(char c : s.toCharArray())
+			if(first)
+			{
+				sb.append(Character.toUpperCase(c));
+				first = false;
+			}
+			else
+			sb.append(c);
+		return sb.toString();
 	}
 }

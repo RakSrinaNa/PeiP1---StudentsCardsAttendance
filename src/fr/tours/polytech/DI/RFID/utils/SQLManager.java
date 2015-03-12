@@ -1,11 +1,10 @@
 package fr.tours.polytech.DI.RFID.utils;
 
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import java.sql.*;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 
 /**
@@ -16,7 +15,8 @@ import java.util.logging.Level;
 public class SQLManager
 {
 	private final String UID_LABEL = "UID";
-	private final String NAME_LABEL = "Name";
+	private final String FIRSTNAME_LABEL = "FirstName";
+	private final String SURNAME_LABEL = "Surname";
 	private final String STAFF_LABEL = "Staff";
 	private final String tableName;
 	private String databaseURL;
@@ -66,22 +66,21 @@ public class SQLManager
 	 */
 	public void addStudentToDatabase(Student student)
 	{
-		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.NAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getName() + "\",\"" + student.isStaffSQL() + "\")");
+		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.FIRSTNAME_LABEL + "," + this.SURNAME_LABEL + "," + this.STAFF_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\",\"" + student.isStaffSQL() + "\")");
 	}
 
 	/**
 	 * Used to retrieve a student from the database by his name.
 	 *
-	 * @param name The name of the student.
 	 * @return The student corresponding, null if not found.
 	 */
-	public Student getStudentByName(String name)
+	public Student getStudentByName(String surname, String firstname)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.NAME_LABEL + " = \"" + name + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
 		try
 		{
 			if(result.next())
-				return new Student(result.getString(this.UID_LABEL), name, result.getInt(this.STAFF_LABEL) == 1);
+				return new Student(result.getString(this.UID_LABEL), surname, firstname, result.getInt(this.STAFF_LABEL) == 1);
 		}
 		catch(SQLException exception)
 		{
@@ -101,11 +100,11 @@ public class SQLManager
 	 */
 	public Student getStudentByUID(String uid)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.UID_LABEL + " = \"" + uid + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.SURNAME_LABEL + ", " + this.FIRSTNAME_LABEL +", " + this.STAFF_LABEL + " FROM " + this.tableName + " WHERE " + this.UID_LABEL + " = \"" + uid + "\";");
 		try
 		{
 			if(result.next())
-				return new Student(uid, result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1);
+				return new Student(uid, result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL), result.getInt(this.STAFF_LABEL) == 1);
 		}
 		catch(NullPointerException e){}
 		catch(SQLException exception)
@@ -146,7 +145,7 @@ public class SQLManager
 	 */
 	private int createBaseTable()
 	{
-		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + this.UID_LABEL + " varchar(18), " + this.NAME_LABEL + " varchar(255), " + this.STAFF_LABEL + " tinyint(1), PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + this.UID_LABEL + " varchar(18), " + this.SURNAME_LABEL + " varchar(255), " + this.FIRSTNAME_LABEL + " varchar(255)," + this.STAFF_LABEL + " tinyint(1), PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 	}
 
 	/**
@@ -249,11 +248,11 @@ public class SQLManager
 	public ArrayList<Student> getAllStudents()
 	{
 		ArrayList<Student> students = new ArrayList<>();
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + "," + this.NAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + ";");
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + "," + this.SURNAME_LABEL + ", " + this.FIRSTNAME_LABEL + ", " + this.STAFF_LABEL + " FROM " + this.tableName + ";");
 		try
 		{
 			while(result.next())
-				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.NAME_LABEL), result.getInt(this.STAFF_LABEL) == 1));
+				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL), result.getInt(this.STAFF_LABEL) == 1));
 		}
 		catch(NullPointerException e){}
 		catch(Exception exception)

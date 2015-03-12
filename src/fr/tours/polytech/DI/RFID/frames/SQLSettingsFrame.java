@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.Arrays;
 /**
  * Created by Tom on 12/03/2015.
  */
@@ -80,7 +79,7 @@ public class SQLSettingsFrame extends JDialog
 		this.dbPort.setLineWrap(true);
 		JLabel dbUserLabel = new JLabel(Utils.resourceBundle.getString("bdd_user") + ":");
 		dbUserLabel.setHorizontalAlignment(JLabel.RIGHT);
-		this.dbUser = new JTextArea("" + Utils.configuration.getBddPort());
+		this.dbUser = new JTextArea("" + Utils.configuration.getBddUser());
 		this.dbUser.setWrapStyleWord(true);
 		this.dbUser.setLineWrap(true);
 		JLabel dbPasswordLabel = new JLabel(Utils.resourceBundle.getString("bdd_password") + ":");

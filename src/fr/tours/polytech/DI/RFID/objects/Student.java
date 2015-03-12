@@ -1,6 +1,6 @@
 package fr.tours.polytech.DI.RFID.objects;
 
-import org.apache.commons.lang3.text.WordUtils;
+import fr.tours.polytech.DI.RFID.utils.Utils;
 import java.io.Serializable;
 
 /**
@@ -11,7 +11,8 @@ import java.io.Serializable;
 public class Student implements Serializable
 {
 	private static final long serialVersionUID = 546546596L;
-	private final String name;
+	private final String surname;
+	private final String firstname;
 	private final String uid;
 	private final boolean isStaff;
 
@@ -22,10 +23,11 @@ public class Student implements Serializable
 	 * @param name The student's name.
 	 * @param isStaff Either if it's a staff member or not.
 	 */
-	public Student(String uid, String name, boolean isStaff)
+	public Student(String uid, String surname, String firstname, boolean isStaff)
 	{
 		this.uid = uid;
-		this.name = name;
+		this.surname = Utils.capitalize(surname.toLowerCase().trim());
+		this.firstname = Utils.capitalize(firstname.toLowerCase().trim());
 		this.isStaff = isStaff;
 	}
 
@@ -36,7 +38,7 @@ public class Student implements Serializable
 	 */
 	public String getName()
 	{
-		return WordUtils.capitalize(this.name.toLowerCase());
+		return getLastname().toUpperCase() + " " + getFirstName();
 	}
 
 	/**
@@ -76,7 +78,7 @@ public class Student implements Serializable
 	@Override
 	public String toString()
 	{
-		return this.name + (this.isStaff ? " (Staff)" : "");
+		return getName() + (this.isStaff ? " (Staff)" : "");
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class Student implements Serializable
 	 */
 	public boolean hasValidName()
 	{
-		return this.name != null && !this.name.equals("");
+		return getName() != null && !getName().equals("");
 	}
 
 	/**
@@ -129,5 +131,15 @@ public class Student implements Serializable
 	public boolean is(String name)
 	{
 		return isSameName(name.replace("(Staff)", "").trim());
+	}
+
+	public String getFirstName()
+	{
+		return this.firstname;
+	}
+
+	public String getLastname()
+	{
+		return this.surname;
 	}
 }

@@ -8,7 +8,6 @@ import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
 import fr.tours.polytech.DI.TerminalReader.objects.RFIDCard;
-import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -330,7 +329,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + rfidCard);
 			if(Utils.configuration.isAddNewStudents())
 			{
-				student = new Student(rfidCard.getUid(), JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name") + ":", ""), false);
+				String name = JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name")+ ":", "");
+				student = new Student(rfidCard.getUid(), name.substring(0, name.lastIndexOf(" ")).trim(), name.substring(name.lastIndexOf(" ")).trim() , false);
 				if(student.hasValidName())
 					Utils.sql.addStudentToDatabase(student);
 			}

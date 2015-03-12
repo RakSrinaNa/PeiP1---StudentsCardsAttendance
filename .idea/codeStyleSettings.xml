@@ -30,7 +30,6 @@
         <option name="JD_DO_NOT_WRAP_ONE_LINE_COMMENTS" value="true" />
         <JavaCodeStyleSettings>
           <option name="SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENT" value="true" />
-          <option name="BLANK_LINES_AROUND_INITIALIZER" value="0" />
         </JavaCodeStyleSettings>
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
@@ -338,5 +337,6 @@
       </value>
     </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default (1)" />
   </component>
 </project>

@@ -352,4 +352,9 @@ public class Utils
 		Utils.removeDuplicates(list);
 		return list;
 	}
+
+	public static void reloadSQLFromConfig()
+	{
+		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+	}
 }

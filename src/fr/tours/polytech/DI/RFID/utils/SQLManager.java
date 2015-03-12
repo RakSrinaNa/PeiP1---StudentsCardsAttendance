@@ -19,11 +19,11 @@ public class SQLManager
 	private final String NAME_LABEL = "Name";
 	private final String STAFF_LABEL = "Staff";
 	private final String tableName;
-	private final String databaseURL;
-	private final int port;
-	private final String databaseName;
-	private final String user;
-	private final String password;
+	private String databaseURL;
+	private int port;
+	private String databaseName;
+	private String user;
+	private String password;
 	private Connection connection;
 	private Date lastTimeConnect;
 	private boolean isLogging;
@@ -48,6 +48,15 @@ public class SQLManager
 		Utils.logger.log(Level.INFO, "Initializing SQL connection...");
 		this.tableName = "Users";
 		createBaseTable();
+	}
+
+	public void reloadInfos(String databaseURL, int port, String databaseName, String user, String password)
+	{
+		this.databaseURL = databaseURL;
+		this.port = port;
+		this.databaseName = databaseName;
+		this.user = user;
+		this.password = password;
 	}
 
 	/**
@@ -153,11 +162,9 @@ public class SQLManager
 		{
 			this.connection = DriverManager.getConnection("jdbc:mysql://" + this.databaseURL + ":" + this.port + "/" + this.databaseName, this.user, this.password);
 		}
-		catch(CommunicationsException e)
-		{}
 		catch(SQLException e)
 		{
-			Utils.logger.log(Level.WARNING, "Error connecting to SQL database!", e);
+			//Utils.logger.log(Level.WARNING, "Error connecting to SQL database!", e);
 		}
 		try
 		{

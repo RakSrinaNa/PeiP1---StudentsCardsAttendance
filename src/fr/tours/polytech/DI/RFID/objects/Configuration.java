@@ -37,6 +37,7 @@ public class Configuration implements Serializable
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 		}
 	}
 

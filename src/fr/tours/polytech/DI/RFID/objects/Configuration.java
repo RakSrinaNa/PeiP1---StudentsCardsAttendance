@@ -1,14 +1,13 @@
 package fr.tours.polytech.DI.RFID.objects;
 
 import java.io.*;
-/**
- * Created by Tom on 12/03/2015.
- */
+
 public class Configuration implements Serializable
 {
 	private String bddUser;
 	private String bddPassword;
 	private String bddName;
+	private String bddTableName;
 	private String bddIP;
 	private int bddPort;
 	private boolean logAll;
@@ -19,26 +18,11 @@ public class Configuration implements Serializable
 		this.setBddUser("rfid");
 		this.setBddPassword("PolytechDI26");
 		this.setBddName("rfid");
+		this.setBddTableName("name");
 		this.setBddIP("127.0.0.1");
 		this.setBddPort(3306);
 		this.setLogAll(true);
 		this.setAddNewStudents(true);
-	}
-
-	public void serialize(File file)
-	{
-		try
-		{
-			if(!file.getParentFile().exists())
-				file.getParentFile().mkdirs();
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(this);
-			oos.close();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	public static Configuration deserialize(File file)
@@ -56,7 +40,22 @@ public class Configuration implements Serializable
 			e.printStackTrace();
 			return new Configuration();
 		}
+	}
 
+	public void serialize(File file)
+	{
+		try
+		{
+			if(!file.getParentFile().exists())
+				file.getParentFile().mkdirs();
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+			oos.writeObject(this);
+			oos.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public String getBddUser()
@@ -127,5 +126,15 @@ public class Configuration implements Serializable
 	public void setBddPort(int bddPort)
 	{
 		this.bddPort = bddPort;
+	}
+
+	public String getBddTableName()
+	{
+		return bddTableName;
+	}
+
+	public void setBddTableName(String bddTableName)
+	{
+		this.bddTableName = bddTableName;
 	}
 }

@@ -39,7 +39,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JMenuItem menuItemExit;
 	private final JTableUneditableModel modelChecked;
 	public static Color backColor;
-	private Student currentStudent;
 
 	/**
 	 * Constructor.
@@ -61,10 +60,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void windowClosing(WindowEvent event)
 			{
-				if(true || MainFrame.this.currentStudent != null && MainFrame.this.currentStudent.isStaff())
-					Utils.exit(0);
-				else
-					JOptionPane.showMessageDialog(MainFrame.this, Utils.resourceBundle.getString("require_staff_card_close"), Utils.resourceBundle.getString("not_allowed").toUpperCase(), JOptionPane.ERROR_MESSAGE);
+				Utils.exit(0);
 			}
 
 			@Override
@@ -161,8 +157,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseReleased(MouseEvent event)
 			{
-				if(MainFrame.this.currentStudent == null || !MainFrame.this.currentStudent.isStaff())
-					return;
 				int row = MainFrame.this.tableChecked.rowAtPoint(event.getPoint());
 				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
 					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
@@ -323,28 +317,29 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	public void cardAdded(RFIDCard rfidCard)
 	{
 		Student student = Utils.getStudentByUID(rfidCard.getUid(), true);
-		this.currentStudent = student;
 		if(student == null)
 		{
 			this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + rfidCard);
 			if(Utils.configuration.isAddNewStudents())
 			{
 				String name = JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name")+ ":", "");
-				student = new Student(rfidCard.getUid(), name.substring(0, name.lastIndexOf(" ")).trim(), name.substring(name.lastIndexOf(" ")).trim() , false);
+				student = new Student(rfidCard.getUid(), name.substring(0, name.lastIndexOf(" ")).trim(), name.substring(name.lastIndexOf(" ")).trim());
 				if(student.hasValidName())
+				{
+					Utils.students.add(student);
 					Utils.sql.addStudentToDatabase(student);
+				}
 			}
 			return;
 		}
 		Utils.logger.log(Level.INFO, Utils.resourceBundle.getString("card_info") + ": " + student + " " + rfidCard);
 		this.cardPanel.setBackground(Color.GREEN);
-		this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + student.getName() + " " + (student.isStaff() ? "(Staff)" : "(Student)"));
+		this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + student.getName());
 		if(Utils.checkStudent(student))
 		{
 			Utils.logCheck(student);
 			Sounds.CARD_CHECKED.playSound();
 		}
-		setStaffInfos(student.isStaff());
 	}
 
 	/**
@@ -379,7 +374,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	public void cardRemoved()
 	{
 		setStaffInfos(false);
-		this.currentStudent = null;
 		this.cardPanel.setBackground(Color.ORANGE);
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_card"));
 	}

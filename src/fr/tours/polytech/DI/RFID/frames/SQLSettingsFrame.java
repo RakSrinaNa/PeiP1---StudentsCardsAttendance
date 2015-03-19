@@ -5,9 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-/**
- * Created by Tom on 12/03/2015.
- */
+
 public class SQLSettingsFrame extends JDialog
 {
 	private final JTextArea dbName;
@@ -15,12 +13,11 @@ public class SQLSettingsFrame extends JDialog
 	private final JTextArea dbPort;
 	private final JPasswordField dbPassword;
 	private final JTextArea dbUser;
-	private MainFrame parent;
+	private final JTextArea dbTableName;
 
 	public SQLSettingsFrame(MainFrame parent)
 	{
 		super(parent);
-		this.parent = parent;
 		this.setIconImages(Utils.icons);
 		this.setTitle(Utils.resourceBundle.getString("sql_setting"));
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
@@ -67,6 +64,11 @@ public class SQLSettingsFrame extends JDialog
 		this.dbName = new JTextArea(Utils.configuration.getBddName());
 		this.dbName.setWrapStyleWord(true);
 		this.dbName.setLineWrap(true);
+		JLabel dbTableNameLabel = new JLabel(Utils.resourceBundle.getString("bdd_table_name") + ":");
+		dbTableNameLabel.setHorizontalAlignment(JLabel.RIGHT);
+		this.dbTableName = new JTextArea(Utils.configuration.getBddTableName());
+		this.dbTableName.setWrapStyleWord(true);
+		this.dbTableName.setLineWrap(true);
 		JLabel dbIPLabel = new JLabel(Utils.resourceBundle.getString("bdd_ip") + ":");
 		dbNameLabel.setHorizontalAlignment(JLabel.RIGHT);
 		this.dbIP = new JTextArea(Utils.configuration.getBddIP());
@@ -97,6 +99,10 @@ public class SQLSettingsFrame extends JDialog
 		namePanel.add(dbNameLabel);
 		namePanel.add(dbName);
 		namePanel.setBackground(MainFrame.backColor);
+		JPanel tableNamePanel = new JPanel();
+		tableNamePanel.add(dbNameLabel);
+		tableNamePanel.add(dbName);
+		tableNamePanel.setBackground(MainFrame.backColor);
 		JPanel userPanel = new JPanel();
 		userPanel.add(dbUserLabel);
 		userPanel.add(dbUser);
@@ -123,6 +129,8 @@ public class SQLSettingsFrame extends JDialog
 		gcb.gridy = line++;
 		this.getContentPane().add(namePanel, gcb);
 		gcb.gridy = line++;
+		this.getContentPane().add(tableNamePanel, gcb);
+		gcb.gridy = line++;
 		this.getContentPane().add(userPanel, gcb);
 		gcb.gridy = line++;
 		this.getContentPane().add(passwordPanel, gcb);
@@ -137,6 +145,7 @@ public class SQLSettingsFrame extends JDialog
 		Utils.configuration.setBddIP(dbIP.getText());
 		Utils.configuration.setBddPort(Integer.parseInt(dbPort.getText()));
 		Utils.configuration.setBddName(dbName.getText());
+		Utils.configuration.setBddTableName(dbTableName.getText());
 		Utils.configuration.setBddUser(dbUser.getText());
 		Utils.configuration.setBddPassword(getPassword());
 		Utils.reloadSQLFromConfig();

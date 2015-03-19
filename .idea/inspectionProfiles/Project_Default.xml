@@ -8,11 +8,6 @@
       <option name="DONT_REPORT_TRUE_ASSERT_STATEMENTS" value="false" />
     </inspection_tool>
     <inspection_tool class="Convert2streamapi" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="EmptyCatchBlock" enabled="true" level="GITIGNORE.UNUSED_ENTRY" enabled_by_default="true">
-      <option name="m_includeComments" value="true" />
-      <option name="m_ignoreTestCases" value="true" />
-      <option name="m_ignoreIgnoreParameter" value="true" />
-    </inspection_tool>
     <inspection_tool class="HtmlUnknownTag" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="myValues">
         <value>

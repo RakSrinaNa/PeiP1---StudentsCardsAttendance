@@ -14,21 +14,17 @@ public class Student implements Serializable
 	private final String surname;
 	private final String firstname;
 	private final String uid;
-	private final boolean isStaff;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param uid The UID of the student card.
-	 * @param name The student's name.
-	 * @param isStaff Either if it's a staff member or not.
 	 */
-	public Student(String uid, String surname, String firstname, boolean isStaff)
+	public Student(String uid, String surname, String firstname)
 	{
 		this.uid = uid;
 		this.surname = Utils.capitalize(surname.toLowerCase().trim());
 		this.firstname = Utils.capitalize(firstname.toLowerCase().trim());
-		this.isStaff = isStaff;
 	}
 
 	/**
@@ -78,7 +74,7 @@ public class Student implements Serializable
 	@Override
 	public String toString()
 	{
-		return getName() + (this.isStaff ? " (Staff)" : "");
+		return getName();
 	}
 
 	/**
@@ -89,26 +85,6 @@ public class Student implements Serializable
 	public boolean hasValidName()
 	{
 		return getName() != null && !getName().equals("");
-	}
-
-	/**
-	 * Used to know if the student is a staff member.
-	 *
-	 * @return true if from the staff, false if not.
-	 */
-	public boolean isStaff()
-	{
-		return this.isStaff;
-	}
-
-	/**
-	 * Used to know if the student is a staff member.
-	 *
-	 * @return 1 if from the staff, 0 if not.
-	 */
-	public int isStaffSQL()
-	{
-		return isStaff() ? 1 : 0;
 	}
 
 	/**

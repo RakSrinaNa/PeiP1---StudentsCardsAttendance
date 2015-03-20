@@ -105,6 +105,14 @@ public class GroupSettingsFrame extends JDialog
 			@Override
 			public void mousePressed(MouseEvent event)
 			{
+				int row = GroupSettingsFrame.this.tableGroups.rowAtPoint(event.getPoint());
+				if(row >= 0 && row < GroupSettingsFrame.this.tableGroups.getRowCount())
+					GroupSettingsFrame.this.tableGroups.setRowSelectionInterval(row, row);
+				else
+					GroupSettingsFrame.this.tableGroups.clearSelection();
+				int rowindex = GroupSettingsFrame.this.tableGroups.getSelectedRow();
+				if(event.getClickCount() == 2 && event.getComponent() instanceof JTable)
+					new GroupEditFrame(GroupSettingsFrame.this, getGroupByName(GroupSettingsFrame.this.tableGroups.getValueAt(rowindex, 0).toString()));
 			}
 
 			@Override

@@ -373,7 +373,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	@Override
 	public void cardRemoved()
 	{
-		setStaffInfos(false);
 		this.cardPanel.setBackground(Color.ORANGE);
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_card"));
 	}

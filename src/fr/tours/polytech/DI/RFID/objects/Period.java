@@ -1,5 +1,6 @@
 package fr.tours.polytech.DI.RFID.objects;
 
+import fr.tours.polytech.DI.RFID.utils.Utils;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -15,6 +16,8 @@ import java.util.regex.Pattern;
 public class Period implements Serializable
 {
 	private static final long serialVersionUID = 546546521L;
+	public static final int MONDAY = 1, TUESDAY = 2, WEDNESDAY = 4, THURSDAY = 8, FRIDAY = 16, SATURDAY = 32, SUNDAY = 64;
+	private int day;
 	private int startingHour;
 	private int startingMinute;
 	private int endingHour;
@@ -32,10 +35,11 @@ public class Period implements Serializable
 	 * @throws IllegalArgumentException If the period isn't formatted as it
 	 * should be.
 	 */
-	public Period(String period) throws IllegalArgumentException
+	public Period(int day, String period) throws IllegalArgumentException
 	{
 		if(!Pattern.matches("(\\d{1,2})(h|H)(\\d{1,2})(-)(\\d{1,2})(h|H)(\\d{1,2})", period))
 			throw new IllegalArgumentException("Time should be formatted as xx:xx-yy:yy (was " + period + ")");
+		this.day = day;
 		period = period.toUpperCase().replaceAll(" ", "");
 		String starting = period.substring(0, period.indexOf('-'));
 		String ending = period.substring(period.indexOf('-') + 1);
@@ -52,9 +56,44 @@ public class Period implements Serializable
 	 *
 	 * @return A string formatted as <b>xxHxx - yyHyy</b>
 	 */
-	public String getTimeInterval()
+	public String getRawTimeInterval()
 	{
 		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute);
+	}
+
+	/**
+	 * Used to get a String representing this interval.
+	 *
+	 * @return A string formatted as <b>xxHxx - yyHyy (days)</b>
+	 */
+	public String getTimeInterval()
+	{
+		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute) + " (" + getDaysText() + ")";
+	}
+
+	public void setDay(int day)
+	{
+		this.day = day;
+	}
+
+	private String getDaysText()
+	{
+		StringBuilder sb = new StringBuilder();
+		if(((day >> 0) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_monday") + " ");
+		if(((day >> 1) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_tuesday") + " ");
+		if(((day >> 2) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_wednesday") + " ");
+		if(((day >> 3) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_thursday") + " ");
+		if(((day >> 4) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_friday") + " ");
+		if(((day >> 5) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_saturday") + " ");
+		if(((day >> 6) & 0x01) == 0x01)
+			sb.append(Utils.resourceBundle.getString("day_sunday") + " ");
+		return sb.substring(0, sb.length());
 	}
 
 	/**
@@ -93,7 +132,12 @@ public class Period implements Serializable
 	 */
 	public boolean isOverlapped(Period period)
 	{
-		return period != null && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
+		return period != null && period.isDaysOverlapped(period.getDay()) && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
+	}
+
+	private boolean isDaysOverlapped(int dayy)
+	{
+		return (((day >> 0) & 0x01) == ((dayy >> 0) & 0x01)) || (((day >> 1) & 0x01) == ((dayy >> 1) & 0x01)) || (((day >> 2) & 0x01) == ((dayy >> 2) & 0x01)) || (((day >> 3) & 0x01) == ((dayy >> 3) & 0x01)) || (((day >> 4) & 0x01) == ((dayy >> 4) & 0x01)) || (((day >> 5) & 0x01) == ((dayy >> 5) & 0x01)) || (((day >> 6) & 0x01) == ((dayy >> 6) & 0x01));
 	}
 
 	/**
@@ -135,7 +179,7 @@ public class Period implements Serializable
 	@Override
 	public String toString()
 	{
-		return getTimeInterval().replaceAll(" ", "");
+		return getRawTimeInterval().replaceAll(" ", "") + " (" + getDaysText() + ")";
 	}
 
 	private boolean isSame(String name)
@@ -146,5 +190,10 @@ public class Period implements Serializable
 	public boolean is(String name)
 	{
 		return isSame(name);
+	}
+
+	public int getDay()
+	{
+		return day;
 	}
 }

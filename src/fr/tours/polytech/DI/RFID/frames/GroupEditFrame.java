@@ -24,6 +24,8 @@ import java.util.logging.Level;
 public class GroupEditFrame extends JDialog
 {
 	private final JTable tableStudents;
+	private final JTable tablePeriods;
+	private final JTableUneditableModel modelPeriods;
 	private final JTableUneditableModel modelStudents;
 	private final Group group;
 
@@ -107,6 +109,16 @@ public class GroupEditFrame extends JDialog
 			}
 
 			@Override
+			public void mouseEntered(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseExited(MouseEvent event)
+			{
+			}
+
+			@Override
 			public void mousePressed(MouseEvent event)
 			{
 			}
@@ -139,16 +151,6 @@ public class GroupEditFrame extends JDialog
 					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
 			}
-
-			@Override
-			public void mouseEntered(MouseEvent event)
-			{
-			}
-
-			@Override
-			public void mouseExited(MouseEvent event)
-			{
-			}
 		});
 		this.tableStudents.setDefaultRenderer(String.class, centerRenderer);
 		this.tableStudents.getTableHeader().setReorderingAllowed(false);
@@ -161,6 +163,78 @@ public class GroupEditFrame extends JDialog
 		scrollPaneStudents.setAutoscrolls(false);
 		scrollPaneStudents.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		/**************************************************************************/
+		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{Utils.resourceBundle.getString("periods")});
+		this.tablePeriods = new JTable(this.modelPeriods)
+		{
+			private static final long serialVersionUID = 4244155500155330717L;
+
+			@Override
+			public Class<?> getColumnClass(int column)
+			{
+				return String.class;
+			}
+		};
+		this.tablePeriods.addMouseListener(new MouseListener()
+		{
+			@Override
+			public void mouseClicked(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseExited(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mousePressed(MouseEvent event)
+			{
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent event)
+			{
+				int row = GroupEditFrame.this.tablePeriods.rowAtPoint(event.getPoint());
+				if(row >= 0 && row < GroupEditFrame.this.tablePeriods.getRowCount())
+					GroupEditFrame.this.tablePeriods.setRowSelectionInterval(row, row);
+				else
+					GroupEditFrame.this.tablePeriods.clearSelection();
+				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
+				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
+				{
+					Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
+					JPopupMenu popup = new JPopupMenu();
+					JMenuItem deletePeriod = new JMenuItem(Utils.resourceBundle.getString("remove_period"));
+					deletePeriod.addActionListener(event1 -> {
+						try
+						{
+							removePeriod(period, rowindex);
+						}
+						catch(Exception exception)
+						{
+							Utils.logger.log(Level.WARNING, "", exception);
+						}
+					});
+					popup.add(deletePeriod);
+					popup.show(event.getComponent(), event.getX(), event.getY());
+				}
+			}
+		});
+		this.tablePeriods.setDefaultRenderer(String.class, centerRenderer);
+		this.tablePeriods.getTableHeader().setReorderingAllowed(false);
+		this.tablePeriods.getTableHeader().setResizingAllowed(true);
+		this.tablePeriods.setRowHeight(20);
+		this.tablePeriods.setShowGrid(true);
+		this.tablePeriods.setBorder(new EtchedBorder(EtchedBorder.RAISED));
+		this.tablePeriods.setGridColor(Color.BLACK);
+		JScrollPane scrollPanePeriods = new JScrollPane(this.tablePeriods);
+		scrollPanePeriods.setAutoscrolls(false);
+		scrollPanePeriods.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		JButton addPeriod = new JButton(Utils.resourceBundle.getString("add_period"));
 		addPeriod.setBackground(MainFrame.backColor);
 		addPeriod.addActionListener(event -> addPeriod());
@@ -180,10 +254,13 @@ public class GroupEditFrame extends JDialog
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.getContentPane().add(scrollPaneStudents, gcb);
+		gcb.gridx = 1;
+		this.getContentPane().add(scrollPanePeriods, gcb);
+		gcb.gridx = 0;
 		gcb.gridy = line++;
 		gcb.weighty = 1;
 		this.getContentPane().add(addStudent, gcb);
-		gcb.gridy = line++;
+		gcb.gridx = 1;
 		this.getContentPane().add(addPeriod, gcb);
 		pack();
 		this.setLocationRelativeTo(parent);
@@ -216,8 +293,34 @@ public class GroupEditFrame extends JDialog
 	 */
 	private void addPeriod()
 	{
-		ScheduleFrame sch = new ScheduleFrame(this);
-		ArrayList<Period> per = sch.showDialog();
+		try
+		{
+			Period period = new Period(Period.MONDAY + Period.FRIDAY, JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("enter_period") + " (xxHxx-yyHyy):", ""));
+			if(group.addPeriod(period))
+			{
+				modelPeriods.addRow(new Period[]{period});
+				modelPeriods.fireTableDataChanged();
+			}
+			else
+				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("period_overlapping"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("wrong_period"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/**
+	 * Used to remove a period.
+	 *
+	 * @param period The period to remove.
+	 * @param index The index in the table of the period.
+	 */
+	private void removePeriod(Period period, int index)
+	{
+		group.remove(period);
+		modelPeriods.removeRow(index);
+		modelPeriods.fireTableDataChanged();
 	}
 
 	/**

@@ -30,9 +30,9 @@ public class Utils
 	public static ResourceBundle resourceBundle;
 	public static ArrayList<BufferedImage> icons;
 	public static File baseFile;
+	public static Configuration configuration;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
-	public static Configuration configuration;
 
 	/**
 	 * Call when we need to exit the program.
@@ -108,7 +108,7 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
 		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 		students = Utils.sql.getAllStudents();
 		groups = Group.loadGroups();
 		mainFrame = new MainFrame();
@@ -354,7 +354,7 @@ public class Utils
 
 	public static void reloadSQLFromConfig()
 	{
-		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 	}
 
 	public static String capitalize(String s)

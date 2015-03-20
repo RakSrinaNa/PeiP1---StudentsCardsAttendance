@@ -17,7 +17,7 @@ public class SQLManager
 	private final String UID_LABEL = "UID";
 	private final String FIRSTNAME_LABEL = "FirstName";
 	private final String SURNAME_LABEL = "Surname";
-	private final String tableName;
+	private String tableName;
 	private String databaseURL;
 	private int port;
 	private String databaseName;
@@ -36,11 +36,12 @@ public class SQLManager
 	 * @param user The username.
 	 * @param password The password for this user.
 	 */
-	public SQLManager(String databaseURL, int port, String databaseName, String user, String password)
+	public SQLManager(String databaseURL, int port, String databaseName, String tableName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
+		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
 		login();
@@ -49,11 +50,12 @@ public class SQLManager
 		createBaseTable();
 	}
 
-	public void reloadInfos(String databaseURL, int port, String databaseName, String user, String password)
+	public void reloadInfos(String databaseURL, int port, String databaseName, String tableName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
+		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
 	}

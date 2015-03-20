@@ -162,7 +162,7 @@ public class SQLManager
 		}
 		catch(SQLException e)
 		{
-			Utils.logger.log(Level.WARNING, "Error connecting to SQL database!", e);
+			Utils.logger.log(Level.WARNING, "Error connecting to SQL database! (" + e.getMessage() + ")");
 		}
 		try
 		{

@@ -71,29 +71,24 @@ public class Period implements Serializable
 		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute) + " (" + getDaysText() + ")";
 	}
 
-	public void setDay(int day)
-	{
-		this.day = day;
-	}
-
 	private String getDaysText()
 	{
 		StringBuilder sb = new StringBuilder();
-		if(((day >> 0) & 0x01) == 0x01)
+		if(isDaySet(MONDAY))
 			sb.append(Utils.resourceBundle.getString("day_monday") + " ");
-		if(((day >> 1) & 0x01) == 0x01)
+		if(isDaySet(TUESDAY))
 			sb.append(Utils.resourceBundle.getString("day_tuesday") + " ");
-		if(((day >> 2) & 0x01) == 0x01)
+		if(isDaySet(WEDNESDAY))
 			sb.append(Utils.resourceBundle.getString("day_wednesday") + " ");
-		if(((day >> 3) & 0x01) == 0x01)
+		if(isDaySet(THURSDAY))
 			sb.append(Utils.resourceBundle.getString("day_thursday") + " ");
-		if(((day >> 4) & 0x01) == 0x01)
+		if(isDaySet(FRIDAY))
 			sb.append(Utils.resourceBundle.getString("day_friday") + " ");
-		if(((day >> 5) & 0x01) == 0x01)
+		if(isDaySet(SATURDAY))
 			sb.append(Utils.resourceBundle.getString("day_saturday") + " ");
-		if(((day >> 6) & 0x01) == 0x01)
+		if(isDaySet(SUNDAY))
 			sb.append(Utils.resourceBundle.getString("day_sunday") + " ");
-		return sb.substring(0, sb.length());
+		return sb.substring(0, sb.length()).trim();
 	}
 
 	/**
@@ -105,22 +100,45 @@ public class Period implements Serializable
 	public boolean isInPeriod(Date date)
 	{
 		this.calendar.setTime(date);
+		int day = this.calendar.get(Calendar.DAY_OF_WEEK);
 		int hours = this.calendar.get(Calendar.HOUR_OF_DAY);
 		int minutes = this.calendar.get(Calendar.MINUTE);
+		if(!isCurrentDayCalendar(day))
+			return false;
 		if(this.startingHour == this.endingHour)
 		{
 			if(hours == this.startingHour)
 				if(minutes >= this.startingMinute && minutes < this.endingMinute)
 					return true;
 		}
-		else if(hours >= this.startingHour && hours < this.endingHour)
+		else if(hours >= this.startingHour && hours <= this.endingHour)
 			if(hours == this.startingHour)
 			{
 				if(minutes >= this.startingMinute)
 					return true;
 			}
+			else if(hours == this.endingHour)
+			{
+				if(minutes <= this.endingMinute)
+					return true;
+			}
 			else
 				return true;
+		return false;
+	}
+
+	private boolean isCurrentDayCalendar(int day)
+	{
+		switch(day)
+		{
+			case Calendar.MONDAY: return isDaySet(MONDAY);
+			case Calendar.TUESDAY: return isDaySet(TUESDAY);
+			case Calendar.WEDNESDAY: return isDaySet(WEDNESDAY);
+			case Calendar.THURSDAY: return isDaySet(THURSDAY);
+			case Calendar.FRIDAY: return isDaySet(FRIDAY);
+			case Calendar.SATURDAY: return isDaySet(SATURDAY);
+			case Calendar.SUNDAY: return isDaySet(SUNDAY);
+		}
 		return false;
 	}
 
@@ -132,12 +150,12 @@ public class Period implements Serializable
 	 */
 	public boolean isOverlapped(Period period)
 	{
-		return period != null && period.isDaysOverlapped(period.getDay()) && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
+		return period != null && period != this && isDaysOverlapped(period) && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
 	}
 
-	private boolean isDaysOverlapped(int dayy)
+	private boolean isDaysOverlapped(Period period)
 	{
-		return (((day >> 0) & 0x01) == ((dayy >> 0) & 0x01)) || (((day >> 1) & 0x01) == ((dayy >> 1) & 0x01)) || (((day >> 2) & 0x01) == ((dayy >> 2) & 0x01)) || (((day >> 3) & 0x01) == ((dayy >> 3) & 0x01)) || (((day >> 4) & 0x01) == ((dayy >> 4) & 0x01)) || (((day >> 5) & 0x01) == ((dayy >> 5) & 0x01)) || (((day >> 6) & 0x01) == ((dayy >> 6) & 0x01));
+		return (period.getDay() & this.getDay()) != 0;
 	}
 
 	/**
@@ -184,7 +202,7 @@ public class Period implements Serializable
 
 	private boolean isSame(String name)
 	{
-		return this.toString().equalsIgnoreCase(name.replaceAll(" ", ""));
+		return this.toString().replaceAll(" ", "").equalsIgnoreCase(name.replaceAll(" ", ""));
 	}
 
 	public boolean is(String name)
@@ -195,5 +213,10 @@ public class Period implements Serializable
 	public int getDay()
 	{
 		return day;
+	}
+
+	public boolean isDaySet(int day)
+	{
+		return (day & this.day) == day;
 	}
 }

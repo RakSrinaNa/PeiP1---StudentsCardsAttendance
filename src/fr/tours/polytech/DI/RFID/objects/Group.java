@@ -272,6 +272,8 @@ public class Group implements Serializable
 	 */
 	public void update()
 	{
+		if(!periods.contains(currentPeriod))
+			currentPeriod = null;
 		if(currentPeriod == null)
 			currentPeriod = getNewPeriod();
 		else if(!currentPeriod.isInPeriod(new Date()))
@@ -365,6 +367,6 @@ public class Group implements Serializable
 	{
 		if(currentPeriod == null)
 			return Utils.resourceBundle.getString("not_in_period");
-		return currentPeriod.getTimeInterval();
+		return currentPeriod.getRawTimeInterval();
 	}
 }

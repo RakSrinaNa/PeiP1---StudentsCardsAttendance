@@ -194,6 +194,14 @@ public class GroupEditFrame extends JDialog
 			@Override
 			public void mousePressed(MouseEvent event)
 			{
+				int row = GroupEditFrame.this.tablePeriods.rowAtPoint(event.getPoint());
+				if(row >= 0 && row < GroupEditFrame.this.tablePeriods.getRowCount())
+					GroupEditFrame.this.tablePeriods.setRowSelectionInterval(row, row);
+				else
+					GroupEditFrame.this.tablePeriods.clearSelection();
+				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
+				if(event.getClickCount() == 2 && event.getComponent() instanceof JTable)
+					editPeriod(group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString()), rowindex);
 			}
 
 			@Override
@@ -210,7 +218,8 @@ public class GroupEditFrame extends JDialog
 					Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deletePeriod = new JMenuItem(Utils.resourceBundle.getString("remove_period"));
-					deletePeriod.addActionListener(event1 -> {
+					deletePeriod.addActionListener(event1 ->
+					{
 						try
 						{
 							removePeriod(period, rowindex);
@@ -220,6 +229,11 @@ public class GroupEditFrame extends JDialog
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
+					JMenuItem editPeriod = new JMenuItem(Utils.resourceBundle.getString("edit_period"));
+					editPeriod.addActionListener(event1 ->
+						editPeriod(period, rowindex)
+					);
+					popup.add(editPeriod);
 					popup.add(deletePeriod);
 					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
@@ -237,7 +251,7 @@ public class GroupEditFrame extends JDialog
 		scrollPanePeriods.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		JButton addPeriod = new JButton(Utils.resourceBundle.getString("add_period"));
 		addPeriod.setBackground(MainFrame.backColor);
-		addPeriod.addActionListener(event -> addPeriod());
+		addPeriod.addActionListener(event -> addPeriod(null));
 		JButton addStudent = new JButton(Utils.resourceBundle.getString("add_student"));
 		addStudent.setBackground(MainFrame.backColor);
 		addStudent.addActionListener(event -> addStudent());
@@ -267,6 +281,25 @@ public class GroupEditFrame extends JDialog
 		this.setVisible(true);
 	}
 
+	private void editPeriod(Period period, int rowindex)
+	{
+		try
+		{
+			removePeriod(period, rowindex);
+			if(!addPeriod(period))
+				if(group.addPeriod(period))
+				{
+					modelPeriods.addRow(new Period[]{period});
+					modelPeriods.fireTableDataChanged();
+				}
+
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+	}
+
 	/**
 	 * Used when we need to add a student.
 	 */
@@ -291,23 +324,28 @@ public class GroupEditFrame extends JDialog
 	/**
 	 * Used when we need to add a period.
 	 */
-	private void addPeriod()
+	private boolean addPeriod(Period p)
 	{
+		boolean r = false;
 		try
 		{
-			Period period = new Period(Period.MONDAY + Period.FRIDAY, JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("enter_period") + " (xxHxx-yyHyy):", ""));
+			PeriodDialogFrame dialog = new PeriodDialogFrame(this, Utils.resourceBundle.getString("schedule_setting"), Utils.resourceBundle.getString("enter_period") + " (xxHxx-yyHyy):", p);
+			Period period = dialog.showDialog();
 			if(group.addPeriod(period))
 			{
 				modelPeriods.addRow(new Period[]{period});
 				modelPeriods.fireTableDataChanged();
+				r = true;
 			}
 			else
 				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("period_overlapping"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("wrong_period"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
+		return r;
 	}
 
 	/**

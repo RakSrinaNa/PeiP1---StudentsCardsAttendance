@@ -1,17 +1,20 @@
 package fr.tours.polytech.DI.RFID.frames;
 
+import fr.tours.polytech.DI.RFID.frames.components.TextFieldLimitNumbersDocument;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 public class PeriodDialogFrame extends JDialog
 {
-	private final JTextArea enter;
+	private final JTextArea h1, h2, m1, m2;
 	private final JCheckBox w1, w2, w3, w4, w5, w6, w7;
 	private Period result;
 
-	public PeriodDialogFrame(GroupEditFrame parent, String title, String info, Period period)
+	public PeriodDialogFrame(GroupEditFrame parent, String title, Period period)
 	{
 		super(parent);
 		this.setTitle(title);
@@ -20,16 +23,41 @@ public class PeriodDialogFrame extends JDialog
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
 		/**************************************************************************/
-		JLabel textInfo = new JLabel(info);
-		textInfo.setHorizontalAlignment(JLabel.CENTER);
-		enter = new JTextArea();
-		enter.setWrapStyleWord(true);
-		enter.setLineWrap(true);
+		JLabel t1 = new JLabel("H");
+		t1.setHorizontalAlignment(JLabel.CENTER);
+		JLabel t2 = new JLabel("-");
+		t2.setHorizontalAlignment(JLabel.CENTER);
+		JLabel t3 = new JLabel("H");
+		t3.setHorizontalAlignment(JLabel.CENTER);
+		h1 = new JTextArea();
+		h1.setDocument(new TextFieldLimitNumbersDocument(2));
+		h1.setWrapStyleWord(true);
+		h1.setLineWrap(true);
+		h2 = new JTextArea();
+		h2.setDocument(new TextFieldLimitNumbersDocument(2));
+		h2.setWrapStyleWord(true);
+		h2.setLineWrap(true);
+		m1 = new JTextArea();
+		m1.setDocument(new TextFieldLimitNumbersDocument(2));
+		m1.setWrapStyleWord(true);
+		m1.setLineWrap(true);
+		m2 = new JTextArea();
+		m2.setDocument(new TextFieldLimitNumbersDocument(2));
+		m2.setWrapStyleWord(true);
+		m2.setLineWrap(true);
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
 		valid.addActionListener(e ->
 		{
-			setVisible(false);
-			dispose();
+			try
+			{
+				result = new Period(getDay(), getPeriod());
+				setVisible(false);
+				dispose();
+			}
+			catch(IllegalArgumentException e1)
+			{
+				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("wrong_period"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
+			}
 		});
 		w1 = new JCheckBox(Utils.resourceBundle.getString("day_monday"));
 		w2 = new JCheckBox(Utils.resourceBundle.getString("day_tuesday"));
@@ -47,7 +75,10 @@ public class PeriodDialogFrame extends JDialog
 		w7.setBackground(MainFrame.backColor);
 		if(period != null)
 		{
-			enter.setText(period.getRawTimeInterval().replaceAll(" ", ""));
+			h1.setText("" + period.getStartingHour());
+			h2.setText("" + period.getEndingHour());
+			m1.setText("" + period.getStartingMinute());
+			m2.setText("" + period.getEndingMinute());
 			w1.setSelected(period.isDaySet(Period.MONDAY));
 			w2.setSelected(period.isDaySet(Period.TUESDAY));
 			w3.setSelected(period.isDaySet(Period.WEDNESDAY));
@@ -57,21 +88,54 @@ public class PeriodDialogFrame extends JDialog
 			w7.setSelected(period.isDaySet(Period.SUNDAY));
 		}
 		/**************************************************************************/
+		JPanel periodPane = new JPanel(new GridBagLayout());
+		periodPane.setBackground(MainFrame.backColor);
 		int line = 0;
 		GridBagConstraints gcb = new GridBagConstraints();
 		getContentPane().setLayout(new GridBagLayout());
 		gcb.anchor = GridBagConstraints.PAGE_START;
 		gcb.fill = GridBagConstraints.BOTH;
+		gcb.insets = new Insets(0, 10, 0, 10);
 		gcb.weighty = 100;
+		gcb.weightx = 100;
+		gcb.gridheight = 1;
+		gcb.gridwidth = 1;
+		gcb.gridx = 0;
+		gcb.gridy = line++;
+		periodPane.add(h1, gcb);
+		gcb.gridx = 1;
 		gcb.weightx = 1;
+		periodPane.add(t1, gcb);
+		gcb.gridx = 2;
+		gcb.weightx = 100;
+		periodPane.add(m1, gcb);
+		gcb.gridx = 3;
+		gcb.weightx = 1;
+		periodPane.add(t2, gcb);
+		gcb.gridx = 4;
+		gcb.weightx = 100;
+		periodPane.add(h2, gcb);
+		gcb.gridx = 5;
+		gcb.weightx = 1;
+		periodPane.add(t3, gcb);
+		gcb.gridx = 6;
+		gcb.weightx = 100;
+		periodPane.add(m2, gcb);
+		/**************************************************************************/
+		line = 0;
+		gcb = new GridBagConstraints();
+		getContentPane().setLayout(new GridBagLayout());
+		gcb.anchor = GridBagConstraints.PAGE_START;
+		gcb.fill = GridBagConstraints.BOTH;
+		gcb.weighty = 100;
+		gcb.weightx = 100;
 		gcb.gridheight = 1;
 		gcb.gridwidth = 7;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
-		this.getContentPane().add(textInfo, gcb);
-		gcb.gridy = line++;
-		this.getContentPane().add(enter, gcb);
+		this.getContentPane().add(periodPane, gcb);
 		gcb.gridwidth = 1;
+		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.getContentPane().add(w1, gcb);
 		gcb.gridx = 1;
@@ -99,11 +163,40 @@ public class PeriodDialogFrame extends JDialog
 	public Period showDialog()
 	{
 		setVisible(true);
-		return new Period(getDay(), enter.getText());
+		return result;
 	}
 
 	private int getDay()
 	{
 		return (w1.isSelected() ? Period.MONDAY : 0) + (w2.isSelected() ? Period.TUESDAY : 0) + (w3.isSelected() ? Period.WEDNESDAY : 0) + (w4.isSelected() ? Period.THURSDAY : 0) + (w5.isSelected() ? Period.FRIDAY : 0) + (w6.isSelected() ? Period.SATURDAY : 0) + (w7.isSelected() ? Period.SUNDAY : 0);
+	}
+
+	public String getPeriod()
+	{
+		int h1 = 0;
+		int h2 = 0;
+		int m1 = 0;
+		int m2 = 0;
+		try
+		{
+			h1 = Integer.parseInt(this.h1.getText());
+		}
+		catch(Exception e){}
+		try
+		{
+			h2 = Integer.parseInt(this.h2.getText());
+		}
+		catch(Exception e){}
+		try
+		{
+			m1 = Integer.parseInt(this.m1.getText());
+		}
+		catch(Exception e){}
+		try
+		{
+			m2 = Integer.parseInt(this.m2.getText());
+		}
+		catch(Exception e){}
+		return h1 + "H" + m1 + "-" + h2 + "H" + m2;
 	}
 }

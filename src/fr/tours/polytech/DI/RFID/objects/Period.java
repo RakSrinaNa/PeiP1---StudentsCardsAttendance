@@ -47,6 +47,8 @@ public class Period implements Serializable
 		this.startingMinute = Integer.parseInt(starting.substring(starting.indexOf("H") + 1));
 		this.endingHour = Integer.parseInt(ending.substring(0, ending.indexOf("H")));
 		this.endingMinute = Integer.parseInt(ending.substring(ending.indexOf("H") + 1));
+		if(!isValidPeriod())
+			throw new IllegalArgumentException("The dates aren't in a valid order");
 		this.calendar = Calendar.getInstance(Locale.getDefault());
 		this.decimalFormat = new DecimalFormat("00");
 	}
@@ -218,5 +220,37 @@ public class Period implements Serializable
 	public boolean isDaySet(int day)
 	{
 		return (day & this.day) == day;
+	}
+
+	public boolean isValidPeriod()
+	{
+		if(endingHour < startingHour)
+			return false;
+		if(startingHour == endingHour)
+		{
+			if(endingMinute <= startingMinute)
+				return false;
+		}
+		return true;
+	}
+
+	public int getStartingHour()
+	{
+		return startingHour;
+	}
+
+	public int getEndingHour()
+	{
+		return endingHour;
+	}
+
+	public int getStartingMinute()
+	{
+		return startingMinute;
+	}
+
+	public int getEndingMinute()
+	{
+		return endingMinute;
 	}
 }

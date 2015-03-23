@@ -258,8 +258,10 @@ public class Group implements Serializable
 	 * @param period The period to add.
 	 * @return True if added, false if not.
 	 */
-	public boolean addPeriod(Period period)
+	public boolean addPeriod(Period period) throws Exception
 	{
+		if(period == null)
+			throw new Exception("A null period has benn added to the group!");
 		for(Period per : periods)
 			if(per.isOverlapped(period))
 				return false;

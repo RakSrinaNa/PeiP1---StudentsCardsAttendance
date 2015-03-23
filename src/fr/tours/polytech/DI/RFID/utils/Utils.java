@@ -318,7 +318,7 @@ public class Utils
 			}
 		else
 			for(Student stu : (Collection<Student>) collection)
-				if(stu.equals(student))
+				if(stu != null && stu.equals(student))
 					return true;
 		return false;
 	}

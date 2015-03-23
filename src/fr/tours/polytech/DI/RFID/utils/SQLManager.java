@@ -77,7 +77,7 @@ public class SQLManager
 	 */
 	public Student getStudentByName(String surname, String firstname)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
 		try
 		{
 			if(result.next())

@@ -91,13 +91,14 @@ public class GroupEditFrame extends JDialog
 				int rowindex = GroupEditFrame.this.tableStudents.getSelectedRow();
 				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
-					Student student = Utils.getStudentByName(GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), true);
+					String name = GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().trim();
+					Student student = Utils.getStudentByName(name, true);
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deleteGroup = new JMenuItem(Utils.resourceBundle.getString("remove_student"));
 					deleteGroup.addActionListener(event1 -> {
 						try
 						{
-							removeStudent(student, rowindex);
+							removeStudent(student, rowindex, name);
 						}
 						catch(Exception exception)
 						{
@@ -329,9 +330,12 @@ public class GroupEditFrame extends JDialog
 	 * @param student The student to remove.
 	 * @param index The index in the table of the student.
 	 */
-	private void removeStudent(Student student, int index)
+	private void removeStudent(Student student, int index, String name)
 	{
-		group.remove(student);
+		if(student != null)
+			group.remove(student);
+		else
+			group.removeStudent(name);
 		modelStudents.removeRow(index);
 		modelStudents.fireTableDataChanged();
 	}

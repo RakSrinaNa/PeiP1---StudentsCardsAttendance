@@ -56,7 +56,24 @@ public class Group implements Serializable
 			throw e;
 		}
 		ois.close();
+		group.removeNull();
+		group.removeUnknownStudents();
 		return group;
+	}
+
+	private void removeNull()
+	{
+		students.remove(null);
+		periods.remove(null);
+	}
+
+	private void removeUnknownStudents()
+	{
+		ArrayList<Student> toRemove = new ArrayList<>();
+		for(Student s : students)
+			if(Utils.getStudentByUID(s.getUid(), true) == null)
+				toRemove.add(s);
+		students.removeAll(toRemove);
 	}
 
 	/**
@@ -190,6 +207,16 @@ public class Group implements Serializable
 	public void remove(Period period)
 	{
 		this.periods.remove(period);
+	}
+
+	public void removeStudent(String name)
+	{
+		for(Student st : students)
+			if(st.is(name))
+			{
+				this.students.remove(st);
+				break;
+			}
 	}
 
 	/**

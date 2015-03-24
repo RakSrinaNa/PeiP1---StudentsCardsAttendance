@@ -234,6 +234,12 @@ public class GroupEditFrame extends JDialog
 		this.setVisible(true);
 	}
 
+	/**
+	 * Called to edit a period.
+	 *
+	 * @param period The period to edit.
+	 * @param rowindex The row where the period is.
+	 */
 	private void editPeriod(Period period, int rowindex)
 	{
 		try
@@ -249,6 +255,12 @@ public class GroupEditFrame extends JDialog
 		}
 	}
 
+	/**
+	 * Used to create a new period.
+	 *
+	 * @param period The period to edit if there is one.
+	 * @return The period created.
+	 */
 	private Period getNewPeriod(Period period)
 	{
 		PeriodDialogFrame dialog = new PeriodDialogFrame(this, Utils.resourceBundle.getString("schedule_setting"), period);

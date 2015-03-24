@@ -28,12 +28,9 @@ public class Period implements Serializable
 	/**
 	 * Constructor.
 	 *
-	 * @param period A string representing the period. This should be formatted
-	 * as
-	 * <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i>
-	 * where <i>xx</i> and <i>yy</i> are the time to set.
-	 * @throws IllegalArgumentException If the period isn't formatted as it
-	 * should be.
+	 * @param period A string representing the period. This should be formatted as <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i> where <i>xx</i> and <i>yy</i> are the time to set.
+	 * @param day The day where this period should be applied.
+	 * @throws IllegalArgumentException If the period isn't formatted as it should be.
 	 */
 	public Period(int day, String period) throws IllegalArgumentException
 	{
@@ -64,7 +61,7 @@ public class Period implements Serializable
 	}
 
 	/**
-	 * Used to get a String representing this interval.
+	 * Used to get a String representing this interval whith days.
 	 *
 	 * @return A string formatted as <b>xxHxx - yyHyy (days)</b>
 	 */
@@ -73,6 +70,11 @@ public class Period implements Serializable
 		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute) + " (" + getDaysText() + ")";
 	}
 
+	/**
+	 * Used to get the short name of the day sets.
+	 *
+	 * @return A string of teh days.
+	 */
 	private String getDaysText()
 	{
 		StringBuilder sb = new StringBuilder();
@@ -129,6 +131,12 @@ public class Period implements Serializable
 		return false;
 	}
 
+	/**
+	 * Used to know if a day from {@link Calendar} is set.
+	 *
+	 * @param day The day to test.
+	 * @return True if set, false if not.
+	 */
 	private boolean isCurrentDayCalendar(int day)
 	{
 		switch(day)
@@ -162,6 +170,12 @@ public class Period implements Serializable
 		return period != null && period != this && isDaysOverlapped(period) && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
 	}
 
+	/**
+	 * Used to know if there are same days set in the period.
+	 *
+	 * @param period The period to test with.
+	 * @return True if there is at leat one of the days that are the same, false if none.
+	 */
 	private boolean isDaysOverlapped(Period period)
 	{
 		return (period.getDay() & this.getDay()) != 0;
@@ -209,26 +223,43 @@ public class Period implements Serializable
 		return getRawTimeInterval().replaceAll(" ", "") + " (" + getDaysText() + ")";
 	}
 
-	private boolean isSame(String name)
+	/**
+	 * Used to know if the periods are the same.
+	 *
+	 * @param name The period as string.
+	 * @return True if the same, false if not.
+	 */
+	public boolean isSame(String name)
 	{
 		return this.toString().replaceAll(" ", "").equalsIgnoreCase(name.replaceAll(" ", ""));
 	}
 
-	public boolean is(String name)
-	{
-		return isSame(name);
-	}
-
+	/**
+	 * Used to get the day.
+	 *
+	 * @return The day.
+	 */
 	public int getDay()
 	{
 		return day;
 	}
 
+	/**
+	 * Used to know if a day is set.
+	 *
+	 * @param day The day to test.
+	 * @return True if set, false if not.
+	 */
 	public boolean isDaySet(int day)
 	{
 		return (day & this.day) == day;
 	}
 
+	/**
+	 * Used to know if the period is valid.
+	 *
+	 * @return True if valid, false if not.
+	 */
 	public boolean isValidPeriod()
 	{
 		if(endingHour < startingHour)
@@ -241,21 +272,41 @@ public class Period implements Serializable
 		return true;
 	}
 
+	/**
+	 * Used to get the starting hour.
+	 *
+	 * @return The starting hour.
+	 */
 	public int getStartingHour()
 	{
 		return startingHour;
 	}
 
+	/**
+	 * Used to get the ending hour.
+	 *
+	 * @return The ending hour.
+	 */
 	public int getEndingHour()
 	{
 		return endingHour;
 	}
 
+	/**
+	 * Used to get the starting minute.
+	 *
+	 * @return The starting minute.
+	 */
 	public int getStartingMinute()
 	{
 		return startingMinute;
 	}
 
+	/**
+	 * Used to get the ending minute.
+	 *
+	 * @return The ending minute.
+	 */
 	public int getEndingMinute()
 	{
 		return endingMinute;

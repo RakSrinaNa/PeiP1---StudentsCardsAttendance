@@ -66,6 +66,7 @@ public class Group implements Serializable
 	 *
 	 * @param groups The groups to save.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void saveGroups(ArrayList<Group> groups)
 	{
 		for(File file : new File(Utils.baseFile, "Groups").listFiles())
@@ -86,7 +87,7 @@ public class Group implements Serializable
 	 *
 	 * @return The groups deserialized.
 	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	public static ArrayList<Group> loadGroups()
 	{
 		ArrayList<Group> groups = new ArrayList<>();
@@ -104,12 +105,18 @@ public class Group implements Serializable
 		return groups;
 	}
 
+	/**
+	 * Used to remove all null objects from lists.
+	 */
 	private void removeNull()
 	{
 		students.remove(null);
 		periods.remove(null);
 	}
 
+	/**
+	 * Used to remove from students list unknown students from the database.
+	 */
 	private void removeUnknownStudents()
 	{
 		ArrayList<Student> toRemove = new ArrayList<>();
@@ -194,7 +201,7 @@ public class Group implements Serializable
 	public Period getPeriodByName(String name)
 	{
 		for(Period period : periods)
-			if(period.is(name))
+			if(period.isSame(name))
 				return period;
 		return null;
 	}
@@ -209,10 +216,15 @@ public class Group implements Serializable
 		this.periods.remove(period);
 	}
 
+	/**
+	 * Used to remove a student by his name.
+	 *
+	 * @param name The name of the student.
+	 */
 	public void removeStudent(String name)
 	{
 		for(Student st : students)
-			if(st.is(name))
+			if(st.isSameName(name))
 			{
 				this.students.remove(st);
 				break;

@@ -4,7 +4,7 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 import java.io.Serializable;
 
 /**
- * Class representing a student (or anyone else, maybe we should call it User?).
+ * Class representing a student.
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
@@ -19,6 +19,8 @@ public class Student implements Serializable
 	 * Constructor.
 	 *
 	 * @param uid The UID of the student card.
+	 * @param surname The surname of the student.
+	 * @param firstname The firstname of the student.
 	 */
 	public Student(String uid, String surname, String firstname)
 	{
@@ -84,7 +86,7 @@ public class Student implements Serializable
 	 */
 	public boolean hasValidName()
 	{
-		return getName() != null && !getName().equals("");
+		return getFirstName() != null && getLastname() != null && !getFirstName().equals("") && !getLastname().equals("");
 	}
 
 	/**
@@ -93,27 +95,26 @@ public class Student implements Serializable
 	 * @param name The name to test.
 	 * @return True if they are the same, false if not.
 	 */
-	private boolean isSameName(String name)
+	public boolean isSameName(String name)
 	{
 		return this.getName().equalsIgnoreCase(name);
 	}
 
 	/**
-	 * Used to know if this student have this name.
+	 * Used to get the fistname of the student.
 	 *
-	 * @param name The name to test.
-	 * @return True if this is his name, false if not.
+	 * @return The firstname.
 	 */
-	public boolean is(String name)
-	{
-		return isSameName(name.replace("(Staff)", "").trim());
-	}
-
 	public String getFirstName()
 	{
 		return this.firstname;
 	}
 
+	/**
+	 * Used to get the lastname of the student.
+	 *
+	 * @return The lastname.
+	 */
 	public String getLastname()
 	{
 		return this.surname;

@@ -50,7 +50,12 @@ public class Utils
 		terminalReader.stop();
 		System.exit(exitStaus);
 	}
-	
+
+	/**
+	 * Used to export the database as a SQL file.
+	 *
+	 * @param parent The parent frame, if there is one.
+	 */
 	public static void exportSQL(JFrame parent)
 	{
 		try
@@ -77,7 +82,12 @@ public class Utils
 			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_export_error"), resourceBundle.getString("sql_export_title"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
+	/**
+	 * Used to import the database as a SQL file.
+	 *
+	 * @param parent The parent frame, if there is one.
+	 */
 	public static void importSQL(JFrame parent)
 	{
 		try
@@ -105,17 +115,24 @@ public class Utils
 		{
 			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_import_error"), resourceBundle.getString("sql_import_title"), JOptionPane.ERROR_MESSAGE);
 		}
-
 	}
 
+	/**
+	 * Used to read a text file.
+	 *
+	 * @param file The file to read.
+	 * @return A list corresponding to the different lines in the file.
+	 *
+	 * @throws IOException If the file couldn't be read.
+	 */
 	public static List<String> readTextFile(final File file) throws IOException
 	{
 		List<String> fileLines = null;
-		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
+		try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
 		{
 			String line = bufferedReader.readLine();
 			fileLines = new ArrayList<>();
-			while (line != null)
+			while(line != null)
 			{
 				fileLines.add(line);
 				line = bufferedReader.readLine();
@@ -128,6 +145,16 @@ public class Utils
 		return fileLines;
 	}
 
+	/**
+	 * Used to get a new File object from the used.
+	 *
+	 * @param lastFile The file where the popup should open.
+	 * @param mode The selection mode.
+	 * @param filter The filter for the selection.
+	 * @return The selected fiel by the user.
+	 *
+	 * @see JFileChooser
+	 */
 	public static File getNewFilePatch(File lastFile, int mode, FileNameExtensionFilter filter)
 	{
 		File file = null;
@@ -232,7 +259,7 @@ public class Utils
 	public static Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : students)
-			if(student != null && student.is(name))
+			if(student != null && student.isSameName(name))
 				return student;
 		return checkDB ? Utils.sql.getStudentByName(capitalize(name.substring(0, name.lastIndexOf(" ")).trim().toLowerCase()), name.substring(name.lastIndexOf(" ")).trim()) : null;
 	}
@@ -451,6 +478,11 @@ public class Utils
 		return list;
 	}
 
+	/**
+	 * Used to get a refreshed list of students from database.
+	 *
+	 * @return The refreshed list.
+	 */
 	public static ArrayList<Student> getRefreshedStudents()
 	{
 		ArrayList<Student> list = new ArrayList<>(students);
@@ -459,11 +491,20 @@ public class Utils
 		return list;
 	}
 
+	/**
+	 * Used to update the SQL connection from the Configuration object.
+	 */
 	public static void reloadSQLFromConfig()
 	{
 		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 	}
 
+	/**
+	 * Used to capitalize the first letter.
+	 *
+	 * @param s The string to capitalize.
+	 * @return The capitalized string.
+	 */
 	public static String capitalize(String s)
 	{
 		boolean first = true;

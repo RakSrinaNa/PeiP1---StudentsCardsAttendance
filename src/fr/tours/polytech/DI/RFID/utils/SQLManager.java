@@ -33,6 +33,7 @@ public class SQLManager
 	 * @param databaseURL The URL of the database.
 	 * @param port The port of the database.
 	 * @param databaseName The database name.
+	 * @param tableName The table name.
 	 * @param user The username.
 	 * @param password The password for this user.
 	 */
@@ -50,6 +51,16 @@ public class SQLManager
 		createBaseTable();
 	}
 
+	/**
+	 * Used to update the parameters of the connexion.
+	 *
+	 * @param databaseURL The URL of the database.
+	 * @param port The port of the database.
+	 * @param databaseName The database name.
+	 * @param tableName The table name.
+	 * @param user The username.
+	 * @param password The password for this user.
+	 */
 	public void reloadInfos(String databaseURL, int port, String databaseName, String tableName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
@@ -73,6 +84,8 @@ public class SQLManager
 	/**
 	 * Used to retrieve a student from the database by his name.
 	 *
+	 * @param surname The surname of the student.
+	 * @param firstname The firstname of the student.
 	 * @return The student corresponding, null if not found.
 	 */
 	public Student getStudentByName(String surname, String firstname)
@@ -153,6 +166,8 @@ public class SQLManager
 
 	/**
 	 * Used to establish a connection with the database.
+	 *
+	 * @return True if the connexion wes etablished, false if not or if it's already trying to connect.
 	 */
 	public boolean login()
 	{
@@ -248,6 +263,11 @@ public class SQLManager
 		return result;
 	}
 
+	/**
+	 * Used to get all the students from the database.
+	 *
+	 * @return A list of the students.
+	 */
 	public ArrayList<Student> getAllStudents()
 	{
 		ArrayList<Student> students = new ArrayList<>();
@@ -267,6 +287,11 @@ public class SQLManager
 		return students;
 	}
 
+	/**
+	 * Used to know if the connection to the database is etablished.
+	 *
+	 * @return True if etablished, false if not.
+	 */
 	public boolean isConnected()
 	{
 		try
@@ -280,16 +305,31 @@ public class SQLManager
 		return false;
 	}
 
+	/**
+	 * Used to know when we last tried connected to the database.
+	 *
+	 * @return The time.
+	 */
 	public Date getLastConnectTime()
 	{
 		return lastTimeConnect;
 	}
 
+	/**
+	 * Used to know if we are trying to connect to the database.
+	 *
+	 * @return True if trying to connect, false if not.
+	 */
 	public boolean isLogging()
 	{
 		return isLogging;
 	}
 
+	/**
+	 * Used to get the table name where we are working.
+	 *
+	 * @return The table name
+	 */
 	public String getTableName()
 	{
 		return this.tableName;

@@ -6,12 +6,24 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The frame for editting Periods.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class PeriodDialogFrame extends JDialog
 {
 	private final JTextArea h1, h2, m1, m2;
 	private final JCheckBox w1, w2, w3, w4, w5, w6, w7;
 	private Period result;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param parent The parent frame.
+	 * @param title The title of the frame.
+	 * @param period The period to edit, null if creating a new one.
+	 */
 	public PeriodDialogFrame(GroupEditFrame parent, String title, Period period)
 	{
 		super(parent);
@@ -157,17 +169,32 @@ public class PeriodDialogFrame extends JDialog
 		this.setLocationRelativeTo(parent);
 	}
 
+	/**
+	 * USed to show the dialog frame.
+	 *
+	 * @return The configured Period.
+	 */
 	public Period showDialog()
 	{
 		setVisible(true);
 		return result;
 	}
 
+	/**
+	 * Used to get the day that is set.
+	 *
+	 * @return The day.
+	 */
 	private int getDay()
 	{
 		return (w1.isSelected() ? Period.MONDAY : 0) + (w2.isSelected() ? Period.TUESDAY : 0) + (w3.isSelected() ? Period.WEDNESDAY : 0) + (w4.isSelected() ? Period.THURSDAY : 0) + (w5.isSelected() ? Period.FRIDAY : 0) + (w6.isSelected() ? Period.SATURDAY : 0) + (w7.isSelected() ? Period.SUNDAY : 0);
 	}
 
+	/**
+	 * Used to construct the configured Period.
+	 *
+	 * @return The Period.
+	 */
 	public String getPeriod()
 	{
 		int h1 = 0;

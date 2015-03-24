@@ -14,9 +14,9 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	private final String UID_LABEL = "UID";
-	private final String FIRSTNAME_LABEL = "FirstName";
-	private final String SURNAME_LABEL = "Surname";
+	public final static String UID_LABEL = "UID";
+	public final static String FIRSTNAME_LABEL = "FirstName";
+	public final static String SURNAME_LABEL = "Surname";
 	private String tableName;
 	private String databaseURL;
 	private int port;
@@ -288,5 +288,10 @@ public class SQLManager
 	public boolean isLogging()
 	{
 		return isLogging;
+	}
+
+	public String getTableName()
+	{
+		return this.tableName;
 	}
 }

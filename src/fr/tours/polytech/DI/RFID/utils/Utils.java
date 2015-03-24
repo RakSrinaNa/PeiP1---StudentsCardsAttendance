@@ -7,6 +7,8 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.TerminalReader.threads.TerminalReader;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DateFormat;
@@ -49,18 +51,108 @@ public class Utils
 		System.exit(exitStaus);
 	}
 	
-	public static exportSQL()
+	public static void exportSQL(JFrame parent)
 	{
-		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(baseFile, "SQLExport.sql"), true)));
-		for(Student student : students)
-			pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
-		pw.flush()
-		pw.close();
+		try
+		{
+			File file = new File(baseFile, "SQLExport.sql");
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
+			pw.println("-- ---------------------------");
+			pw.println("-- STRUCTURE");
+			pw.println("-- ---------------------------");
+			pw.println("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
+			pw.println("CREATE TABLE " + sql.getTableName() + "(" + SQLManager.UID_LABEL + " varchar(18), " + SQLManager.SURNAME_LABEL + " varchar(255), " + SQLManager.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + SQLManager.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			pw.println();
+			pw.println("-- ---------------------------");
+			pw.println("-- DATA OF STUDENTS");
+			pw.println("-- ---------------------------");
+			for(Student student : students)
+				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
+			pw.flush();
+			pw.close();
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_export_error"), resourceBundle.getString("sql_export_title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
-	public static importSQL()
+	public static void importSQL(JFrame parent)
 	{
-		
+		try
+		{
+			File file = getNewFilePatch(baseFile, JFileChooser.FILES_ONLY, new FileNameExtensionFilter(Utils.resourceBundle.getString("open_sql_description_file"), "sql"));
+			if(file == null)
+				return;
+			List<String> lines = readTextFile(file);
+			boolean com = false;
+			int req = 0;
+			for(String line : lines)
+			{
+				if(line == null || line.equals(""))
+					continue;
+				if(line.startsWith("/*"))
+					com = true;
+				if(!com && !line.startsWith("--"))
+					req += sql.sendUpdateRequest(line);
+				if(line.endsWith("*/"))
+					com = false;
+			}
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_import_done"), req), resourceBundle.getString("sql_import_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_import_error"), resourceBundle.getString("sql_import_title"), JOptionPane.ERROR_MESSAGE);
+		}
+
+	}
+
+	public static List<String> readTextFile(final File file) throws IOException
+	{
+		List<String> fileLines = null;
+		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
+		{
+			String line = bufferedReader.readLine();
+			fileLines = new ArrayList<>();
+			while (line != null)
+			{
+				fileLines.add(line);
+				line = bufferedReader.readLine();
+			}
+		}
+		catch(IOException exception)
+		{
+			logger.log(Level.WARNING, "Failed to read text file " + file.getAbsolutePath());
+		}
+		return fileLines;
+	}
+
+	public static File getNewFilePatch(File lastFile, int mode, FileNameExtensionFilter filter)
+	{
+		File file = null;
+		try
+		{
+			File repertoireCourant = new File(System.getProperty("user.home")).getCanonicalFile();
+			if(lastFile != null)
+				repertoireCourant = lastFile.getCanonicalFile();
+			Utils.logger.log(Level.FINE, "Previous folder: " + repertoireCourant.getAbsolutePath());
+			final JFileChooser dialogue = new JFileChooser(repertoireCourant);
+			dialogue.setFileFilter(filter);
+			dialogue.setFileSelectionMode(mode);
+			if(dialogue.showSaveDialog(null) == JFileChooser.CANCEL_OPTION)
+				return null;
+			file = dialogue.getSelectedFile();
+		}
+		catch(final Exception e)
+		{
+			e.printStackTrace();
+		}
+		if(file != null)
+			Utils.logger.log(Level.FINE, "Folder selected: " + file.getAbsolutePath());
+		else
+			Utils.logger.log(Level.FINE, "Folder selected: null");
+		return file;
 	}
 
 	/**

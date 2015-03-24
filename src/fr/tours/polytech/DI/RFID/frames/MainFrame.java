@@ -104,8 +104,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
 		JMenuItem menuItemHelp = new JMenuItem(Utils.resourceBundle.getString("menu_item_help"));
 		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
-		JMenuItem menuItemExportSQL = new JMenuItem("Export SQL");
-		JMenuItem menuItemImpportSQL = new JMenuItem("Impport SQL");
+		JMenuItem menuItemExportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_sql"));
+		JMenuItem menuItemImportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_sql"));
 		this.menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
@@ -118,8 +118,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 		});
 		menuItemAbout.addActionListener(event -> new AboutFrame(MainFrame.this));
-		menuItemExportSQL.addActionListener(event -> Utils.exportSQL());
-		menuItemImpportSQL.addActionListener(event -> Utils.importSQL());
+		menuItemExportSQL.addActionListener(event -> Utils.exportSQL(this));
+		menuItemImportSQL.addActionListener(event -> Utils.importSQL(this));
 		menuFile.add(menuItemExportSQL);
 		menuFile.add(menuItemImportSQL);
 		menuFile.addSeparator();

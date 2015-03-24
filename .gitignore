@@ -13,8 +13,7 @@ out/*
 .idea/copyright/profiles_settings.xml
 .idea/compiler.xml
 .idea/.name
-.idea/dataSources.xml
 .idea/dataSources.local.xml
 .idea/dataSources.ids
 .idea/dataSources.xml
-.idea/dataSources.xml
+.idea/libraries/Maven__org_apache_commons_commons_lang3_3_3_2.xml

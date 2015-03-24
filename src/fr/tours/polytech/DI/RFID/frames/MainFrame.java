@@ -104,6 +104,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
 		JMenuItem menuItemHelp = new JMenuItem(Utils.resourceBundle.getString("menu_item_help"));
 		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
+		JMenuItem menuItemExportSQL = new JMenuItem("Export SQL");
+		JMenuItem menuItemImpportSQL = new JMenuItem("Impport SQL");
 		this.menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
@@ -116,6 +118,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 		});
 		menuItemAbout.addActionListener(event -> new AboutFrame(MainFrame.this));
+		menuItemExportSQL.addActionListener(event -> Utils.exportSQL());
+		menuItemImpportSQL.addActionListener(event -> Utils.importSQL());
+		menuFile.add(menuItemExportSQL);
+		menuFile.add(menuItemImportSQL);
+		menuFile.addSeparator();
 		menuFile.add(this.menuItemExit);
 		menuHelp.add(menuItemHelp);
 		menuHelp.add(menuItemAbout);

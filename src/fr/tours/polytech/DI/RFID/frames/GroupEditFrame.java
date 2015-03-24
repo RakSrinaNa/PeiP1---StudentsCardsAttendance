@@ -245,6 +245,8 @@ public class GroupEditFrame extends JDialog
 		try
 		{
 			Period p = getNewPeriod(period);
+			if(p == null)
+				return;
 			removePeriod(period, rowindex);
 			if(!addPeriod(p))
 				addPeriod(period);

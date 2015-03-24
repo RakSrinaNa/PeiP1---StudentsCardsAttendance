@@ -48,6 +48,20 @@ public class Utils
 		terminalReader.stop();
 		System.exit(exitStaus);
 	}
+	
+	public static exportSQL()
+	{
+		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(baseFile, "SQLExport.sql"), true)));
+		for(Student student : students)
+			pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
+		pw.flush()
+		pw.close();
+	}
+	
+	public static importSQL()
+	{
+		
+	}
 
 	/**
 	 * Used to know if a student have checked.

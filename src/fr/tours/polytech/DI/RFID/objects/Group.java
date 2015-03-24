@@ -61,21 +61,6 @@ public class Group implements Serializable
 		return group;
 	}
 
-	private void removeNull()
-	{
-		students.remove(null);
-		periods.remove(null);
-	}
-
-	private void removeUnknownStudents()
-	{
-		ArrayList<Student> toRemove = new ArrayList<>();
-		for(Student s : students)
-			if(Utils.getStudentByUID(s.getUid(), true) == null)
-				toRemove.add(s);
-		students.removeAll(toRemove);
-	}
-
 	/**
 	 * Used to save all groups into serialized file.
 	 *
@@ -117,6 +102,21 @@ public class Group implements Serializable
 				e.printStackTrace();
 			}
 		return groups;
+	}
+
+	private void removeNull()
+	{
+		students.remove(null);
+		periods.remove(null);
+	}
+
+	private void removeUnknownStudents()
+	{
+		ArrayList<Student> toRemove = new ArrayList<>();
+		for(Student s : students)
+			if(Utils.getStudentByUID(s.getUid(), true) == null)
+				toRemove.add(s);
+		students.removeAll(toRemove);
 	}
 
 	/**

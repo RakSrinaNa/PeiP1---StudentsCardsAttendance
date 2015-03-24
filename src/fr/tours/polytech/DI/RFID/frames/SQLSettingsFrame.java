@@ -119,7 +119,7 @@ public class SQLSettingsFrame extends JDialog
 		gcb.fill = GridBagConstraints.BOTH;
 		gcb.weighty = 1;
 		gcb.weightx = 1;
-		gcb.insets = new Insets(10,10,10,10);
+		gcb.insets = new Insets(10, 10, 10, 10);
 		gcb.gridheight = 1;
 		gcb.gridwidth = 1;
 		gcb.gridx = line++;

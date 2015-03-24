@@ -11,8 +11,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -176,8 +174,7 @@ public class GroupEditFrame extends JDialog
 					Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deletePeriod = new JMenuItem(Utils.resourceBundle.getString("remove_period"));
-					deletePeriod.addActionListener(event1 ->
-					{
+					deletePeriod.addActionListener(event1 -> {
 						try
 						{
 							removePeriod(period, rowindex);
@@ -188,9 +185,7 @@ public class GroupEditFrame extends JDialog
 						}
 					});
 					JMenuItem editPeriod = new JMenuItem(Utils.resourceBundle.getString("edit_period"));
-					editPeriod.addActionListener(event1 ->
-						editPeriod(period, rowindex)
-					);
+					editPeriod.addActionListener(event1 -> editPeriod(period, rowindex));
 					popup.add(editPeriod);
 					popup.add(deletePeriod);
 					popup.show(event.getComponent(), event.getX(), event.getY());
@@ -247,7 +242,6 @@ public class GroupEditFrame extends JDialog
 			removePeriod(period, rowindex);
 			if(!addPeriod(p))
 				addPeriod(period);
-
 		}
 		catch(Exception exception)
 		{

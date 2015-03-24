@@ -322,7 +322,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + rfidCard);
 			if(Utils.configuration.isAddNewStudents())
 			{
-				String name = JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name")+ ":", "");
+				String name = JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("new_card_name") + ":", "");
 				student = new Student(rfidCard.getUid(), name.substring(0, name.lastIndexOf(" ")).trim(), name.substring(name.lastIndexOf(" ")).trim());
 				if(student.hasValidName())
 				{

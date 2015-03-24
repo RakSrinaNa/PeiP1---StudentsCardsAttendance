@@ -1,11 +1,13 @@
 package fr.tours.polytech.DI.RFID.frames.components;
 
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 public class TextFieldLimitNumbersDocument extends PlainDocument
 {
 	private static final long serialVersionUID = 1L;
-	private int limit;
+	private final int limit;
 
 	public TextFieldLimitNumbersDocument(int limit)
 	{
@@ -23,7 +25,8 @@ public class TextFieldLimitNumbersDocument extends PlainDocument
 				super.insertString(offset, str, attr);
 			}
 			catch(Exception ignored)
-			{}
+			{
+			}
 	}
 
 	private boolean isNumber(String str)

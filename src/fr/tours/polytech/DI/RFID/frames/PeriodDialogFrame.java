@@ -5,8 +5,6 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 public class PeriodDialogFrame extends JDialog
 {
@@ -46,8 +44,7 @@ public class PeriodDialogFrame extends JDialog
 		m2.setWrapStyleWord(true);
 		m2.setLineWrap(true);
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
-		valid.addActionListener(e ->
-		{
+		valid.addActionListener(e -> {
 			try
 			{
 				result = new Period(getDay(), getPeriod());
@@ -181,22 +178,30 @@ public class PeriodDialogFrame extends JDialog
 		{
 			h1 = Integer.parseInt(this.h1.getText());
 		}
-		catch(Exception e){}
+		catch(Exception e)
+		{
+		}
 		try
 		{
 			h2 = Integer.parseInt(this.h2.getText());
 		}
-		catch(Exception e){}
+		catch(Exception e)
+		{
+		}
 		try
 		{
 			m1 = Integer.parseInt(this.m1.getText());
 		}
-		catch(Exception e){}
+		catch(Exception e)
+		{
+		}
 		try
 		{
 			m2 = Integer.parseInt(this.m2.getText());
 		}
-		catch(Exception e){}
+		catch(Exception e)
+		{
+		}
 		return h1 + "H" + m1 + "-" + h2 + "H" + m2;
 	}
 }

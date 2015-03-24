@@ -97,6 +97,7 @@ public class Utils
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see FileHandler#FileHandler(String, boolean)
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("TerminalReader");
@@ -368,7 +369,7 @@ public class Utils
 				first = false;
 			}
 			else
-			sb.append(c);
+				sb.append(c);
 		return sb.toString();
 	}
 }

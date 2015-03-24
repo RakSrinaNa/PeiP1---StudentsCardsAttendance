@@ -107,7 +107,9 @@ public class SQLManager
 			if(result.next())
 				return new Student(uid, result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL));
 		}
-		catch(NullPointerException e){}
+		catch(NullPointerException e)
+		{
+		}
 		catch(SQLException exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
@@ -255,7 +257,9 @@ public class SQLManager
 			while(result.next())
 				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL)));
 		}
-		catch(NullPointerException e){}
+		catch(NullPointerException e)
+		{
+		}
 		catch(Exception exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);

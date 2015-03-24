@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
  */
 public class Period implements Serializable
 {
-	private static final long serialVersionUID = 546546521L;
 	public static final int MONDAY = 1, TUESDAY = 2, WEDNESDAY = 4, THURSDAY = 8, FRIDAY = 16, SATURDAY = 32, SUNDAY = 64;
+	private static final long serialVersionUID = 546546521L;
 	private int day;
 	private int startingHour;
 	private int startingMinute;
@@ -77,19 +77,19 @@ public class Period implements Serializable
 	{
 		StringBuilder sb = new StringBuilder();
 		if(isDaySet(MONDAY))
-			sb.append(Utils.resourceBundle.getString("day_monday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_monday")).append(" ");
 		if(isDaySet(TUESDAY))
-			sb.append(Utils.resourceBundle.getString("day_tuesday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_tuesday")).append(" ");
 		if(isDaySet(WEDNESDAY))
-			sb.append(Utils.resourceBundle.getString("day_wednesday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_wednesday")).append(" ");
 		if(isDaySet(THURSDAY))
-			sb.append(Utils.resourceBundle.getString("day_thursday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_thursday")).append(" ");
 		if(isDaySet(FRIDAY))
-			sb.append(Utils.resourceBundle.getString("day_friday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_friday")).append(" ");
 		if(isDaySet(SATURDAY))
-			sb.append(Utils.resourceBundle.getString("day_saturday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_saturday")).append(" ");
 		if(isDaySet(SUNDAY))
-			sb.append(Utils.resourceBundle.getString("day_sunday") + " ");
+			sb.append(Utils.resourceBundle.getString("day_sunday")).append(" ");
 		return sb.substring(0, sb.length()).trim();
 	}
 
@@ -133,13 +133,20 @@ public class Period implements Serializable
 	{
 		switch(day)
 		{
-			case Calendar.MONDAY: return isDaySet(MONDAY);
-			case Calendar.TUESDAY: return isDaySet(TUESDAY);
-			case Calendar.WEDNESDAY: return isDaySet(WEDNESDAY);
-			case Calendar.THURSDAY: return isDaySet(THURSDAY);
-			case Calendar.FRIDAY: return isDaySet(FRIDAY);
-			case Calendar.SATURDAY: return isDaySet(SATURDAY);
-			case Calendar.SUNDAY: return isDaySet(SUNDAY);
+			case Calendar.MONDAY:
+				return isDaySet(MONDAY);
+			case Calendar.TUESDAY:
+				return isDaySet(TUESDAY);
+			case Calendar.WEDNESDAY:
+				return isDaySet(WEDNESDAY);
+			case Calendar.THURSDAY:
+				return isDaySet(THURSDAY);
+			case Calendar.FRIDAY:
+				return isDaySet(FRIDAY);
+			case Calendar.SATURDAY:
+				return isDaySet(SATURDAY);
+			case Calendar.SUNDAY:
+				return isDaySet(SUNDAY);
 		}
 		return false;
 	}

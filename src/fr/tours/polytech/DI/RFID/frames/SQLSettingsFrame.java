@@ -110,8 +110,8 @@ public class SQLSettingsFrame extends JDialog
 		namePanel.add(dbName);
 		namePanel.setBackground(MainFrame.backColor);
 		JPanel tableNamePanel = new JPanel();
-		tableNamePanel.add(dbNameLabel);
-		tableNamePanel.add(dbName);
+		tableNamePanel.add(dbTableNameLabel);
+		tableNamePanel.add(dbTableName);
 		tableNamePanel.setBackground(MainFrame.backColor);
 		JPanel userPanel = new JPanel();
 		userPanel.add(dbUserLabel);

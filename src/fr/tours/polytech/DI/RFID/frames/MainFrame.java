@@ -106,6 +106,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
 		JMenuItem menuItemExportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_sql"));
 		JMenuItem menuItemImportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_sql"));
+		JMenuItem menuItemImportCSV = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_csv"));
 		this.menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
@@ -120,8 +121,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuItemAbout.addActionListener(event -> new AboutFrame(MainFrame.this));
 		menuItemExportSQL.addActionListener(event -> Utils.exportSQL(this));
 		menuItemImportSQL.addActionListener(event -> Utils.importSQL(this));
+		menuItemImportCSV.addActionListener(event -> Utils.importCSV(this));
 		menuFile.add(menuItemExportSQL);
 		menuFile.add(menuItemImportSQL);
+		menuFile.addSeparator();
+		menuFile.add(menuItemImportCSV);
 		menuFile.addSeparator();
 		menuFile.add(this.menuItemExit);
 		menuHelp.add(menuItemHelp);
@@ -464,6 +468,5 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		this.staffPanel.setVisible(staffMember);
 		this.staffPanel.setEnabled(staffMember);
-		this.menuItemExit.setEnabled(staffMember);
 	}
 }

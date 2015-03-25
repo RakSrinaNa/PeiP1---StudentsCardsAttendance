@@ -71,7 +71,7 @@ public class Utils
 			pw.println("-- ---------------------------");
 			pw.println("-- DATA OF STUDENTS");
 			pw.println("-- ---------------------------");
-			for(Student student : students)
+			for(Student student :  Utils.removeDuplicates(Utils.sql.getAllStudents()))
 				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
 			pw.flush();
 			pw.close();
@@ -518,5 +518,43 @@ public class Utils
 			else
 				sb.append(c);
 		return sb.toString();
+	}
+
+	public static void importCSV(MainFrame parent)
+	{
+		try
+		{
+			File file = getNewFilePatch(baseFile, JFileChooser.FILES_ONLY, new FileNameExtensionFilter(Utils.resourceBundle.getString("open_csv_description_file"), "csv"));
+			if(file == null)
+				return;
+			List<String> lines = readTextFile(file);
+			String[] columns = lines.get(0).split(";");
+			lines.remove(0);
+			int UIDIndex = getIndexOf(columns, "CSN");
+			int firstnameIndex = getIndexOf(columns, "PRENOM");
+			int surtnameIndex = getIndexOf(columns, "NOM");
+			if(UIDIndex == -1 || firstnameIndex == -1 || surtnameIndex == -1)
+				throw new IllegalArgumentException("Cannot find one of the requiered columns");
+			int req = 0;
+			for(String line : lines)
+			{
+				String[] infos = line.split(";");
+				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[surtnameIndex], infos[firstnameIndex]));
+				req ++;
+			}
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("csv_import_error"), resourceBundle.getString("csv_import_title"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private static int getIndexOf(Object[] table, Object test)
+	{
+		for(int i = 0; i < table.length; i++)
+			if(table[i].equals(test))
+				return i;
+		return -1;
 	}
 }

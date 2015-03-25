@@ -1,7 +1,7 @@
 # RFID
-Project of two students of Polytech'Tours.
+Project de deux étutiants en PeiP1 Polytech'Tours durant l'année 2014-2015.
 
-The objective is to replace the attendance sheet with this system.
+L'objectif de ce programme est d'automatiser l'émargement des étudiants pour savoir si ils sont présents durant certaines périodes grâce à leur carte étudiante.
 
-##How to use it
-Please refer to [the wiki](https://github.com/MrCraftCod/RFID/wiki) to have some details on how yo use this program.
+##Utilisation
+Vous trouvez des information sur l'utilisation du logiciel sur [lewiki](https://github.com/MrCraftCod/RFID/wiki).

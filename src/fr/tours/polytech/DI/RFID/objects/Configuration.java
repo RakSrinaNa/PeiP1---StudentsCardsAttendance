@@ -2,6 +2,11 @@ package fr.tours.polytech.DI.RFID.objects;
 
 import java.io.*;
 
+/**
+ * Class to save and load some options.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class Configuration implements Serializable
 {
 	private String bddUser;
@@ -13,6 +18,9 @@ public class Configuration implements Serializable
 	private boolean logAll;
 	private boolean addNewStudents;
 
+	/**
+	 * Constructor.
+	 */
 	public Configuration()
 	{
 		this.setBddUser("rfid");
@@ -25,6 +33,12 @@ public class Configuration implements Serializable
 		this.setAddNewStudents(true);
 	}
 
+	/**
+	 * Used to deserialize a Configuration object.
+	 *
+	 * @param file The file where the object is saved.
+	 * @return The object, a new one will be created if the file couldn't be readed.
+	 */
 	public static Configuration deserialize(File file)
 	{
 		try
@@ -42,6 +56,11 @@ public class Configuration implements Serializable
 		}
 	}
 
+	/**
+	 * Used to serialize this object.
+	 *
+	 * @param file The file where to save the deserialized object.
+	 */
 	public void serialize(File file)
 	{
 		try
@@ -58,81 +77,161 @@ public class Configuration implements Serializable
 		}
 	}
 
+	/**
+	 * Used to get the database user.
+	 *
+	 * @return the database user.
+	 */
 	public String getBddUser()
 	{
 		return bddUser;
 	}
 
+	/**
+	 * Used to set the database user.
+	 *
+	 * @param bddUser The value to set.
+	 */
 	public void setBddUser(String bddUser)
 	{
 		this.bddUser = bddUser;
 	}
 
+	/**
+	 * Used to get the password for the databse user.
+	 *
+	 * @return The password.
+	 */
 	public String getBddPassword()
 	{
 		return bddPassword;
 	}
 
+	/**
+	 * Used to get the database password.
+	 *
+	 * @param bddPassword The password for the databse user.
+	 */
 	public void setBddPassword(String bddPassword)
 	{
 		this.bddPassword = bddPassword;
 	}
 
+	/**
+	 * Used to get the database name.
+	 *
+	 * @return The database name.
+	 */
 	public String getBddName()
 	{
 		return bddName;
 	}
 
+	/**
+	 * Used to set the database name.
+	 *
+	 * @param bddName The database name.
+	 */
 	public void setBddName(String bddName)
 	{
 		this.bddName = bddName;
 	}
 
+	/**
+	 * Used to know if the log file should be updated when a student check.
+	 *
+	 * @return True if we should log, false if not.
+	 */
 	public boolean isLogAll()
 	{
 		return logAll;
 	}
 
+	/**
+	 * Used to set if the log file should be updated when a student check.
+	 *
+	 * @param logAll The state of this function.
+	 */
 	public void setLogAll(boolean logAll)
 	{
 		this.logAll = logAll;
 	}
 
+	/**
+	 * Used to know if we should add unknown cards to the database.
+	 *
+	 * @return True if we should add to database, false if not.
+	 */
 	public boolean isAddNewStudents()
 	{
 		return addNewStudents;
 	}
 
+	/**
+	 * Used to set if we should add unknown cards to the database.
+	 *
+	 * @param addNewStudents The state of this function.
+	 */
 	public void setAddNewStudents(boolean addNewStudents)
 	{
 		this.addNewStudents = addNewStudents;
 	}
 
+	/**
+	 * Used to get the database IP.
+	 *
+	 * @return The database IP.
+	 */
 	public String getBddIP()
 	{
 		return bddIP;
 	}
 
+	/**
+	 * Used to set the database IP.
+	 *
+	 * @param bddIP The IP to set.
+	 */
 	public void setBddIP(String bddIP)
 	{
 		this.bddIP = bddIP;
 	}
 
+	/**
+	 * Used to get the database port.
+	 *
+	 * @return The port.
+	 */
 	public int getBddPort()
 	{
 		return bddPort;
 	}
 
+	/**
+	 * used to set the database port.
+	 *
+	 * @param bddPort The port to set.
+	 */
 	public void setBddPort(int bddPort)
 	{
 		this.bddPort = bddPort;
 	}
 
+	/**
+	 * Used to get the table where the datas are saved.
+	 *
+	 * @return The table name.
+	 */
 	public String getBddTableName()
 	{
 		return bddTableName;
 	}
 
+	/**
+	 * Used to set the table where the datas are saved.
+	 *
+	 * @param bddTableName The table name to set.
+	 */
 	public void setBddTableName(String bddTableName)
 	{
 		this.bddTableName = bddTableName;

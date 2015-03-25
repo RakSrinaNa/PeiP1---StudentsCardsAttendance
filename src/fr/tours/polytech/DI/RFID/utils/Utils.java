@@ -7,6 +7,8 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.TerminalReader.threads.TerminalReader;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DateFormat;
@@ -30,9 +32,9 @@ public class Utils
 	public static ResourceBundle resourceBundle;
 	public static ArrayList<BufferedImage> icons;
 	public static File baseFile;
+	public static Configuration configuration;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
-	public static Configuration configuration;
 
 	/**
 	 * Call when we need to exit the program.
@@ -47,6 +49,137 @@ public class Utils
 		configuration.serialize(new File(baseFile, "configuration"));
 		terminalReader.stop();
 		System.exit(exitStaus);
+	}
+
+	/**
+	 * Used to export the database as a SQL file.
+	 *
+	 * @param parent The parent frame, if there is one.
+	 */
+	public static void exportSQL(JFrame parent)
+	{
+		try
+		{
+			File file = new File(baseFile, "SQLExport.sql");
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
+			pw.println("-- ---------------------------");
+			pw.println("-- STRUCTURE");
+			pw.println("-- ---------------------------");
+			pw.println("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
+			pw.println("CREATE TABLE " + sql.getTableName() + "(" + SQLManager.UID_LABEL + " varchar(18), " + SQLManager.SURNAME_LABEL + " varchar(255), " + SQLManager.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + SQLManager.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			pw.println();
+			pw.println("-- ---------------------------");
+			pw.println("-- DATA OF STUDENTS");
+			pw.println("-- ---------------------------");
+			for(Student student :  Utils.removeDuplicates(Utils.sql.getAllStudents()))
+				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
+			pw.flush();
+			pw.close();
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_export_error"), resourceBundle.getString("sql_export_title"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/**
+	 * Used to import the database as a SQL file.
+	 *
+	 * @param parent The parent frame, if there is one.
+	 */
+	public static void importSQL(JFrame parent)
+	{
+		try
+		{
+			File file = getNewFilePatch(baseFile, JFileChooser.FILES_ONLY, new FileNameExtensionFilter(Utils.resourceBundle.getString("open_sql_description_file"), "sql"));
+			if(file == null)
+				return;
+			List<String> lines = readTextFile(file);
+			boolean com = false;
+			int req = 0;
+			for(String line : lines)
+			{
+				if(line == null || line.equals(""))
+					continue;
+				if(line.startsWith("/*"))
+					com = true;
+				if(!com && !line.startsWith("--"))
+					req += sql.sendUpdateRequest(line);
+				if(line.endsWith("*/"))
+					com = false;
+			}
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_import_done"), req), resourceBundle.getString("sql_import_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("sql_import_error"), resourceBundle.getString("sql_import_title"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/**
+	 * Used to read a text file.
+	 *
+	 * @param file The file to read.
+	 * @return A list corresponding to the different lines in the file.
+	 *
+	 * @throws IOException If the file couldn't be read.
+	 */
+	public static List<String> readTextFile(final File file) throws IOException
+	{
+		List<String> fileLines = null;
+		try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
+		{
+			String line = bufferedReader.readLine();
+			fileLines = new ArrayList<>();
+			while(line != null)
+			{
+				fileLines.add(line);
+				line = bufferedReader.readLine();
+			}
+		}
+		catch(IOException exception)
+		{
+			logger.log(Level.WARNING, "Failed to read text file " + file.getAbsolutePath());
+		}
+		return fileLines;
+	}
+
+	/**
+	 * Used to get a new File object from the used.
+	 *
+	 * @param lastFile The file where the popup should open.
+	 * @param mode The selection mode.
+	 * @param filter The filter for the selection.
+	 * @return The selected fiel by the user.
+	 *
+	 * @see JFileChooser
+	 */
+	public static File getNewFilePatch(File lastFile, int mode, FileNameExtensionFilter filter)
+	{
+		File file = null;
+		try
+		{
+			File repertoireCourant = new File(System.getProperty("user.home")).getCanonicalFile();
+			if(lastFile != null)
+				repertoireCourant = lastFile.getCanonicalFile();
+			Utils.logger.log(Level.FINE, "Previous folder: " + repertoireCourant.getAbsolutePath());
+			final JFileChooser dialogue = new JFileChooser(repertoireCourant);
+			dialogue.setFileFilter(filter);
+			dialogue.setFileSelectionMode(mode);
+			if(dialogue.showSaveDialog(null) == JFileChooser.CANCEL_OPTION)
+				return null;
+			file = dialogue.getSelectedFile();
+		}
+		catch(final Exception e)
+		{
+			e.printStackTrace();
+		}
+		if(file != null)
+			Utils.logger.log(Level.FINE, "Folder selected: " + file.getAbsolutePath());
+		else
+			Utils.logger.log(Level.FINE, "Folder selected: null");
+		return file;
 	}
 
 	/**
@@ -97,6 +230,7 @@ public class Utils
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see FileHandler#FileHandler(String, boolean)
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void init() throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("TerminalReader");
@@ -108,7 +242,7 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
 		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 		students = Utils.sql.getAllStudents();
 		groups = Group.loadGroups();
 		mainFrame = new MainFrame();
@@ -125,7 +259,7 @@ public class Utils
 	public static Student getStudentByName(String name, boolean checkDB)
 	{
 		for(Student student : students)
-			if(student != null && student.is(name))
+			if(student != null && student.isSameName(name))
 				return student;
 		return checkDB ? Utils.sql.getStudentByName(capitalize(name.substring(0, name.lastIndexOf(" ")).trim().toLowerCase()), name.substring(name.lastIndexOf(" ")).trim()) : null;
 	}
@@ -318,7 +452,7 @@ public class Utils
 			}
 		else
 			for(Student stu : (Collection<Student>) collection)
-				if(stu.equals(student))
+				if(stu != null && stu.equals(student))
 					return true;
 		return false;
 	}
@@ -344,6 +478,11 @@ public class Utils
 		return list;
 	}
 
+	/**
+	 * Used to get a refreshed list of students from database.
+	 *
+	 * @return The refreshed list.
+	 */
 	public static ArrayList<Student> getRefreshedStudents()
 	{
 		ArrayList<Student> list = new ArrayList<>(students);
@@ -352,11 +491,20 @@ public class Utils
 		return list;
 	}
 
+	/**
+	 * Used to update the SQL connection from the Configuration object.
+	 */
 	public static void reloadSQLFromConfig()
 	{
-		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
+		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 	}
 
+	/**
+	 * Used to capitalize the first letter.
+	 *
+	 * @param s The string to capitalize.
+	 * @return The capitalized string.
+	 */
 	public static String capitalize(String s)
 	{
 		boolean first = true;
@@ -368,7 +516,45 @@ public class Utils
 				first = false;
 			}
 			else
-			sb.append(c);
+				sb.append(c);
 		return sb.toString();
+	}
+
+	public static void importCSV(MainFrame parent)
+	{
+		try
+		{
+			File file = getNewFilePatch(baseFile, JFileChooser.FILES_ONLY, new FileNameExtensionFilter(Utils.resourceBundle.getString("open_csv_description_file"), "csv"));
+			if(file == null)
+				return;
+			List<String> lines = readTextFile(file);
+			String[] columns = lines.get(0).split(";");
+			lines.remove(0);
+			int UIDIndex = getIndexOf(columns, "CSN");
+			int firstnameIndex = getIndexOf(columns, "PRENOM");
+			int surtnameIndex = getIndexOf(columns, "NOM");
+			if(UIDIndex == -1 || firstnameIndex == -1 || surtnameIndex == -1)
+				throw new IllegalArgumentException("Cannot find one of the requiered columns");
+			int req = 0;
+			for(String line : lines)
+			{
+				String[] infos = line.split(";");
+				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[surtnameIndex], infos[firstnameIndex]));
+				req ++;
+			}
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("csv_import_error"), resourceBundle.getString("csv_import_title"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private static int getIndexOf(Object[] table, Object test)
+	{
+		for(int i = 0; i < table.length; i++)
+			if(table[i].equals(test))
+				return i;
+		return -1;
 	}
 }

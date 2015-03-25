@@ -56,6 +56,8 @@ public class Group implements Serializable
 			throw e;
 		}
 		ois.close();
+		group.removeNull();
+		group.removeUnknownStudents();
 		return group;
 	}
 
@@ -64,6 +66,7 @@ public class Group implements Serializable
 	 *
 	 * @param groups The groups to save.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void saveGroups(ArrayList<Group> groups)
 	{
 		for(File file : new File(Utils.baseFile, "Groups").listFiles())
@@ -84,7 +87,7 @@ public class Group implements Serializable
 	 *
 	 * @return The groups deserialized.
 	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	public static ArrayList<Group> loadGroups()
 	{
 		ArrayList<Group> groups = new ArrayList<>();
@@ -100,6 +103,27 @@ public class Group implements Serializable
 				e.printStackTrace();
 			}
 		return groups;
+	}
+
+	/**
+	 * Used to remove all null objects from lists.
+	 */
+	private void removeNull()
+	{
+		students.remove(null);
+		periods.remove(null);
+	}
+
+	/**
+	 * Used to remove from students list unknown students from the database.
+	 */
+	private void removeUnknownStudents()
+	{
+		ArrayList<Student> toRemove = new ArrayList<>();
+		for(Student s : students)
+			if(Utils.getStudentByUID(s.getUid(), true) == null)
+				toRemove.add(s);
+		students.removeAll(toRemove);
 	}
 
 	/**
@@ -177,7 +201,7 @@ public class Group implements Serializable
 	public Period getPeriodByName(String name)
 	{
 		for(Period period : periods)
-			if(period.is(name))
+			if(period.isSame(name))
 				return period;
 		return null;
 	}
@@ -190,6 +214,21 @@ public class Group implements Serializable
 	public void remove(Period period)
 	{
 		this.periods.remove(period);
+	}
+
+	/**
+	 * Used to remove a student by his name.
+	 *
+	 * @param name The name of the student.
+	 */
+	public void removeStudent(String name)
+	{
+		for(Student st : students)
+			if(st.isSameName(name))
+			{
+				this.students.remove(st);
+				break;
+			}
 	}
 
 	/**
@@ -258,8 +297,10 @@ public class Group implements Serializable
 	 * @param period The period to add.
 	 * @return True if added, false if not.
 	 */
-	public boolean addPeriod(Period period)
+	public boolean addPeriod(Period period) throws Exception
 	{
+		if(period == null)
+			throw new Exception("A null period has benn added to the group!");
 		for(Period per : periods)
 			if(per.isOverlapped(period))
 				return false;
@@ -272,6 +313,8 @@ public class Group implements Serializable
 	 */
 	public void update()
 	{
+		if(!periods.contains(currentPeriod))
+			currentPeriod = null;
 		if(currentPeriod == null)
 			currentPeriod = getNewPeriod();
 		else if(!currentPeriod.isInPeriod(new Date()))
@@ -365,6 +408,6 @@ public class Group implements Serializable
 	{
 		if(currentPeriod == null)
 			return Utils.resourceBundle.getString("not_in_period");
-		return currentPeriod.getTimeInterval();
+		return currentPeriod.getRawTimeInterval();
 	}
 }

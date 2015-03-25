@@ -25,6 +25,7 @@ public class AboutFrame extends JDialog
 	 *
 	 * @param parent The parent of the frame.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public AboutFrame(JFrame parent)
 	{
 		super(parent);

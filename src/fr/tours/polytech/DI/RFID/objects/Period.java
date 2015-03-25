@@ -1,5 +1,6 @@
 package fr.tours.polytech.DI.RFID.objects;
 
+import fr.tours.polytech.DI.RFID.utils.Utils;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -14,7 +15,9 @@ import java.util.regex.Pattern;
  */
 public class Period implements Serializable
 {
+	public static final int MONDAY = 1, TUESDAY = 2, WEDNESDAY = 4, THURSDAY = 8, FRIDAY = 16, SATURDAY = 32, SUNDAY = 64;
 	private static final long serialVersionUID = 546546521L;
+	private int day;
 	private int startingHour;
 	private int startingMinute;
 	private int endingHour;
@@ -25,17 +28,15 @@ public class Period implements Serializable
 	/**
 	 * Constructor.
 	 *
-	 * @param period A string representing the period. This should be formatted
-	 * as
-	 * <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i>
-	 * where <i>xx</i> and <i>yy</i> are the time to set.
-	 * @throws IllegalArgumentException If the period isn't formatted as it
-	 * should be.
+	 * @param period A string representing the period. This should be formatted as <i>xx</i><b>h</b><i>xx</i><b>-</b><i>yy</i><b>h</b><i>yy</i> where <i>xx</i> and <i>yy</i> are the time to set.
+	 * @param day The day where this period should be applied.
+	 * @throws IllegalArgumentException If the period isn't formatted as it should be.
 	 */
-	public Period(String period) throws IllegalArgumentException
+	public Period(int day, String period) throws IllegalArgumentException
 	{
 		if(!Pattern.matches("(\\d{1,2})(h|H)(\\d{1,2})(-)(\\d{1,2})(h|H)(\\d{1,2})", period))
 			throw new IllegalArgumentException("Time should be formatted as xx:xx-yy:yy (was " + period + ")");
+		this.day = day;
 		period = period.toUpperCase().replaceAll(" ", "");
 		String starting = period.substring(0, period.indexOf('-'));
 		String ending = period.substring(period.indexOf('-') + 1);
@@ -43,6 +44,8 @@ public class Period implements Serializable
 		this.startingMinute = Integer.parseInt(starting.substring(starting.indexOf("H") + 1));
 		this.endingHour = Integer.parseInt(ending.substring(0, ending.indexOf("H")));
 		this.endingMinute = Integer.parseInt(ending.substring(ending.indexOf("H") + 1));
+		if(!isValidPeriod())
+			throw new IllegalArgumentException("The dates aren't in a valid order");
 		this.calendar = Calendar.getInstance(Locale.getDefault());
 		this.decimalFormat = new DecimalFormat("00");
 	}
@@ -52,9 +55,44 @@ public class Period implements Serializable
 	 *
 	 * @return A string formatted as <b>xxHxx - yyHyy</b>
 	 */
-	public String getTimeInterval()
+	public String getRawTimeInterval()
 	{
 		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute);
+	}
+
+	/**
+	 * Used to get a String representing this interval whith days.
+	 *
+	 * @return A string formatted as <b>xxHxx - yyHyy (days)</b>
+	 */
+	public String getTimeInterval()
+	{
+		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute) + " (" + getDaysText() + ")";
+	}
+
+	/**
+	 * Used to get the short name of the day sets.
+	 *
+	 * @return A string of teh days.
+	 */
+	private String getDaysText()
+	{
+		StringBuilder sb = new StringBuilder();
+		if(isDaySet(MONDAY))
+			sb.append(Utils.resourceBundle.getString("day_monday")).append(" ");
+		if(isDaySet(TUESDAY))
+			sb.append(Utils.resourceBundle.getString("day_tuesday")).append(" ");
+		if(isDaySet(WEDNESDAY))
+			sb.append(Utils.resourceBundle.getString("day_wednesday")).append(" ");
+		if(isDaySet(THURSDAY))
+			sb.append(Utils.resourceBundle.getString("day_thursday")).append(" ");
+		if(isDaySet(FRIDAY))
+			sb.append(Utils.resourceBundle.getString("day_friday")).append(" ");
+		if(isDaySet(SATURDAY))
+			sb.append(Utils.resourceBundle.getString("day_saturday")).append(" ");
+		if(isDaySet(SUNDAY))
+			sb.append(Utils.resourceBundle.getString("day_sunday")).append(" ");
+		return sb.substring(0, sb.length()).trim();
 	}
 
 	/**
@@ -66,22 +104,58 @@ public class Period implements Serializable
 	public boolean isInPeriod(Date date)
 	{
 		this.calendar.setTime(date);
+		int day = this.calendar.get(Calendar.DAY_OF_WEEK);
 		int hours = this.calendar.get(Calendar.HOUR_OF_DAY);
 		int minutes = this.calendar.get(Calendar.MINUTE);
+		if(!isCurrentDayCalendar(day))
+			return false;
 		if(this.startingHour == this.endingHour)
 		{
 			if(hours == this.startingHour)
 				if(minutes >= this.startingMinute && minutes < this.endingMinute)
 					return true;
 		}
-		else if(hours >= this.startingHour && hours < this.endingHour)
+		else if(hours >= this.startingHour && hours <= this.endingHour)
 			if(hours == this.startingHour)
 			{
 				if(minutes >= this.startingMinute)
 					return true;
 			}
+			else if(hours == this.endingHour)
+			{
+				if(minutes <= this.endingMinute)
+					return true;
+			}
 			else
 				return true;
+		return false;
+	}
+
+	/**
+	 * Used to know if a day from {@link Calendar} is set.
+	 *
+	 * @param day The day to test.
+	 * @return True if set, false if not.
+	 */
+	private boolean isCurrentDayCalendar(int day)
+	{
+		switch(day)
+		{
+			case Calendar.MONDAY:
+				return isDaySet(MONDAY);
+			case Calendar.TUESDAY:
+				return isDaySet(TUESDAY);
+			case Calendar.WEDNESDAY:
+				return isDaySet(WEDNESDAY);
+			case Calendar.THURSDAY:
+				return isDaySet(THURSDAY);
+			case Calendar.FRIDAY:
+				return isDaySet(FRIDAY);
+			case Calendar.SATURDAY:
+				return isDaySet(SATURDAY);
+			case Calendar.SUNDAY:
+				return isDaySet(SUNDAY);
+		}
 		return false;
 	}
 
@@ -93,7 +167,18 @@ public class Period implements Serializable
 	 */
 	public boolean isOverlapped(Period period)
 	{
-		return period != null && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
+		return period != null && period != this && isDaysOverlapped(period) && (period.isInPeriod(getStartingDate()) || period.isInPeriod(getEndingDate()) || isInPeriod(period.getStartingDate()) || isInPeriod(period.getEndingDate()));
+	}
+
+	/**
+	 * Used to know if there are same days set in the period.
+	 *
+	 * @param period The period to test with.
+	 * @return True if there is at leat one of the days that are the same, false if none.
+	 */
+	private boolean isDaysOverlapped(Period period)
+	{
+		return (period.getDay() & this.getDay()) != 0;
 	}
 
 	/**
@@ -135,16 +220,95 @@ public class Period implements Serializable
 	@Override
 	public String toString()
 	{
-		return getTimeInterval().replaceAll(" ", "");
+		return getRawTimeInterval().replaceAll(" ", "") + " (" + getDaysText() + ")";
 	}
 
-	private boolean isSame(String name)
+	/**
+	 * Used to know if the periods are the same.
+	 *
+	 * @param name The period as string.
+	 * @return True if the same, false if not.
+	 */
+	public boolean isSame(String name)
 	{
-		return this.toString().equalsIgnoreCase(name.replaceAll(" ", ""));
+		return this.toString().replaceAll(" ", "").equalsIgnoreCase(name.replaceAll(" ", ""));
 	}
 
-	public boolean is(String name)
+	/**
+	 * Used to get the day.
+	 *
+	 * @return The day.
+	 */
+	public int getDay()
 	{
-		return isSame(name);
+		return day;
+	}
+
+	/**
+	 * Used to know if a day is set.
+	 *
+	 * @param day The day to test.
+	 * @return True if set, false if not.
+	 */
+	public boolean isDaySet(int day)
+	{
+		return (day & this.day) == day;
+	}
+
+	/**
+	 * Used to know if the period is valid.
+	 *
+	 * @return True if valid, false if not.
+	 */
+	public boolean isValidPeriod()
+	{
+		if(endingHour < startingHour)
+			return false;
+		if(startingHour == endingHour)
+		{
+			if(endingMinute <= startingMinute)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Used to get the starting hour.
+	 *
+	 * @return The starting hour.
+	 */
+	public int getStartingHour()
+	{
+		return startingHour;
+	}
+
+	/**
+	 * Used to get the ending hour.
+	 *
+	 * @return The ending hour.
+	 */
+	public int getEndingHour()
+	{
+		return endingHour;
+	}
+
+	/**
+	 * Used to get the starting minute.
+	 *
+	 * @return The starting minute.
+	 */
+	public int getStartingMinute()
+	{
+		return startingMinute;
+	}
+
+	/**
+	 * Used to get the ending minute.
+	 *
+	 * @return The ending minute.
+	 */
+	public int getEndingMinute()
+	{
+		return endingMinute;
 	}
 }

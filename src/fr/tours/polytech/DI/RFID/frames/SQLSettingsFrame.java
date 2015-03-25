@@ -6,6 +6,11 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+/**
+ * Frame for the configuration of the database.
+ *
+ * @author COLEAU Victor, COUCHOUD Thomas
+ */
 public class SQLSettingsFrame extends JDialog
 {
 	private final JTextArea dbName;
@@ -15,6 +20,11 @@ public class SQLSettingsFrame extends JDialog
 	private final JTextArea dbUser;
 	private final JTextArea dbTableName;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param parent The parent frame.
+	 */
 	public SQLSettingsFrame(MainFrame parent)
 	{
 		super(parent);
@@ -100,8 +110,8 @@ public class SQLSettingsFrame extends JDialog
 		namePanel.add(dbName);
 		namePanel.setBackground(MainFrame.backColor);
 		JPanel tableNamePanel = new JPanel();
-		tableNamePanel.add(dbNameLabel);
-		tableNamePanel.add(dbName);
+		tableNamePanel.add(dbTableNameLabel);
+		tableNamePanel.add(dbTableName);
 		tableNamePanel.setBackground(MainFrame.backColor);
 		JPanel userPanel = new JPanel();
 		userPanel.add(dbUserLabel);
@@ -119,7 +129,7 @@ public class SQLSettingsFrame extends JDialog
 		gcb.fill = GridBagConstraints.BOTH;
 		gcb.weighty = 1;
 		gcb.weightx = 1;
-		gcb.insets = new Insets(10,10,10,10);
+		gcb.insets = new Insets(10, 10, 10, 10);
 		gcb.gridheight = 1;
 		gcb.gridwidth = 1;
 		gcb.gridx = line++;
@@ -140,6 +150,9 @@ public class SQLSettingsFrame extends JDialog
 		this.setVisible(true);
 	}
 
+	/**
+	 * Used to save the settings.
+	 */
 	private void save()
 	{
 		Utils.configuration.setBddIP(dbIP.getText());
@@ -151,6 +164,11 @@ public class SQLSettingsFrame extends JDialog
 		Utils.reloadSQLFromConfig();
 	}
 
+	/**
+	 * Used to get the database password as a String.
+	 *
+	 * @return The database password.
+	 */
 	private String getPassword()
 	{
 		StringBuilder sb = new StringBuilder();

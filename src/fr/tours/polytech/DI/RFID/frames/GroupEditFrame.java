@@ -11,8 +11,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -44,49 +42,6 @@ public class GroupEditFrame extends JDialog
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setBackground(MainFrame.backColor);
 		this.getContentPane().setLayout(new GridBagLayout());
-		this.addWindowListener(new WindowListener()
-		{
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-
-			}
-
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e)
-			{
-
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e)
-			{
-
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e)
-			{
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e)
-			{
-
-			}
-		});
 		/**************************************************************************/
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -134,13 +89,14 @@ public class GroupEditFrame extends JDialog
 				int rowindex = GroupEditFrame.this.tableStudents.getSelectedRow();
 				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
-					Student student = Utils.getStudentByName(GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), true);
+					String name = GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().trim();
+					Student student = Utils.getStudentByName(name, true);
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deleteGroup = new JMenuItem(Utils.resourceBundle.getString("remove_student"));
 					deleteGroup.addActionListener(event1 -> {
 						try
 						{
-							removeStudent(student, rowindex);
+							removeStudent(student, rowindex, name);
 						}
 						catch(Exception exception)
 						{
@@ -194,6 +150,14 @@ public class GroupEditFrame extends JDialog
 			@Override
 			public void mousePressed(MouseEvent event)
 			{
+				int row = GroupEditFrame.this.tablePeriods.rowAtPoint(event.getPoint());
+				if(row >= 0 && row < GroupEditFrame.this.tablePeriods.getRowCount())
+					GroupEditFrame.this.tablePeriods.setRowSelectionInterval(row, row);
+				else
+					GroupEditFrame.this.tablePeriods.clearSelection();
+				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
+				if(event.getClickCount() == 2 && event.getComponent() instanceof JTable)
+					editPeriod(group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString()), rowindex);
 			}
 
 			@Override
@@ -220,6 +184,9 @@ public class GroupEditFrame extends JDialog
 							Utils.logger.log(Level.WARNING, "", exception);
 						}
 					});
+					JMenuItem editPeriod = new JMenuItem(Utils.resourceBundle.getString("edit_period"));
+					editPeriod.addActionListener(event1 -> editPeriod(period, rowindex));
+					popup.add(editPeriod);
 					popup.add(deletePeriod);
 					popup.show(event.getComponent(), event.getX(), event.getY());
 				}
@@ -237,7 +204,7 @@ public class GroupEditFrame extends JDialog
 		scrollPanePeriods.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		JButton addPeriod = new JButton(Utils.resourceBundle.getString("add_period"));
 		addPeriod.setBackground(MainFrame.backColor);
-		addPeriod.addActionListener(event -> addPeriod());
+		addPeriod.addActionListener(event -> addPeriod(getNewPeriod(null)));
 		JButton addStudent = new JButton(Utils.resourceBundle.getString("add_student"));
 		addStudent.setBackground(MainFrame.backColor);
 		addStudent.addActionListener(event -> addStudent());
@@ -268,6 +235,41 @@ public class GroupEditFrame extends JDialog
 	}
 
 	/**
+	 * Called to edit a period.
+	 *
+	 * @param period The period to edit.
+	 * @param rowindex The row where the period is.
+	 */
+	private void editPeriod(Period period, int rowindex)
+	{
+		try
+		{
+			Period p = getNewPeriod(period);
+			if(p == null)
+				return;
+			removePeriod(period, rowindex);
+			if(!addPeriod(p))
+				addPeriod(period);
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+	}
+
+	/**
+	 * Used to create a new period.
+	 *
+	 * @param period The period to edit if there is one.
+	 * @return The period created.
+	 */
+	private Period getNewPeriod(Period period)
+	{
+		PeriodDialogFrame dialog = new PeriodDialogFrame(this, Utils.resourceBundle.getString("schedule_setting"), period);
+		return dialog.showDialog();
+	}
+
+	/**
 	 * Used when we need to add a student.
 	 */
 	private void addStudent()
@@ -291,23 +293,30 @@ public class GroupEditFrame extends JDialog
 	/**
 	 * Used when we need to add a period.
 	 */
-	private void addPeriod()
+	private boolean addPeriod(Period period)
 	{
+		boolean r = false;
 		try
 		{
-			Period period = new Period(JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("enter_period") + " (xxHxx-yyHyy):", ""));
 			if(group.addPeriod(period))
 			{
 				modelPeriods.addRow(new Period[]{period});
 				modelPeriods.fireTableDataChanged();
+				r = true;
 			}
 			else
 				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("period_overlapping"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
-		catch(Exception e)
+		catch(IllegalArgumentException e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("wrong_period"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return r;
 	}
 
 	/**
@@ -329,9 +338,12 @@ public class GroupEditFrame extends JDialog
 	 * @param student The student to remove.
 	 * @param index The index in the table of the student.
 	 */
-	private void removeStudent(Student student, int index)
+	private void removeStudent(Student student, int index, String name)
 	{
-		group.remove(student);
+		if(student != null)
+			group.remove(student);
+		else
+			group.removeStudent(name);
 		modelStudents.removeRow(index);
 		modelStudents.fireTableDataChanged();
 	}

@@ -14,10 +14,10 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	private final String UID_LABEL = "UID";
-	private final String FIRSTNAME_LABEL = "FirstName";
-	private final String SURNAME_LABEL = "Surname";
-	private final String tableName;
+	public final static String UID_LABEL = "UID";
+	public final static String FIRSTNAME_LABEL = "FirstName";
+	public final static String SURNAME_LABEL = "Surname";
+	private String tableName;
 	private String databaseURL;
 	private int port;
 	private String databaseName;
@@ -33,14 +33,16 @@ public class SQLManager
 	 * @param databaseURL The URL of the database.
 	 * @param port The port of the database.
 	 * @param databaseName The database name.
+	 * @param tableName The table name.
 	 * @param user The username.
 	 * @param password The password for this user.
 	 */
-	public SQLManager(String databaseURL, int port, String databaseName, String user, String password)
+	public SQLManager(String databaseURL, int port, String databaseName, String tableName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
+		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
 		login();
@@ -49,11 +51,22 @@ public class SQLManager
 		createBaseTable();
 	}
 
-	public void reloadInfos(String databaseURL, int port, String databaseName, String user, String password)
+	/**
+	 * Used to update the parameters of the connexion.
+	 *
+	 * @param databaseURL The URL of the database.
+	 * @param port The port of the database.
+	 * @param databaseName The database name.
+	 * @param tableName The table name.
+	 * @param user The username.
+	 * @param password The password for this user.
+	 */
+	public void reloadInfos(String databaseURL, int port, String databaseName, String tableName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
+		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
 	}
@@ -71,11 +84,13 @@ public class SQLManager
 	/**
 	 * Used to retrieve a student from the database by his name.
 	 *
+	 * @param surname The surname of the student.
+	 * @param firstname The firstname of the student.
 	 * @return The student corresponding, null if not found.
 	 */
 	public Student getStudentByName(String surname, String firstname)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + ", " + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
 		try
 		{
 			if(result.next())
@@ -105,7 +120,9 @@ public class SQLManager
 			if(result.next())
 				return new Student(uid, result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL));
 		}
-		catch(NullPointerException e){}
+		catch(NullPointerException e)
+		{
+		}
 		catch(SQLException exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
@@ -149,6 +166,8 @@ public class SQLManager
 
 	/**
 	 * Used to establish a connection with the database.
+	 *
+	 * @return True if the connexion wes etablished, false if not or if it's already trying to connect.
 	 */
 	public boolean login()
 	{
@@ -244,6 +263,11 @@ public class SQLManager
 		return result;
 	}
 
+	/**
+	 * Used to get all the students from the database.
+	 *
+	 * @return A list of the students.
+	 */
 	public ArrayList<Student> getAllStudents()
 	{
 		ArrayList<Student> students = new ArrayList<>();
@@ -253,7 +277,9 @@ public class SQLManager
 			while(result.next())
 				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL)));
 		}
-		catch(NullPointerException e){}
+		catch(NullPointerException e)
+		{
+		}
 		catch(Exception exception)
 		{
 			Utils.logger.log(Level.WARNING, "", exception);
@@ -261,6 +287,11 @@ public class SQLManager
 		return students;
 	}
 
+	/**
+	 * Used to know if the connection to the database is etablished.
+	 *
+	 * @return True if etablished, false if not.
+	 */
 	public boolean isConnected()
 	{
 		try
@@ -274,13 +305,33 @@ public class SQLManager
 		return false;
 	}
 
+	/**
+	 * Used to know when we last tried connected to the database.
+	 *
+	 * @return The time.
+	 */
 	public Date getLastConnectTime()
 	{
 		return lastTimeConnect;
 	}
 
+	/**
+	 * Used to know if we are trying to connect to the database.
+	 *
+	 * @return True if trying to connect, false if not.
+	 */
 	public boolean isLogging()
 	{
 		return isLogging;
+	}
+
+	/**
+	 * Used to get the table name where we are working.
+	 *
+	 * @return The table name
+	 */
+	public String getTableName()
+	{
+		return this.tableName;
 	}
 }

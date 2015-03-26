@@ -8,7 +8,7 @@ import java.io.Serializable;
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
-public class Student implements Serializable
+public class Student implements Serializable, Comparable<Student>
 {
 	private static final long serialVersionUID = 546546596L;
 	private final String surname;
@@ -118,5 +118,11 @@ public class Student implements Serializable
 	public String getLastname()
 	{
 		return this.surname;
+	}
+
+	@Override
+	public int compareTo(Student o)
+	{
+		return o == null ? 0 : this.getName().compareTo(o.getName());
 	}
 }

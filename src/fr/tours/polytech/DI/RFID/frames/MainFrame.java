@@ -11,6 +11,8 @@ import fr.tours.polytech.DI.TerminalReader.objects.RFIDCard;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
@@ -36,7 +38,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JLabel cardTextLabel;
 	private final JLabel groupsInfoLabel;
 	private final JTable tableChecked;
-	private final JMenuItem menuItemExit;
 	private final JTableUneditableModel modelChecked;
 	public static Color backColor;
 
@@ -101,13 +102,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
 		JMenu menuHelp = new JMenu(Utils.resourceBundle.getString("menu_help"));
-		this.menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
+		JMenuItem menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
 		JMenuItem menuItemHelp = new JMenuItem(Utils.resourceBundle.getString("menu_item_help"));
 		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
 		JMenuItem menuItemExportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_sql"));
 		JMenuItem menuItemImportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_sql"));
 		JMenuItem menuItemImportCSV = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_csv"));
-		this.menuItemExit.addActionListener(event -> Utils.exit(0));
+		menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
 			{
@@ -127,7 +128,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuFile.addSeparator();
 		menuFile.add(menuItemImportCSV);
 		menuFile.addSeparator();
-		menuFile.add(this.menuItemExit);
+		menuFile.add(menuItemExit);
 		menuHelp.add(menuItemHelp);
 		menuHelp.add(menuItemAbout);
 		menuBar.add(menuFile);
@@ -226,6 +227,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.tableChecked.setShowGrid(true);
 		this.tableChecked.setBorder(new EtchedBorder(EtchedBorder.RAISED));
 		this.tableChecked.setGridColor(Color.BLACK);
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableChecked.getModel());
+		tableChecked.setRowSorter(sorter);
+		ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
+		sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+		sorter.setSortKeys(sortKeys);
+		sorter.sort();
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		int line = 0;
 		GridBagConstraints gcb = new GridBagConstraints();
@@ -447,15 +454,24 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
 			}
 			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
+			boolean mod = false;
 			Utils.removeDuplicates(toCheck);
 			Vector vec = modelChecked.getDataVector();
 			for(Student student : toCheck)
-				if(!Utils.containsStudent(vec, student))
-					modelChecked.addRow(new Object[]{student});
+				if(student != null)
+					if(!Utils.containsStudent(vec, student))
+					{
+						mod = true;
+						SwingUtilities.invokeLater(() -> modelChecked.addRow(new Student[]{student}));
+					}
 			for(int i = 0; i < modelChecked.getRowCount(); i++)
 				if(!Utils.containsStudent(toCheck, ((Student) modelChecked.getValueAt(i, 0))))
+				{
+					mod = true;
 					modelChecked.removeRow(i);
-			modelChecked.fireTableDataChanged();
+				}
+			if(mod)
+				modelChecked.fireTableDataChanged();
 		}
 	}
 

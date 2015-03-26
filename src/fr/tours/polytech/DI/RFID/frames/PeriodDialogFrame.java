@@ -104,7 +104,7 @@ public class PeriodDialogFrame extends JDialog
 		getContentPane().setLayout(new GridBagLayout());
 		gcb.anchor = GridBagConstraints.PAGE_START;
 		gcb.fill = GridBagConstraints.BOTH;
-		gcb.insets = new Insets(0, 10, 0, 10);
+		gcb.insets = new Insets(10, 10, 10, 10);
 		gcb.weighty = 100;
 		gcb.weightx = 100;
 		gcb.gridheight = 1;

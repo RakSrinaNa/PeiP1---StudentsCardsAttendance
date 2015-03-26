@@ -227,7 +227,7 @@ public class SQLManager
 		}
 		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR", exception);
+			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request, exception);
 		}
 		return result;
 	}
@@ -258,7 +258,7 @@ public class SQLManager
 		}
 		catch(SQLException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR", exception);
+			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request, exception);
 		}
 		return result;
 	}

@@ -1,6 +1,8 @@
 package fr.tours.polytech.DI.RFID.frames;
 
+import fr.tours.polytech.DI.RFID.Main;
 import fr.tours.polytech.DI.RFID.enums.Sounds;
+import fr.tours.polytech.DI.RFID.frames.components.ImagePanel;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.objects.Group;
@@ -8,6 +10,7 @@ import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
 import fr.tours.polytech.DI.TerminalReader.objects.RFIDCard;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,6 +18,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -38,6 +42,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JLabel cardTextLabel;
 	private final JLabel groupsInfoLabel;
 	private final JTable tableChecked;
+	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
 	public static Color backColor;
 
@@ -141,6 +146,47 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		groupsInfoLabel = new JLabel();
 		groupsInfoLabel.setVerticalAlignment(JLabel.CENTER);
 		groupsInfoLabel.setHorizontalAlignment(JLabel.CENTER);
+		openPanelImage = new ImagePanel();
+		openPanelImage.setPreferredSize(new Dimension(20, 20));
+		try
+		{
+			openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/open_panel.png")));
+		}
+		catch(IOException exception)
+		{
+			Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
+		}
+		openPanelImage.addMouseListener(new MouseListener()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				setStaffInfos(!staffPanel.isVisible());
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+
+			}
+		});
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 		modelChecked = new JTableUneditableModel(new Student[][]{}, new String[]{Utils.resourceBundle.getString("name")});
@@ -245,6 +291,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		JPanel infoPanel = new JPanel();
+		infoPanel.add(openPanelImage, gcb);
+		gcb.gridx = 1;
+		gcb.weightx = 100;
 		infoPanel.add(groupsInfoLabel, gcb);
 		infoPanel.setBackground(backColor);
 		this.cardPanel = new JPanel(new GridBagLayout());
@@ -272,6 +321,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		line = 0;
 		gcb.anchor = GridBagConstraints.CENTER;
 		gcb.fill = GridBagConstraints.HORIZONTAL;
+		gcb.gridx = 0;
 		gcb.insets = new Insets(10, 20, 10, 20);
 		gcb.gridy = line++;
 		this.staffPanel.add(groupSettings, gcb);
@@ -480,9 +530,32 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 *
 	 * @param staffMember Is it a staff member?
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void setStaffInfos(boolean staffMember)
 	{
 		this.staffPanel.setVisible(staffMember);
 		this.staffPanel.setEnabled(staffMember);
+		if(staffPanel.isVisible())
+		{
+			try
+			{
+				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/close_panel.png")));
+			}
+			catch(IOException exception)
+			{
+				Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
+			}
+		}
+		else
+		{
+			try
+			{
+				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/open_panel.png")));
+			}
+			catch(IOException exception)
+			{
+				Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
+			}
+		}
 	}
 }

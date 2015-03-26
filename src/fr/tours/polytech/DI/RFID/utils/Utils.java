@@ -71,7 +71,7 @@ public class Utils
 			pw.println("-- ---------------------------");
 			pw.println("-- DATA OF STUDENTS");
 			pw.println("-- ---------------------------");
-			for(Student student :  Utils.removeDuplicates(Utils.sql.getAllStudents()))
+			for(Student student : Utils.removeDuplicates(Utils.sql.getAllStudents()))
 				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
 			pw.flush();
 			pw.close();
@@ -588,7 +588,7 @@ public class Utils
 			{
 				String[] infos = line.split(";");
 				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[surtnameIndex], infos[firstnameIndex]));
-				req ++;
+				req++;
 			}
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);
 		}

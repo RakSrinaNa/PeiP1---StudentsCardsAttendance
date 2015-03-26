@@ -117,7 +117,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuItemHelp.addActionListener(event -> {
 			try
 			{
-				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/TerminalReader/wiki").toURI());
+				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
 			}
 			catch(Exception exception)
 			{

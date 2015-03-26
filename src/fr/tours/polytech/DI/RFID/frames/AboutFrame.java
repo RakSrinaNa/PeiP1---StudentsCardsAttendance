@@ -83,7 +83,7 @@ public class AboutFrame extends JDialog
 		}
 		JPanel infoPanel = new JPanel();
 		infoPanel.setBackground(Color.WHITE);
-		JLabel infoText = new JLabel("<html><p align=\"center\">" + parent.getTitle() + " v" + MainFrame.VERSION + "<br/>COLEAU Victor<br />COUCHOUD Thomas<br /><br />Projet Peip1 2014-2015</p></html>");
+		JLabel infoText = new JLabel("<html><p width=\"" + 240 + "\" align=\"center\">" + parent.getTitle() + " v" + MainFrame.VERSION + "<br/>COLEAU Victor<br />COUCHOUD Thomas<br /><br />Projet Peip1 2014-2015</p></html>");
 		infoText.setHorizontalAlignment(JLabel.CENTER);
 		infoText.setVerticalAlignment(JLabel.CENTER);
 		infoPanel.add(infoText);

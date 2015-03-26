@@ -298,6 +298,8 @@ public class GroupEditFrame extends JDialog
 		boolean r = false;
 		try
 		{
+			if(period == null)
+				return false;
 			if(group.addPeriod(period))
 			{
 				modelPeriods.addRow(new Period[]{period});

@@ -395,10 +395,36 @@ public class Utils
 							exception.printStackTrace();
 						}
 					}
-					fileWriter = new FileWriter(file, true);
+					List<String> lines = readTextFile(file);
+					String last = "";
+					if(lines.size() > 0)
+					{
+						last = lines.get(lines.size() - 1);
+						lines.remove(lines.size() - 1);
+					}
+					fileWriter = new FileWriter(file, false);
 					bufferedWriter = new BufferedWriter(fileWriter);
 					printWriter = new PrintWriter(bufferedWriter);
-					printWriter.print(dateFormat.format(date) + ";" + period.getTimeInterval() + ";" + student.getName() + "\n");
+					for(String line : lines)
+						printWriter.println(line);
+					printWriter.print(dateFormat.format(date));
+					printWriter.print(";");
+					printWriter.print(period.getRawTimeInterval());
+					printWriter.print(";");
+					printWriter.print(student.getName());
+					printWriter.print(";");
+					printWriter.print(period.getDurationString());
+					printWriter.println();
+					if(last.equals(""))
+						printWriter.println("Total;" + period.getDurationString());
+					else
+					{
+						String[] vals = last.split(";");
+						String duration = vals[vals.length - 1];
+						int timeLast = stringToDuration(duration);
+						int timeNow = (int) period.getDuration();
+						printWriter.println("Total;" + durationToString(timeLast + timeNow));
+					}
 				}
 				catch(Exception exception)
 				{
@@ -429,6 +455,28 @@ public class Utils
 					{
 					}
 			}
+	}
+
+	public static String durationToString(long time)
+	{
+		int mins = (int) ((time / 1000) / 60);
+		return (mins / 60) + "H" + (mins % 60);
+	}
+
+	public static int stringToDuration(String time)
+	{
+		try
+		{
+			int duration = 0;
+			duration += Integer.parseInt(time.split("H|h")[0]) * 60;
+			duration += Integer.parseInt(time.split("H|h")[1]);
+			return duration * 1000 * 60;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return 0;
+		}
 	}
 
 	/**

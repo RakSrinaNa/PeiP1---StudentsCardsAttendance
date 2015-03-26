@@ -311,4 +311,14 @@ public class Period implements Serializable
 	{
 		return endingMinute;
 	}
+
+	public String getDurationString()
+	{
+		return Utils.durationToString(getDuration());
+	}
+
+	public long getDuration()
+	{
+		return getEndingDate().getTime() - getStartingDate().getTime();
+	}
 }

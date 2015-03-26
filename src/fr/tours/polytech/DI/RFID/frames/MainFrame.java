@@ -148,14 +148,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		groupsInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 		openPanelImage = new ImagePanel();
 		openPanelImage.setPreferredSize(new Dimension(20, 20));
-		try
-		{
-			openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/open_panel.png")));
-		}
-		catch(IOException exception)
-		{
-			Utils.logger.log(Level.WARNING, "Couldn't load logo image", exception);
-		}
+		openPanelImage.setBackground(backColor);
 		openPanelImage.addMouseListener(new MouseListener()
 		{
 			@Override
@@ -290,12 +283,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridheight = 1;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
-		JPanel infoPanel = new JPanel();
-		infoPanel.add(openPanelImage, gcb);
-		gcb.gridx = 1;
-		gcb.weightx = 100;
-		infoPanel.add(groupsInfoLabel, gcb);
-		infoPanel.setBackground(backColor);
 		this.cardPanel = new JPanel(new GridBagLayout());
 		this.cardPanel.add(this.cardTextLabel, gcb);
 		this.cardPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
@@ -319,11 +306,16 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		sqlSettings.setBackground(backColor);
 		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
 		line = 0;
+		gcb = new GridBagConstraints();
 		gcb.anchor = GridBagConstraints.CENTER;
 		gcb.fill = GridBagConstraints.HORIZONTAL;
+		gcb.weightx = 1;
+		gcb.weighty = 1;
+		gcb.gridwidth = 1;
+		gcb.gridheight = 1;
 		gcb.gridx = 0;
-		gcb.insets = new Insets(10, 20, 10, 20);
 		gcb.gridy = line++;
+		gcb.insets = new Insets(10, 20, 10, 20);
 		this.staffPanel.add(groupSettings, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(sqlSettings, gcb);
@@ -341,8 +333,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb = new GridBagConstraints();
 		getContentPane().setLayout(new GridBagLayout());
 		getContentPane().setBackground(backColor);
-		gcb.anchor = GridBagConstraints.PAGE_START;
-		gcb.fill = GridBagConstraints.BOTH;
+		gcb.anchor = GridBagConstraints.WEST;
+		gcb.fill = GridBagConstraints.NONE;
 		gcb.weightx = 1;
 		gcb.insets = new Insets(0, 0, 0, 0);
 		gcb.weighty = 1;
@@ -351,10 +343,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.gridwidth = 2;
 		gcb.gridx = 0;
 		gcb.gridy = line++;
-		getContentPane().add(infoPanel, gcb);
+		getContentPane().add(openPanelImage, gcb);
+		gcb.anchor = GridBagConstraints.PAGE_START;
+		gcb.fill = GridBagConstraints.BOTH;
+		gcb.gridx = 1;
+		getContentPane().add(groupsInfoLabel, gcb);
 		gcb.gridwidth = 1;
 		gcb.weighty = 10;
 		gcb.weightx = 1;
+		gcb.gridx = 0;
 		gcb.gridy = line++;
 		getContentPane().add(this.staffPanel, gcb);
 		gcb.gridx = 1;

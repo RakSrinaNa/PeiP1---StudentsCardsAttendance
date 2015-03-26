@@ -536,7 +536,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			try
 			{
-				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/close_panel.png")));
+				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/open_panel.png")));
 			}
 			catch(IOException exception)
 			{
@@ -547,7 +547,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		{
 			try
 			{
-				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/open_panel.png")));
+				openPanelImage.setImage(ImageIO.read(Main.class.getClassLoader().getResource("images/close_panel.png")));
 			}
 			catch(IOException exception)
 			{

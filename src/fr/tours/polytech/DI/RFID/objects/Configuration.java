@@ -9,6 +9,8 @@ import java.io.*;
  */
 public class Configuration implements Serializable
 {
+	private static final int SERIALIZATION_VERSION = 1;
+	private static final long serialVersionUID = 8289555994600359883L;
 	private String bddUser;
 	private String bddPassword;
 	private String bddName;
@@ -54,6 +56,35 @@ public class Configuration implements Serializable
 			e.printStackTrace();
 			return new Configuration();
 		}
+	}
+
+	private void readObject(final ObjectInputStream ois) throws IOException
+	{
+		int ver = ois.readInt();
+		if(ver == 1)
+		{
+			this.bddUser = ois.readUTF();
+			this.bddPassword = ois.readUTF();
+			this.bddName = ois.readUTF();
+			this.bddTableName = ois.readUTF();
+			this.bddIP = ois.readUTF();
+			this.bddPort = ois.readInt();
+			this.logAll = ois.readBoolean();
+			this.addNewStudents = ois.readBoolean();
+		}
+	}
+
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		oos.writeInt(SERIALIZATION_VERSION);
+		oos.writeUTF(bddUser);
+		oos.writeUTF(bddPassword);
+		oos.writeUTF(bddName);
+		oos.writeUTF(bddTableName);
+		oos.writeUTF(bddIP);
+		oos.writeInt(bddPort);
+		oos.writeBoolean(logAll);
+		oos.writeBoolean(addNewStudents);
 	}
 
 	/**

@@ -122,10 +122,8 @@ public class Utils
 	 *
 	 * @param file The file to read.
 	 * @return A list corresponding to the different lines in the file.
-	 *
-	 * @throws IOException If the file couldn't be read.
 	 */
-	public static List<String> readTextFile(final File file) throws IOException
+	public static List<String> readTextFile(final File file)
 	{
 		List<String> fileLines = null;
 		try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
@@ -397,7 +395,7 @@ public class Utils
 					}
 					List<String> lines = readTextFile(file);
 					String last = "";
-					if(lines.size() > 0)
+					if(lines.size() > 0 && lines.get(lines.size() - 1).startsWith("Total"))
 					{
 						last = lines.get(lines.size() - 1);
 						lines.remove(lines.size() - 1);

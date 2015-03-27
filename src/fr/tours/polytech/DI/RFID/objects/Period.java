@@ -1,6 +1,9 @@
 package fr.tours.polytech.DI.RFID.objects;
 
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -16,7 +19,8 @@ import java.util.regex.Pattern;
 public class Period implements Serializable
 {
 	public static final int MONDAY = 1, TUESDAY = 2, WEDNESDAY = 4, THURSDAY = 8, FRIDAY = 16, SATURDAY = 32, SUNDAY = 64;
-	private static final long serialVersionUID = 546546521L;
+	private static final int SERIALIZATION_VERSION = 1;
+	private static final long serialVersionUID = -5261429885680582412L;
 	private int day;
 	private int startingHour;
 	private int startingMinute;
@@ -48,6 +52,31 @@ public class Period implements Serializable
 			throw new IllegalArgumentException("The dates aren't in a valid order");
 		this.calendar = Calendar.getInstance(Locale.getDefault());
 		this.decimalFormat = new DecimalFormat("00");
+	}
+
+	private void readObject(final ObjectInputStream ois) throws IOException
+	{
+		int ver = ois.readInt();
+		if(ver == 1)
+		{
+			this.startingHour = ois.readInt();
+			this.startingMinute = ois.readInt();
+			this.endingHour = ois.readInt();
+			this.endingMinute = ois.readInt();
+			this.day = ois.readInt();
+		}
+		this.calendar = Calendar.getInstance(Locale.getDefault());
+		this.decimalFormat = new DecimalFormat("00");
+	}
+
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		oos.writeInt(SERIALIZATION_VERSION);
+		oos.writeInt(startingHour);
+		oos.writeInt(startingMinute);
+		oos.writeInt(endingHour);
+		oos.writeInt(endingMinute);
+		oos.writeInt(day);
 	}
 
 	/**

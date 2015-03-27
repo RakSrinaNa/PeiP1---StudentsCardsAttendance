@@ -1,6 +1,9 @@
 package fr.tours.polytech.DI.RFID.objects;
 
 import fr.tours.polytech.DI.RFID.utils.Utils;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
@@ -10,10 +13,11 @@ import java.io.Serializable;
  */
 public class Student implements Serializable, Comparable<Student>
 {
-	private static final long serialVersionUID = 546546596L;
-	private final String surname;
-	private final String firstname;
-	private final String uid;
+	private static final long serialVersionUID = -943925991658771299L;
+	private static final int SERIALIZATION_VERSION = 1;
+	private String surname;
+	private String firstname;
+	private String uid;
 
 	/**
 	 * Constructor.
@@ -27,6 +31,25 @@ public class Student implements Serializable, Comparable<Student>
 		this.uid = uid;
 		this.surname = Utils.capitalize(surname.toLowerCase().trim());
 		this.firstname = Utils.capitalize(firstname.toLowerCase().trim());
+	}
+
+	private void readObject(final ObjectInputStream ois) throws IOException
+	{
+		int ver = ois.readInt();
+		if(ver == 1)
+		{
+			this.uid = ois.readUTF();
+			this.firstname = ois.readUTF();
+			this.surname = ois.readUTF();
+		}
+	}
+
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		oos.writeInt(SERIALIZATION_VERSION);
+		oos.writeUTF(uid);
+		oos.writeUTF(firstname);
+		oos.writeUTF(surname);
 	}
 
 	/**

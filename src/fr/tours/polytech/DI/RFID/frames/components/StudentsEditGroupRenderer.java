@@ -14,6 +14,7 @@ import java.awt.*;
 public class StudentsEditGroupRenderer implements TableCellRenderer
 {
 	private final TableCellRenderer wrappedRenderer;
+	private final Color selected;
 
 	/**
 	 * Constructor.
@@ -23,17 +24,20 @@ public class StudentsEditGroupRenderer implements TableCellRenderer
 	public StudentsEditGroupRenderer(TableCellRenderer wrappedRenderer)
 	{
 		this.wrappedRenderer = wrappedRenderer;
+		UIDefaults defaults = javax.swing.UIManager.getDefaults();
+		selected = defaults.getColor("List.selectionBackground");
 	}
 
 	/**
 	 * Used to get the colour of the cell.
 	 *
 	 * @param value The value of the cell.
+	 * @param isSelected Either or not the cell is selected.
 	 * @return The color to set for this student.
 	 */
-	public Color getTableBackgroundColour(Student value)
+	public Color getTableBackgroundColour(Student value, boolean isSelected)
 	{
-		return Utils.getStudentByUID(value.getUid(), true) != null ? null : Color.ORANGE;
+		return isSelected ? selected : Utils.getStudentByUID(value.getUid(), true) != null ? null : Color.ORANGE;
 	}
 
 	/**
@@ -46,7 +50,7 @@ public class StudentsEditGroupRenderer implements TableCellRenderer
 	{
 		Component component = this.wrappedRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if(value instanceof Student)
-			component.setBackground(getTableBackgroundColour((Student) value));
+			component.setBackground(getTableBackgroundColour((Student) value, isSelected));
 		return component;
 	}
 }

@@ -13,9 +13,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Level;
 
 /**
@@ -60,6 +64,32 @@ public class GroupEditFrame extends JDialog
 				return String.class;
 			}
 		};
+		this.tableStudents.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				int rowindex = GroupEditFrame.this.tableStudents.getSelectedRow();
+				if(rowindex < 0)
+					return;
+				if(e.getExtendedKeyCode()!= KeyEvent.VK_DELETE)
+					return;
+				String name = GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().trim();
+				Student student = Utils.getStudentByName(name, true);
+				removeStudent(student, rowindex, name);
+				GroupEditFrame.this.tableStudents.setRowSelectionInterval(rowindex, rowindex);
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+			}
+		});
 		this.tableStudents.addMouseListener(new MouseListener()
 		{
 			@Override
@@ -142,6 +172,31 @@ public class GroupEditFrame extends JDialog
 				return String.class;
 			}
 		};
+		this.tablePeriods.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				int rowindex = GroupEditFrame.this.tablePeriods.getSelectedRow();
+				if(rowindex < 0)
+					return;
+				if(e.getExtendedKeyCode() != KeyEvent.VK_DELETE)
+					return;
+				Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
+				removePeriod(period, rowindex);
+				GroupEditFrame.this.tablePeriods.setRowSelectionInterval(rowindex, rowindex);
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+			}
+		});
 		this.tablePeriods.addMouseListener(new MouseListener()
 		{
 			@Override
@@ -384,6 +439,7 @@ public class GroupEditFrame extends JDialog
 	 */
 	private Student[][] getStudentsTableList(ArrayList<Student> students)
 	{
+		Collections.sort(students);
 		Student[][] student = new Student[students.size()][1];
 		int i = 0;
 		for(Student stu : students)

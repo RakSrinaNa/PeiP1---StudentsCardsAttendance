@@ -208,12 +208,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseReleased(MouseEvent event)
 			{
-				int row = MainFrame.this.tableChecked.rowAtPoint(event.getPoint());
-				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
-					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
-				else
-					MainFrame.this.tableChecked.clearSelection();
 				int rowindex = MainFrame.this.tableChecked.getSelectedRow();
+				MainFrame.this.tableChecked.clearSelection();
+				if(rowindex < 0)
+					return;
 				if(event.isPopupTrigger() && event.getComponent() instanceof JTable)
 				{
 					Student student = Utils.getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), false);

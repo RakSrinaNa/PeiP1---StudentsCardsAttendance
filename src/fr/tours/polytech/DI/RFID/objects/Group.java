@@ -410,4 +410,14 @@ public class Group implements Serializable
 			return Utils.resourceBundle.getString("not_in_period");
 		return currentPeriod.getRawTimeInterval();
 	}
+
+	/**
+	 * Verify if the the group have a correct name.
+	 *
+	 * @return True if it have a correct name, false if not.
+	 */
+	public boolean hasName()
+	{
+		return this.name != null && !this.name.equals("");
+	}
 }

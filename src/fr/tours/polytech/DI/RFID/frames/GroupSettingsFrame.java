@@ -233,6 +233,8 @@ public class GroupSettingsFrame extends JDialog
 	private void addGroup()
 	{
 		Group group = new Group(JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("group_name") + ":", ""));
+		if(!group.hasName())
+			return;
 		for(Group grp : groups)
 			if(grp.equals(group))
 			{

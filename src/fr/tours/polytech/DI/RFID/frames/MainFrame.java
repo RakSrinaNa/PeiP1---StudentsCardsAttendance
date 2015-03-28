@@ -509,7 +509,15 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					if(!Utils.containsStudent(vec, student))
 					{
 						mod = true;
-						SwingUtilities.invokeLater(() -> modelChecked.addRow(new Student[]{student}));
+						SwingUtilities.invokeLater(() -> {
+							try
+							{
+								modelChecked.addRow(new Student[]{student});
+							}
+							catch(Exception e)
+							{
+							}
+						});
 					}
 			for(int i = 0; i < modelChecked.getRowCount(); i++)
 				if(!Utils.containsStudent(toCheck, ((Student) modelChecked.getValueAt(i, 0))))

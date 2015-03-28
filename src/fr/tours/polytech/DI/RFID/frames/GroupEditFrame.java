@@ -288,13 +288,12 @@ public class GroupEditFrame extends JDialog
 			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("no_student"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		Student student = (Student) JOptionPane.showInputDialog(this, Utils.resourceBundle.getString("select_student") + ":", Utils.resourceBundle.getString("add_student"), JOptionPane.QUESTION_MESSAGE, null, students.toArray(new Student[students.size()]), students.get(0));
-		if(!group.addStudent(student))
-		{
-			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("already_in_list"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		modelStudents.addRow(new Student[]{student});
+		SelectListDialogFrame<Student> dialog = new SelectListDialogFrame(this, Utils.resourceBundle.getString("add_student"), Utils.resourceBundle.getString("select_student") + ":", students);
+		for(Student student : dialog.showDialog())
+			if(group.addStudent(student))
+				modelStudents.addRow(new Student[]{student});
+			else
+				JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("already_in_list"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 		modelStudents.fireTableDataChanged();
 	}
 

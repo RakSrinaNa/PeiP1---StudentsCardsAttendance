@@ -70,6 +70,7 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		getContentPane().setLayout(new GridBagLayout());
 		gcb.anchor = GridBagConstraints.PAGE_START;
 		gcb.fill = GridBagConstraints.BOTH;
+		gcb.insets = new Insets(2, 10, 2, 10);
 		gcb.weighty = 1;
 		gcb.weightx = 1;
 		gcb.gridheight = 1;
@@ -77,6 +78,7 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		gcb.gridx = 0;
 		gcb.gridy = line++;
 		this.getContentPane().add(messageLabel, gcb);
+		gcb.insets = new Insets(0, 0, 0, 0);
 		gcb.gridy = line++;
 		gcb.weighty = 100;
 		this.getContentPane().add(scrollPane, gcb);

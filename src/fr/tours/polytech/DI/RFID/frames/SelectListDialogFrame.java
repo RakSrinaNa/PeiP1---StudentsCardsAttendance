@@ -1,13 +1,9 @@
 package fr.tours.polytech.DI.RFID.frames;
 
-import fr.tours.polytech.DI.RFID.objects.Period;
-import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 /**

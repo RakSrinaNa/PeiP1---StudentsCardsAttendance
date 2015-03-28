@@ -5,6 +5,8 @@ import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * The frame for editting Periods.
@@ -43,18 +45,126 @@ public class PeriodDialogFrame extends JDialog
 		h1.setDocument(new TextFieldLimitNumbersDocument(2));
 		h1.setWrapStyleWord(true);
 		h1.setLineWrap(true);
+		h1.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					if(e.getModifiers() > 0)
+						h1.transferFocusBackward();
+					else
+						h1.transferFocus();
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+
+			}
+		});
 		h2 = new JTextArea();
 		h2.setDocument(new TextFieldLimitNumbersDocument(2));
 		h2.setWrapStyleWord(true);
 		h2.setLineWrap(true);
+		h2.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					if(e.getModifiers() > 0)
+						h2.transferFocusBackward();
+					else
+						h2.transferFocus();
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+
+			}
+		});
 		m1 = new JTextArea();
 		m1.setDocument(new TextFieldLimitNumbersDocument(2));
 		m1.setWrapStyleWord(true);
 		m1.setLineWrap(true);
+		m1.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					if(e.getModifiers() > 0)
+						m1.transferFocusBackward();
+					else
+						m1.transferFocus();
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+
+			}
+		});
 		m2 = new JTextArea();
 		m2.setDocument(new TextFieldLimitNumbersDocument(2));
 		m2.setWrapStyleWord(true);
 		m2.setLineWrap(true);
+		m2.addKeyListener(new KeyListener()
+		{
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					if(e.getModifiers() > 0)
+						m2.transferFocusBackward();
+					else
+						m2.transferFocus();
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+
+			}
+		});
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
 		valid.addActionListener(e -> {
 			try

@@ -574,7 +574,7 @@ public class Utils
 			if(file == null)
 				return;
 			int reply = JOptionPane.showConfirmDialog(null, "<html><p>" + resourceBundle.getString("import_csv_drop").replaceAll("\n", "<br />") + "</p></html>", resourceBundle.getString("import_csv_drop_title"), JOptionPane.YES_NO_OPTION);
-			if (reply == JOptionPane.YES_OPTION)
+			if(reply == JOptionPane.YES_OPTION)
 			{
 				sql.sendUpdateRequest("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
 				sql.createBaseTable();

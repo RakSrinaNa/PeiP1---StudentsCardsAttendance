@@ -2,7 +2,6 @@ package fr.tours.polytech.DI.RFID.frames;
 
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsEditGroupRenderer;
-import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -18,7 +17,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 
@@ -77,7 +75,7 @@ public class GroupEditFrame extends JDialog
 				int rowindex = GroupEditFrame.this.tableStudents.getSelectedRow();
 				if(rowindex < 0)
 					return;
-				if(e.getExtendedKeyCode()!= KeyEvent.VK_DELETE)
+				if(e.getExtendedKeyCode() != KeyEvent.VK_DELETE)
 					return;
 				String name = GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().trim();
 				Student student = Utils.getStudentByName(name, true);

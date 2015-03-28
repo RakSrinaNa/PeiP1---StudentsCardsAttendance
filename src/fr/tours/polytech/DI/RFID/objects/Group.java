@@ -408,9 +408,9 @@ public class Group implements Serializable
 		return this.name != null && !this.name.equals("");
 	}
 
-	public void writeAbsents()
+	public void writeAbsents(Period period)
 	{
-		Utils.writeAbsents(null, this.students, this.checkedStudents);
+		Utils.writeAbsents(period, this.students, this.checkedStudents);
 		this.checkedStudents.clear();
 	}
 }

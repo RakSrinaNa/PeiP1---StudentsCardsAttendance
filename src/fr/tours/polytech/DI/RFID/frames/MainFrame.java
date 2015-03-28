@@ -6,6 +6,7 @@ import fr.tours.polytech.DI.RFID.frames.components.ImagePanel;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.objects.Group;
+import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
@@ -48,6 +49,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private boolean checking;
 	public static Color backColor;
 	private boolean needRefresh;
+	private Date startCheck;
 
 	/**
 	 * Constructor.
@@ -111,6 +113,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		checking = false;
 		lastChecking = false;
 		needRefresh = false;
+		startCheck = new Date();
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
@@ -536,9 +539,17 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			else
 			{
-				if(lastChecking != checking && checking == false)
-					for(Group group : Utils.groups)
-						group.writeAbsents();
+				if(lastChecking != checking)
+				{
+					if(checking)
+						startCheck = date;
+					else
+					{
+						Period period = new Period(startCheck, date);
+						for(Group group : Utils.groups)
+							group.writeAbsents(period);
+					}
+				}
 				for(Group group : Utils.groups)
 					if(checking)
 						toCheck.addAll(group.getStudents());

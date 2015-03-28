@@ -54,6 +54,27 @@ public class Period implements Serializable
 		this.decimalFormat = new DecimalFormat("00");
 	}
 
+	/**
+	 * Constructor.
+	 *
+	 * @param start The starting date.
+	 * @param end The ending date.
+	 */
+	public Period(Date start, Date end) throws IllegalArgumentException
+	{
+		this.calendar = Calendar.getInstance(Locale.getDefault());
+		this.calendar.setTime(start);
+		this.day = getDayFromCalendar(calendar.get(Calendar.DAY_OF_WEEK));
+		this.startingHour = calendar.get(Calendar.HOUR_OF_DAY);
+		this.startingMinute = calendar.get(Calendar.MINUTE);
+		this.calendar.setTime(end);
+		this.endingHour = calendar.get(Calendar.HOUR_OF_DAY);
+		this.endingMinute = calendar.get(Calendar.MINUTE);
+		if(!isValidPeriod())
+			throw new IllegalArgumentException("The dates aren't in a valid order");
+		this.decimalFormat = new DecimalFormat("00");
+	}
+
 	private void readObject(final ObjectInputStream ois) throws IOException
 	{
 		int ver = ois.readInt();
@@ -176,6 +197,34 @@ public class Period implements Serializable
 				return isDaySet(SUNDAY);
 		}
 		return false;
+	}
+
+	/**
+	 * Used to know if a day from {@link Calendar} is set.
+	 *
+	 * @param day The day to test.
+	 * @return True if set, false if not.
+	 */
+	private int getDayFromCalendar(int day)
+	{
+		switch(day)
+		{
+			case Calendar.MONDAY:
+				return MONDAY;
+			case Calendar.TUESDAY:
+				return TUESDAY;
+			case Calendar.WEDNESDAY:
+				return WEDNESDAY;
+			case Calendar.THURSDAY:
+				return THURSDAY;
+			case Calendar.FRIDAY:
+				return FRIDAY;
+			case Calendar.SATURDAY:
+				return SATURDAY;
+			case Calendar.SUNDAY:
+				return SUNDAY;
+		}
+		return 0;
 	}
 
 	/**

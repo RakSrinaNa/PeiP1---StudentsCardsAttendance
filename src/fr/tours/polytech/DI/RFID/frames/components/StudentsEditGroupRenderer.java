@@ -11,7 +11,7 @@ import java.awt.*;
  *
  * @author COLEAU Victor, COUCHOUD Thomas
  */
-public class StudentsRenderer implements TableCellRenderer
+public class StudentsEditGroupRenderer implements TableCellRenderer
 {
 	private final TableCellRenderer wrappedRenderer;
 
@@ -20,7 +20,7 @@ public class StudentsRenderer implements TableCellRenderer
 	 *
 	 * @param wrappedRenderer The default renderer wrapped to the table.
 	 */
-	public StudentsRenderer(TableCellRenderer wrappedRenderer)
+	public StudentsEditGroupRenderer(TableCellRenderer wrappedRenderer)
 	{
 		this.wrappedRenderer = wrappedRenderer;
 	}
@@ -33,7 +33,7 @@ public class StudentsRenderer implements TableCellRenderer
 	 */
 	public Color getTableBackgroundColour(Student value)
 	{
-		return Utils.hasChecked(value) ? Color.GREEN : Color.ORANGE;
+		return Utils.getStudentByUID(value.getUid(), true) != null ? null : Color.ORANGE;
 	}
 
 	/**

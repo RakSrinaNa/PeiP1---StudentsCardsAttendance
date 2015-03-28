@@ -57,7 +57,6 @@ public class Group implements Serializable
 		}
 		ois.close();
 		group.removeNull();
-		group.removeUnknownStudents();
 		return group;
 	}
 
@@ -112,18 +111,6 @@ public class Group implements Serializable
 	{
 		students.remove(null);
 		periods.remove(null);
-	}
-
-	/**
-	 * Used to remove from students list unknown students from the database.
-	 */
-	private void removeUnknownStudents()
-	{
-		ArrayList<Student> toRemove = new ArrayList<>();
-		for(Student s : students)
-			if(Utils.getStudentByUID(s.getUid(), true) == null)
-				toRemove.add(s);
-		students.removeAll(toRemove);
 	}
 
 	/**

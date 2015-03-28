@@ -259,7 +259,7 @@ public class SQLManager
 		}
 		catch(MySQLIntegrityConstraintViolationException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request + " -> Already got the student", exception);
+			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request + " -> Already got the student");
 		}
 		catch(SQLException exception)
 		{

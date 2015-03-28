@@ -1,6 +1,8 @@
 package fr.tours.polytech.DI.RFID.frames;
 
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
+import fr.tours.polytech.DI.RFID.frames.components.StudentsEditGroupRenderer;
+import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.objects.Group;
 import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
@@ -110,7 +112,7 @@ public class GroupEditFrame extends JDialog
 				}
 			}
 		});
-		this.tableStudents.setDefaultRenderer(String.class, centerRenderer);
+		this.tableStudents.setDefaultRenderer(String.class, new StudentsEditGroupRenderer(centerRenderer));
 		this.tableStudents.getTableHeader().setReorderingAllowed(false);
 		this.tableStudents.getTableHeader().setResizingAllowed(true);
 		this.tableStudents.setRowHeight(20);
@@ -127,6 +129,8 @@ public class GroupEditFrame extends JDialog
 		sorter.setSortKeys(sortKeys);
 		sorter.sort();
 		/**************************************************************************/
+		DefaultTableCellRenderer centerRenderer2 = new DefaultTableCellRenderer();
+		centerRenderer2.setHorizontalAlignment(JLabel.CENTER);
 		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{Utils.resourceBundle.getString("periods")});
 		this.tablePeriods = new JTable(this.modelPeriods)
 		{
@@ -200,7 +204,7 @@ public class GroupEditFrame extends JDialog
 				}
 			}
 		});
-		this.tablePeriods.setDefaultRenderer(String.class, centerRenderer);
+		this.tablePeriods.setDefaultRenderer(String.class, centerRenderer2);
 		this.tablePeriods.getTableHeader().setReorderingAllowed(false);
 		this.tablePeriods.getTableHeader().setResizingAllowed(true);
 		this.tablePeriods.setRowHeight(20);

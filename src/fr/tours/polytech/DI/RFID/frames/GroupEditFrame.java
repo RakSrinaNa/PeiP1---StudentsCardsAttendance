@@ -8,6 +8,8 @@ import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -118,6 +120,12 @@ public class GroupEditFrame extends JDialog
 		JScrollPane scrollPaneStudents = new JScrollPane(this.tableStudents);
 		scrollPaneStudents.setAutoscrolls(false);
 		scrollPaneStudents.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableStudents.getModel());
+		tableStudents.setRowSorter(sorter);
+		ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
+		sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+		sorter.setSortKeys(sortKeys);
+		sorter.sort();
 		/**************************************************************************/
 		this.modelPeriods = new JTableUneditableModel(getPeriodsTableList(group.getPeriods()), new String[]{Utils.resourceBundle.getString("periods")});
 		this.tablePeriods = new JTable(this.modelPeriods)

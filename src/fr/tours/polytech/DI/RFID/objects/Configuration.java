@@ -9,7 +9,7 @@ import java.io.*;
  */
 public class Configuration implements Serializable
 {
-	private static final int SERIALIZATION_VERSION = 1;
+	private static final int SERIALIZATION_VERSION = 2;
 	private static final long serialVersionUID = 8289555994600359883L;
 	private String bddUser;
 	private String bddPassword;
@@ -17,6 +17,7 @@ public class Configuration implements Serializable
 	private String bddTableName;
 	private String bddIP;
 	private int bddPort;
+	private int launchMode;
 	private boolean logAll;
 	private boolean addNewStudents;
 
@@ -33,6 +34,7 @@ public class Configuration implements Serializable
 		this.setBddPort(3306);
 		this.setLogAll(true);
 		this.setAddNewStudents(true);
+		this.setLaunchMode(0);
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class Configuration implements Serializable
 	private void readObject(final ObjectInputStream ois) throws IOException
 	{
 		int ver = ois.readInt();
-		if(ver == 1)
+		if(ver >= 1)
 		{
 			this.bddUser = ois.readUTF();
 			this.bddPassword = ois.readUTF();
@@ -71,6 +73,10 @@ public class Configuration implements Serializable
 			this.bddPort = ois.readInt();
 			this.logAll = ois.readBoolean();
 			this.addNewStudents = ois.readBoolean();
+		}
+		if(ver >= 2)
+		{
+			this.launchMode = ois.readInt();
 		}
 	}
 
@@ -85,6 +91,7 @@ public class Configuration implements Serializable
 		oos.writeInt(bddPort);
 		oos.writeBoolean(logAll);
 		oos.writeBoolean(addNewStudents);
+		oos.writeInt(launchMode);
 	}
 
 	/**
@@ -266,5 +273,15 @@ public class Configuration implements Serializable
 	public void setBddTableName(String bddTableName)
 	{
 		this.bddTableName = bddTableName;
+	}
+
+	public int getLaunchMode()
+	{
+		return launchMode;
+	}
+
+	public void setLaunchMode(int launchMode)
+	{
+		this.launchMode = launchMode;
 	}
 }

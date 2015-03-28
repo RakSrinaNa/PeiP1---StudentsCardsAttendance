@@ -35,6 +35,7 @@ public class Utils
 	public static Configuration configuration;
 	private static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
+	public static int mode;
 
 	/**
 	 * Call when we need to exit the program.
@@ -45,7 +46,8 @@ public class Utils
 	public static void exit(int exitStaus)
 	{
 		mainFrame.exit();
-		Group.saveGroups(Utils.groups);
+		if(mode == 0)
+			Group.saveGroups(Utils.groups);
 		configuration.serialize(new File(baseFile, "configuration"));
 		terminalReader.stop();
 		System.exit(exitStaus);
@@ -239,10 +241,20 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
+		mode = configuration.getLaunchMode();
 		terminalReader = new TerminalReader("Contactless");
 		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 		students = Utils.sql.getAllStudents();
-		groups = Group.loadGroups();
+		if(mode == 0)
+			groups = Group.loadGroups();
+		else
+		{
+			groups = new ArrayList<>();
+			Group g = new Group(Utils.resourceBundle.getString("students"));
+			for(Student s : students)
+				g.addStudent(s);
+			groups.add(g);
+		}
 		mainFrame = new MainFrame();
 		terminalReader.addListener(mainFrame);
 	}
@@ -393,9 +405,9 @@ public class Utils
 							exception.printStackTrace();
 						}
 					}
-					List<String> lines = readTextFile(file);
 					String last = "";
-					if(lines.size() > 0 && lines.get(lines.size() - 1).startsWith("Total"))
+					List<String> lines = readTextFile(file);
+					if(period != null && lines.size() > 0 && lines.get(lines.size() - 1).startsWith("Total"))
 					{
 						last = lines.get(lines.size() - 1);
 						lines.remove(lines.size() - 1);
@@ -407,21 +419,29 @@ public class Utils
 						printWriter.println(line);
 					printWriter.print(dateFormat.format(date));
 					printWriter.print(";");
-					printWriter.print(period.getRawTimeInterval());
-					printWriter.print(";");
 					printWriter.print(student.getName());
-					printWriter.print(";");
-					printWriter.print(period.getDurationString());
-					printWriter.println();
-					if(last.equals(""))
-						printWriter.println("Total;" + period.getDurationString());
-					else
+					if(period != null)
 					{
-						String[] vals = last.split(";");
-						String duration = vals[vals.length - 1];
-						int timeLast = stringToDuration(duration);
-						int timeNow = (int) period.getDuration();
-						printWriter.println("Total;" + durationToString(timeLast + timeNow));
+						printWriter.print(";");
+						printWriter.print(period.getRawTimeInterval());
+						printWriter.print(";");
+						printWriter.print(period.getDurationString());
+					}
+					printWriter.println();
+					if(period != null)
+					{
+						if(last.equals(""))
+						{
+							printWriter.println("Total;" + period.getDurationString());
+						}
+						else
+						{
+							String[] vals = last.split(";");
+							String duration = vals[vals.length - 1];
+							int timeLast = stringToDuration(duration);
+							int timeNow = (int) period.getDuration();
+							printWriter.println("Total;" + durationToString(timeLast + timeNow));
+						}
 					}
 				}
 				catch(Exception exception)
@@ -488,18 +508,22 @@ public class Utils
 	{
 		if(collection == null || collection.size() < 1)
 			return false;
-		if(collection.iterator().next() instanceof Vector)
-			for(Object obj : collection)
-			{
-				Vector<Student> vec = (Vector<Student>) obj;
-				for(Student stu : vec)
-					if(stu.equals(student))
+		try
+		{
+			if(collection.iterator().next() instanceof Vector)
+				for(Object obj : collection)
+				{
+					Vector<Student> vec = (Vector<Student>) obj;
+					for(Student stu : vec)
+						if(stu.equals(student))
+							return true;
+				}
+			else
+				for(Student stu : (Collection<Student>) collection)
+					if(stu != null && stu.equals(student))
 						return true;
-			}
-		else
-			for(Student stu : (Collection<Student>) collection)
-				if(stu != null && stu.equals(student))
-					return true;
+		}
+		catch(ConcurrentModificationException e){}
 		return false;
 	}
 

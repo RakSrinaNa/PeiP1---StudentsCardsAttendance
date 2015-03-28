@@ -44,7 +44,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JTable tableChecked;
 	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
+	private boolean lastChecking;
+	private boolean checking;
 	public static Color backColor;
+	private boolean needRefresh;
 
 	/**
 	 * Constructor.
@@ -105,6 +108,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				setStaffInfos(!staffPanel.isVisible());
 			}
 		});
+		checking = false;
+		lastChecking = false;
+		needRefresh = false;
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
@@ -142,6 +148,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuBar.add(menuHelp);
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
+		JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
+		startButton.addActionListener(e -> {
+			checking = !checking;
+			startButton.setText(Utils.resourceBundle.getString(checking ? "button_stop" : "button_start"));
+		});
+		startButton.setVisible(Utils.mode == 1);
 		this.cardTextLabel = new JLabel();
 		this.cardTextLabel.setVerticalAlignment(JLabel.CENTER);
 		this.cardTextLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -210,6 +222,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseReleased(MouseEvent event)
 			{
+				int row = MainFrame.this.tableChecked.rowAtPoint(event.getPoint());
+				if(row >= 0 && row < MainFrame.this.tableChecked.getRowCount())
+					MainFrame.this.tableChecked.setRowSelectionInterval(row, row);
+				else
+					MainFrame.this.tableChecked.clearSelection();
 				int rowindex = MainFrame.this.tableChecked.getSelectedRow();
 				MainFrame.this.tableChecked.clearSelection();
 				if(rowindex < 0)
@@ -219,7 +236,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					Student student = Utils.getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), false);
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem checkStudent = new JMenuItem(Utils.resourceBundle.getString("check_student"));
-					checkStudent.addActionListener(event1 -> {
+					checkStudent.addActionListener(event1 ->
+					{
 						try
 						{
 							Utils.checkStudent(student);
@@ -230,7 +248,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						}
 					});
 					JMenuItem uncheckStudent = new JMenuItem(Utils.resourceBundle.getString("uncheck_student"));
-					uncheckStudent.addActionListener(event1 -> {
+					uncheckStudent.addActionListener(event1 ->
+					{
 						try
 						{
 							Utils.uncheckStudent(student);
@@ -291,17 +310,24 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JPanel panelSettings = new JPanel(new BorderLayout());
 		panelSettings.setBackground(backColor);
-		JCheckBox addNewCardCheck = new JCheckBox("<html><p align=\"center\">" + Utils.resourceBundle.getString("add_new_card") + "</p></html>");
+		JCheckBox addNewCardCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("add_new_card") + "</p></html>");
 		addNewCardCheck.setBackground(backColor);
 		addNewCardCheck.setSelected(Utils.configuration.isAddNewStudents());
 		addNewCardCheck.addActionListener(event -> Utils.configuration.setAddNewStudents(((JCheckBox) event.getSource()).isSelected()));
-		JCheckBox logAllCheck = new JCheckBox(Utils.resourceBundle.getString("log_all"));
+		JCheckBox logAllCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("log_all") + "</p></html>");
 		logAllCheck.setBackground(backColor);
 		logAllCheck.setSelected(Utils.configuration.isLogAll());
 		logAllCheck.addActionListener(event -> Utils.configuration.setLogAll(((JCheckBox) event.getSource()).isSelected()));
+		JCheckBox modeMedecineCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("mode_medecine").replaceAll("\n", "<br />") + "<br />(" + Utils.resourceBundle.getString("restart_required") + ")</p></html>");
+		modeMedecineCheck.setBackground(backColor);
+		modeMedecineCheck.setSelected(Utils.mode == 1);
+		modeMedecineCheck.addActionListener(event -> {
+			Utils.configuration.setLaunchMode(((JCheckBox) event.getSource()).isSelected() ? 1 : 0);
+		});
 		JButton groupSettings = new JButton(Utils.resourceBundle.getString("group_settings"));
 		groupSettings.setBackground(backColor);
 		groupSettings.addActionListener(event -> new GroupSettingsFrame(MainFrame.this, Utils.groups));
+		groupSettings.setEnabled(Utils.configuration.getLaunchMode() == 0);
 		JButton sqlSettings = new JButton(Utils.resourceBundle.getString("sql_settings"));
 		sqlSettings.setBackground(backColor);
 		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
@@ -323,6 +349,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(addNewCardCheck, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(logAllCheck, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(modeMedecineCheck, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JScrollPane scrollPaneChecked = new JScrollPane(this.tableChecked);
 		scrollPaneChecked.setAutoscrolls(false);
@@ -348,6 +376,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.fill = GridBagConstraints.BOTH;
 		gcb.gridx = 1;
 		getContentPane().add(groupsInfoLabel, gcb);
+		gcb.gridy = line++;
+		getContentPane().add(startButton, gcb);
 		gcb.gridwidth = 1;
 		gcb.weighty = 10;
 		gcb.weightx = 1;
@@ -493,15 +523,27 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
 			ArrayList<Student> toCheck = new ArrayList<>();
-			for(Group group : Utils.groups)
+			boolean mod = false;
+			if(Utils.mode == 0)
 			{
-				group.update();
-				toCheck.addAll(group.getAllToCheck());
-				if(group.isCurrentlyPeriod())
-					groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
+				for(Group group : Utils.groups)
+				{
+					group.update();
+					toCheck.addAll(group.getAllToCheck());
+					if(group.isCurrentlyPeriod())
+						groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
+				}
+			}
+			else
+			{
+				if(lastChecking != checking && checking == false)
+					for(Group group : Utils.groups)
+						group.writeAbsents();
+				for(Group group : Utils.groups)
+					if(checking)
+						toCheck.addAll(group.getStudents());
 			}
 			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
-			boolean mod = false;
 			Utils.removeDuplicates(toCheck);
 			Vector vec = modelChecked.getDataVector();
 			for(Student student : toCheck)
@@ -525,8 +567,17 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					mod = true;
 					modelChecked.removeRow(i);
 				}
-			if(mod)
-				modelChecked.fireTableDataChanged();
+			if(mod || needRefresh)
+				try
+				{
+					modelChecked.fireTableDataChanged();
+					needRefresh = false;
+				}
+				catch(NullPointerException e)
+				{
+					needRefresh = true;
+				}
+			lastChecking = checking;
 		}
 	}
 

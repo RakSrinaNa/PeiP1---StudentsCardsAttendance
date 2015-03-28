@@ -151,7 +151,7 @@ public class Group implements Serializable
 	 */
 	public boolean checkStudent(Student student)
 	{
-		return isCurrentlyPeriod() && !Utils.containsStudent(checkedStudents, student) && this.checkedStudents.add(student);
+		return (Utils.mode == 1 || isCurrentlyPeriod()) && !Utils.containsStudent(checkedStudents, student) && this.checkedStudents.add(student);
 	}
 
 	/**
@@ -406,5 +406,11 @@ public class Group implements Serializable
 	public boolean hasName()
 	{
 		return this.name != null && !this.name.equals("");
+	}
+
+	public void writeAbsents()
+	{
+		Utils.writeAbsents(null, this.students, this.checkedStudents);
+		this.checkedStudents.clear();
 	}
 }

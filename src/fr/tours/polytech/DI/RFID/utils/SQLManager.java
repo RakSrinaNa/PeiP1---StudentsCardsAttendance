@@ -1,5 +1,6 @@
 package fr.tours.polytech.DI.RFID.utils;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import java.sql.*;
@@ -159,7 +160,7 @@ public class SQLManager
 	 *
 	 * @return How many lines were modified by the request.
 	 */
-	private int createBaseTable()
+	public int createBaseTable()
 	{
 		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + this.UID_LABEL + " varchar(18), " + this.SURNAME_LABEL + " varchar(255), " + this.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 	}
@@ -255,6 +256,10 @@ public class SQLManager
 			login();
 			if(retry)
 				return sendUpdateRequest(request, false);
+		}
+		catch(MySQLIntegrityConstraintViolationException exception)
+		{
+			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request + " -> Already got the student", exception);
 		}
 		catch(SQLException exception)
 		{

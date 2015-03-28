@@ -566,13 +566,19 @@ public class Utils
 		return sb.toString();
 	}
 
-	public static void importCSV(MainFrame parent)
+	public static void importCSV(JFrame parent)
 	{
 		try
 		{
 			File file = getNewFilePatch(baseFile, JFileChooser.FILES_ONLY, new FileNameExtensionFilter(Utils.resourceBundle.getString("open_csv_description_file"), "csv"));
 			if(file == null)
 				return;
+			int reply = JOptionPane.showConfirmDialog(null, "<html><p>" + resourceBundle.getString("import_csv_drop").replaceAll("\n", "<br />") + "</p></html>", resourceBundle.getString("import_csv_drop_title"), JOptionPane.YES_NO_OPTION);
+			if (reply == JOptionPane.YES_OPTION)
+			{
+				sql.sendUpdateRequest("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
+				sql.createBaseTable();
+			}
 			List<String> lines = readTextFile(file);
 			String[] columns = lines.get(0).split(";");
 			lines.remove(0);

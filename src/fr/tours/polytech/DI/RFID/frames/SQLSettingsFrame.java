@@ -13,6 +13,7 @@ import java.awt.event.WindowListener;
  */
 public class SQLSettingsFrame extends JDialog
 {
+	private static final long serialVersionUID = 4338843790906987061L;
 	private final JTextArea dbName;
 	private final JTextArea dbIP;
 	private final JTextArea dbPort;

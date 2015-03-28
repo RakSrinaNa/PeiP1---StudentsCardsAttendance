@@ -15,6 +15,7 @@ import java.awt.event.KeyListener;
  */
 public class PeriodDialogFrame extends JDialog
 {
+	private static final long serialVersionUID = 5964100179648537443L;
 	private final JTextArea h1, h2, m1, m2;
 	private final JCheckBox w1, w2, w3, w4, w5, w6, w7;
 	private Period result;

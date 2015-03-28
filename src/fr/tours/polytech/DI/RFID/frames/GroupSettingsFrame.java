@@ -21,6 +21,7 @@ import java.util.logging.Level;
  */
 public class GroupSettingsFrame extends JDialog
 {
+	private static final long serialVersionUID = 937868122855164931L;
 	private final JTable tableGroups;
 	private final JTableUneditableModel modelGroups;
 	private final ArrayList<Group> groups;

@@ -97,6 +97,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control alt P"), "openStaff");
 		getRootPane().getActionMap().put("openStaff", new AbstractAction()
 		{
+			private static final long serialVersionUID = -8761878907892686344L;
+
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{

@@ -13,6 +13,7 @@ import java.util.Collections;
  */
 public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 {
+	private static final long serialVersionUID = -4975467385097291879L;
 	private ArrayList<T> result;
 
 	/**
@@ -36,6 +37,8 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		JList list = new JList(elements.toArray());
 		list.setSelectionModel(new DefaultListSelectionModel()
 		{
+			private static final long serialVersionUID = -289079798608833048L;
+
 			@Override
 			public void setSelectionInterval(int index0, int index1)
 			{

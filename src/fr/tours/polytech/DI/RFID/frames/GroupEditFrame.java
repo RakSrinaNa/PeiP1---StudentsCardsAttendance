@@ -27,6 +27,7 @@ import java.util.logging.Level;
  */
 public class GroupEditFrame extends JDialog
 {
+	private static final long serialVersionUID = 9133860717845268188L;
 	private final JTable tableStudents;
 	private final JTable tablePeriods;
 	private final JTableUneditableModel modelPeriods;

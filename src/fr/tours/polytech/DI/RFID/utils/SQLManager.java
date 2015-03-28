@@ -79,7 +79,7 @@ public class SQLManager
 	 */
 	public void addStudentToDatabase(Student student)
 	{
-		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + this.UID_LABEL + "," + this.FIRSTNAME_LABEL + "," + this.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\")");
+		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + UID_LABEL + "," + FIRSTNAME_LABEL + "," + SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\")");
 	}
 
 	/**
@@ -91,11 +91,11 @@ public class SQLManager
 	 */
 	public Student getStudentByName(String surname, String firstname)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + " FROM " + this.tableName + " WHERE " + this.FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + this.SURNAME_LABEL + " = \"" + surname + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + " FROM " + this.tableName + " WHERE " + FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + SURNAME_LABEL + " = \"" + surname + "\";");
 		try
 		{
 			if(result.next())
-				return new Student(result.getString(this.UID_LABEL), surname, firstname);
+				return new Student(result.getString(UID_LABEL), surname, firstname);
 		}
 		catch(SQLException exception)
 		{
@@ -115,11 +115,11 @@ public class SQLManager
 	 */
 	public Student getStudentByUID(String uid)
 	{
-		ResultSet result = sendQueryRequest("SELECT " + this.SURNAME_LABEL + ", " + this.FIRSTNAME_LABEL + " FROM " + this.tableName + " WHERE " + this.UID_LABEL + " = \"" + uid + "\";");
+		ResultSet result = sendQueryRequest("SELECT " + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + " WHERE " + UID_LABEL + " = \"" + uid + "\";");
 		try
 		{
 			if(result.next())
-				return new Student(uid, result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL));
+				return new Student(uid, result.getString(SURNAME_LABEL), result.getString(FIRSTNAME_LABEL));
 		}
 		catch(NullPointerException e)
 		{
@@ -162,7 +162,7 @@ public class SQLManager
 	 */
 	public int createBaseTable()
 	{
-		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + this.UID_LABEL + " varchar(18), " + this.SURNAME_LABEL + " varchar(255), " + this.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + this.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + UID_LABEL + " varchar(18), " + SURNAME_LABEL + " varchar(255), " + FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 	}
 
 	/**
@@ -276,11 +276,11 @@ public class SQLManager
 	public ArrayList<Student> getAllStudents()
 	{
 		ArrayList<Student> students = new ArrayList<>();
-		ResultSet result = sendQueryRequest("SELECT " + this.UID_LABEL + "," + this.SURNAME_LABEL + ", " + this.FIRSTNAME_LABEL + " FROM " + this.tableName + ";");
+		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + "," + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + ";");
 		try
 		{
 			while(result.next())
-				students.add(new Student(result.getString(this.UID_LABEL), result.getString(this.SURNAME_LABEL), result.getString(this.FIRSTNAME_LABEL)));
+				students.add(new Student(result.getString(UID_LABEL), result.getString(SURNAME_LABEL), result.getString(FIRSTNAME_LABEL)));
 		}
 		catch(NullPointerException e)
 		{

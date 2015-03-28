@@ -90,16 +90,6 @@ public class Period implements Serializable
 	}
 
 	/**
-	 * Used to get a String representing this interval whith days.
-	 *
-	 * @return A string formatted as <b>xxHxx - yyHyy (days)</b>
-	 */
-	public String getTimeInterval()
-	{
-		return this.startingHour + "H" + this.decimalFormat.format(this.startingMinute) + " - " + this.endingHour + "H" + this.decimalFormat.format(this.endingMinute) + " (" + getDaysText() + ")";
-	}
-
-	/**
 	 * Used to get the short name of the day sets.
 	 *
 	 * @return A string of teh days.

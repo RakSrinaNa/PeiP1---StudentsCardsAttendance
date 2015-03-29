@@ -28,9 +28,16 @@ public class Student implements Serializable, Comparable<Student>
 	 */
 	public Student(String uid, String surname, String firstname)
 	{
-		this.uid = uid;
+		this.uid = getValidUID(uid);
 		this.surname = Utils.capitalize(surname.toLowerCase().trim());
 		this.firstname = Utils.capitalize(firstname.toLowerCase().trim());
+	}
+
+	private String getValidUID(String uid)
+	{
+		while(uid.length() < 14)
+			uid = "0" + uid;
+		return uid;
 	}
 
 	private void readObject(final ObjectInputStream ois) throws IOException

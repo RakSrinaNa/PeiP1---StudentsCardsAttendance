@@ -18,3 +18,4 @@ out/*
 .idea/libraries/Maven__org_apache_commons_commons_lang3_3_3_2.xml
 classes/*
 RFID/absents/*
+RFID/Log/checked_*.csv

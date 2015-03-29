@@ -45,6 +45,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JTable tableChecked;
 	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
+	private boolean cardPresent;
 	private boolean lastChecking;
 	private boolean checking;
 	public static Color backColor;
@@ -61,6 +62,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(800, 600));
+		checking = false;
+		lastChecking = false;
+		needRefresh = false;
+		cardPresent = false;
+		startCheck = new Date();
 		addWindowListener(new WindowListener()
 		{
 			@Override
@@ -110,10 +116,18 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				setStaffInfos(!staffPanel.isVisible());
 			}
 		});
-		checking = false;
-		lastChecking = false;
-		needRefresh = false;
-		startCheck = new Date();
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control alt C"), "card");
+		getRootPane().getActionMap().put("card", new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if(!cardPresent)
+					cardAdded(new RFIDCard("", JOptionPane.showInputDialog(MainFrame.this, "Entrez l'UID de la carte:", "Simuler une carte", JOptionPane.QUESTION_MESSAGE), null));
+				else
+					cardRemoved();
+			}
+		});
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
@@ -414,6 +428,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	@Override
 	public void cardAdded(RFIDCard rfidCard)
 	{
+		cardPresent = true;
 		Student student = Utils.getStudentByUID(rfidCard.getUid(), true);
 		if(student == null)
 		{
@@ -471,6 +486,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	@Override
 	public void cardRemoved()
 	{
+		cardPresent = false;
 		this.cardPanel.setBackground(Color.ORANGE);
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("no_card"));
 	}
@@ -514,7 +530,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						{
 							this.cardPanel.setBackground(Color.GREEN);
 							this.cardTextLabel.setText(Utils.resourceBundle.getString("sql_connected"));
-							Utils.students = Utils.removeDuplicates(Utils.sql.getAllStudents());
+							Utils.students.addAll(Utils.removeDuplicates(Utils.sql.getAllStudents()));
+							if(Utils.mode == 1)
+								for(Group g : Utils.groups)
+									for(Student s : Utils.students)
+										g.addStudent(s);
 						}
 					}
 				}

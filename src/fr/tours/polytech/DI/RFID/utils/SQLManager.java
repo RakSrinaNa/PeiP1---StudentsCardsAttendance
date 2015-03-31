@@ -276,7 +276,7 @@ public class SQLManager
 	public ArrayList<Student> getAllStudents()
 	{
 		ArrayList<Student> students = new ArrayList<>();
-		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + "," + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + ";");
+		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + "," + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + " ORDER BY" + SURNAME_LABEL + "," + FIRSTNAME_LABEL + ";");
 		try
 		{
 			while(result.next())

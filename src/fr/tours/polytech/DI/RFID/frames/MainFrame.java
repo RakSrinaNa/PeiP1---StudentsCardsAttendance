@@ -348,6 +348,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JButton sqlSettings = new JButton(Utils.resourceBundle.getString("sql_settings"));
 		sqlSettings.setBackground(backColor);
 		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
+		JButton readerSelect = new JButton(Utils.resourceBundle.getString("select_reader"));
+		readerSelect.setBackground(backColor);
+		readerSelect.addActionListener(event ->
+		{
+			ArrayList<String> selected = new ArrayList<>();
+			selected.add(Utils.configuration.getReaderName());
+			ArrayList<String> selection = new SelectListDialogFrame<String>(MainFrame.this, Utils.resourceBundle.getString("select_reader"), Utils.resourceBundle.getString("selection_reader"), Utils.terminalReader.getReadersName(), selected, false).showDialog();
+			if(selection!= null && selection.size() > 0)
+			{
+				Utils.configuration.setReaderName(selection.get(0));
+				Utils.terminalReader.setTerminalName(selection.get(0));
+			}
+		});
 		line = 0;
 		gcb = new GridBagConstraints();
 		gcb.anchor = GridBagConstraints.CENTER;
@@ -362,6 +375,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(groupSettings, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(sqlSettings, gcb);
+		gcb.gridy = line++;
+		this.staffPanel.add(readerSelect, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(addNewCardCheck, gcb);
 		gcb.gridy = line++;

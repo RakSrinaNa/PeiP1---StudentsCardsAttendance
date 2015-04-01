@@ -9,13 +9,14 @@ import java.io.*;
  */
 public class Configuration implements Serializable
 {
-	private static final int SERIALIZATION_VERSION = 2;
+	private static final int SERIALIZATION_VERSION = 3;
 	private static final long serialVersionUID = 8289555994600359883L;
 	private String bddUser;
 	private String bddPassword;
 	private String bddName;
 	private String bddTableName;
 	private String bddIP;
+	private String readerName;
 	private int bddPort;
 	private int launchMode;
 	private boolean logAll;
@@ -32,6 +33,7 @@ public class Configuration implements Serializable
 		this.setBddTableName("name");
 		this.setBddIP("127.0.0.1");
 		this.setBddPort(3306);
+		this.setReaderName("");
 		this.setLogAll(true);
 		this.setAddNewStudents(true);
 		this.setLaunchMode(0);
@@ -75,9 +77,9 @@ public class Configuration implements Serializable
 			this.addNewStudents = ois.readBoolean();
 		}
 		if(ver >= 2)
-		{
 			this.launchMode = ois.readInt();
-		}
+		if(ver >= 3)
+			this.readerName = ois.readUTF();
 	}
 
 	private void writeObject(final ObjectOutputStream oos) throws IOException
@@ -92,6 +94,7 @@ public class Configuration implements Serializable
 		oos.writeBoolean(logAll);
 		oos.writeBoolean(addNewStudents);
 		oos.writeInt(launchMode);
+		oos.writeUTF(readerName);
 	}
 
 	/**
@@ -275,13 +278,43 @@ public class Configuration implements Serializable
 		this.bddTableName = bddTableName;
 	}
 
+	/**
+	 * Used to get the launch mode.
+	 *
+	 * @return The launch mode.
+	 */
 	public int getLaunchMode()
 	{
 		return launchMode;
 	}
 
+	/**
+	 * Used to set the launch mode.
+	 *
+	 * @param launchMode The launch mode to set.
+	 */
 	public void setLaunchMode(int launchMode)
 	{
 		this.launchMode = launchMode;
+	}
+
+	/**
+	 * Used to get the reader name.
+	 *
+	 * @return The reader name.
+	 */
+	public String getReaderName()
+	{
+		return readerName;
+	}
+
+	/**
+	 * Used to set the reader name.
+	 *
+	 * @param readerName The reader name.
+	 */
+	public void setReaderName(String readerName)
+	{
+		this.readerName = readerName;
 	}
 }

@@ -29,9 +29,10 @@ import java.util.logging.Logger;
 public class TerminalReader implements Runnable
 {
 	private final ArrayList<TerminalListener> listenersTerminal;
-	private final String terminalName;
+	private String terminalName;
 	private final Thread thread;
 	private final Logger logger;
+	private final TerminalFactory terminalFactory;
 	private boolean isPresent;
 	private RFIDCard lastCard;
 
@@ -48,6 +49,7 @@ public class TerminalReader implements Runnable
 		this.thread = new Thread(this);
 		this.thread.setName("TerminalReader");
 		this.thread.start();
+		terminalFactory = TerminalFactory.getDefault();
 	}
 
 	/**
@@ -95,9 +97,16 @@ public class TerminalReader implements Runnable
 	@Override
 	public void run()
 	{
-		final TerminalFactory terminalFactory = TerminalFactory.getDefault();
 		while(!Thread.interrupted())
 		{
+			if(terminalFactory == null)
+				try
+				{
+					Thread.sleep(500);
+				}
+				catch(InterruptedException e)
+				{
+				}
 			boolean lastPresent = this.isPresent;
 			try
 			{
@@ -106,7 +115,7 @@ public class TerminalReader implements Runnable
 				try
 				{
 					for(CardTerminal terminal : terminalList.list())
-						if(terminal.getName().contains(this.terminalName))
+						if(terminal.getName().equals(this.terminalName))
 						{
 							cardTerminal = terminal;
 							this.isPresent = true;
@@ -176,5 +185,34 @@ public class TerminalReader implements Runnable
 		ResponseAPDU response = cardChannel.transmit(command);
 		logger.log(Level.INFO, "Got response : " + APDUResponse.getErrorString(response.getSW()));
 		return new RFIDCard(bytesToHex(card.getATR().getBytes()), bytesToHex(response.getData()), cardChannel);
+	}
+
+	/**
+	 * Used to get the name of the readers connected.
+	 *
+	 * @return A list of the names.
+	 */
+	public ArrayList<String> getReadersName()
+	{
+		ArrayList<String> list = new ArrayList<>();
+		try
+		{
+			for(CardTerminal terminal : terminalFactory.terminals().list())
+				list.add(terminal.getName());
+		}
+		catch(CardException exception)
+		{
+		}
+		return list;
+	}
+
+	/**
+	 * Used to set the terminal name.
+	 *
+	 * @param terminalName The terminal name to set.
+	 */
+	public void setTerminalName(String terminalName)
+	{
+		this.terminalName = terminalName;
 	}
 }

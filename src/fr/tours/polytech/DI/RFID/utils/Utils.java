@@ -33,7 +33,7 @@ public class Utils
 	public static ArrayList<BufferedImage> icons;
 	public static File baseFile;
 	public static Configuration configuration;
-	private static TerminalReader terminalReader;
+	public static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
 	public static int mode;
 

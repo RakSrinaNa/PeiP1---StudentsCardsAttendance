@@ -23,10 +23,16 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 	 * @param title The title of the frame.
 	 * @param message The message to show.
 	 * @param elements The elements that will populate the list.
+	 * @param selected The selected elements.
+	 * @param multipleSelection Allow or not to select multiple items.
+	 *
+	 * @throws IllegalArgumentException If the element list is null.
 	 */
-	public SelectListDialogFrame(Window parent, String title, String message, ArrayList<T> elements)
+	public SelectListDialogFrame(Window parent, String title, String message, final ArrayList<T> elements, ArrayList<T> selected, boolean multipleSelection) throws IllegalArgumentException
 	{
 		super(parent);
+		if(elements == null)
+			throw new IllegalArgumentException("The element list can't be null!");
 		Collections.sort(elements);
 		Color color = MainFrame.backColor;
 		this.setTitle(title);
@@ -35,19 +41,29 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		this.getContentPane().setLayout(new GridBagLayout());
 		/**************************************************************************/
 		JList list = new JList(elements.toArray());
-		list.setSelectionModel(new DefaultListSelectionModel()
-		{
-			private static final long serialVersionUID = -289079798608833048L;
-
-			@Override
-			public void setSelectionInterval(int index0, int index1)
+		if(!multipleSelection)
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		else
+			list.setSelectionModel(new DefaultListSelectionModel()
 			{
-				if(super.isSelectedIndex(index0))
-					super.removeSelectionInterval(index0, index1);
-				else
-					super.addSelectionInterval(index0, index1);
-			}
-		});
+				private static final long serialVersionUID = -289079798608833048L;
+
+				@Override
+				public void setSelectionInterval(int index0, int index1)
+				{
+					if(super.isSelectedIndex(index0))
+						super.removeSelectionInterval(index0, index1);
+					else
+						super.addSelectionInterval(index0, index1);
+				}
+			});
+		for(T elem : selected)
+		{
+			int i = elements.indexOf(elem);
+			list.addSelectionInterval(i, i);
+			if(!multipleSelection)
+				break;
+		}
 		JScrollPane scrollPane = new JScrollPane(list);
 		scrollPane.setAutoscrolls(false);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -56,7 +72,8 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		messageLabel.setHorizontalAlignment(JLabel.CENTER);
 		messageLabel.setBackground(color);
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
-		valid.addActionListener(e -> {
+		valid.addActionListener(e ->
+		{
 			result = new ArrayList<>();
 			for(int i : list.getSelectedIndices())
 				result.add(elements.get(i));

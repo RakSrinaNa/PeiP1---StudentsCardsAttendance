@@ -81,7 +81,11 @@ public class GroupEditFrame extends JDialog
 				String name = GroupEditFrame.this.tableStudents.getValueAt(rowindex, 0).toString().trim();
 				Student student = Utils.getStudentByName(name, true);
 				removeStudent(student, rowindex, name);
-				GroupEditFrame.this.tableStudents.setRowSelectionInterval(rowindex, rowindex);
+				try
+				{
+					GroupEditFrame.this.tableStudents.setRowSelectionInterval(rowindex, rowindex);
+				}
+				catch(IllegalArgumentException e1){}
 			}
 
 			@Override
@@ -346,7 +350,7 @@ public class GroupEditFrame extends JDialog
 			JOptionPane.showMessageDialog(this, Utils.resourceBundle.getString("no_student"), Utils.resourceBundle.getString("error").toUpperCase(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		SelectListDialogFrame<Student> dialog = new SelectListDialogFrame(this, Utils.resourceBundle.getString("add_student"), Utils.resourceBundle.getString("select_student") + ":", students);
+		SelectListDialogFrame<Student> dialog = new SelectListDialogFrame(this, Utils.resourceBundle.getString("add_student"), Utils.resourceBundle.getString("select_student") + ":", students, null, true);
 		for(Student student : dialog.showDialog())
 			if(group.addStudent(student))
 				modelStudents.addRow(new Student[]{student});

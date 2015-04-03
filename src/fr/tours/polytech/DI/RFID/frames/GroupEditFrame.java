@@ -85,7 +85,9 @@ public class GroupEditFrame extends JDialog
 				{
 					GroupEditFrame.this.tableStudents.setRowSelectionInterval(rowindex, rowindex);
 				}
-				catch(IllegalArgumentException e1){}
+				catch(IllegalArgumentException e1)
+				{
+				}
 			}
 
 			@Override

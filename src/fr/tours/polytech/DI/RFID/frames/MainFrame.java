@@ -6,7 +6,6 @@ import fr.tours.polytech.DI.RFID.frames.components.ImagePanel;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
 import fr.tours.polytech.DI.RFID.objects.Group;
-import fr.tours.polytech.DI.RFID.objects.Period;
 import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
@@ -45,12 +44,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final JTable tableChecked;
 	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
-	private boolean cardPresent;
-	private boolean lastChecking;
-	private boolean checking;
 	public static Color backColor;
+	private boolean cardPresent;
 	private boolean needRefresh;
-	private Date startCheck;
 
 	/**
 	 * Constructor.
@@ -62,11 +58,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		backColor = new Color(224, 242, 255);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(800, 600));
-		checking = false;
-		lastChecking = false;
 		needRefresh = false;
 		cardPresent = false;
-		startCheck = new Date();
 		addWindowListener(new WindowListener()
 		{
 			@Override
@@ -165,12 +158,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuBar.add(menuHelp);
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
-		JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
-		startButton.addActionListener(e -> {
-			checking = !checking;
-			startButton.setText(Utils.resourceBundle.getString(checking ? "button_stop" : "button_start"));
-		});
-		startButton.setVisible(Utils.mode == 1);
 		this.cardTextLabel = new JLabel();
 		this.cardTextLabel.setVerticalAlignment(JLabel.CENTER);
 		this.cardTextLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -253,8 +240,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 					Student student = Utils.getStudentByName(MainFrame.this.tableChecked.getValueAt(rowindex, 0).toString().replace("(Staff)", "").trim(), false);
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem checkStudent = new JMenuItem(Utils.resourceBundle.getString("check_student"));
-					checkStudent.addActionListener(event1 ->
-					{
+					checkStudent.addActionListener(event1 -> {
 						try
 						{
 							Utils.checkStudent(student);
@@ -265,8 +251,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						}
 					});
 					JMenuItem uncheckStudent = new JMenuItem(Utils.resourceBundle.getString("uncheck_student"));
-					uncheckStudent.addActionListener(event1 ->
-					{
+					uncheckStudent.addActionListener(event1 -> {
 						try
 						{
 							Utils.uncheckStudent(student);
@@ -335,27 +320,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		logAllCheck.setBackground(backColor);
 		logAllCheck.setSelected(Utils.configuration.isLogAll());
 		logAllCheck.addActionListener(event -> Utils.configuration.setLogAll(((JCheckBox) event.getSource()).isSelected()));
-		JCheckBox modeMedecineCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("mode_medecine").replaceAll("\n", "<br />") + "<br />(" + Utils.resourceBundle.getString("restart_required") + ")</p></html>");
-		modeMedecineCheck.setBackground(backColor);
-		modeMedecineCheck.setSelected(Utils.mode == 1);
-		modeMedecineCheck.addActionListener(event -> {
-			Utils.configuration.setLaunchMode(((JCheckBox) event.getSource()).isSelected() ? 1 : 0);
-		});
 		JButton groupSettings = new JButton(Utils.resourceBundle.getString("group_settings"));
 		groupSettings.setBackground(backColor);
 		groupSettings.addActionListener(event -> new GroupSettingsFrame(MainFrame.this, Utils.groups));
-		groupSettings.setEnabled(Utils.configuration.getLaunchMode() == 0);
 		JButton sqlSettings = new JButton(Utils.resourceBundle.getString("sql_settings"));
 		sqlSettings.setBackground(backColor);
 		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
 		JButton readerSelect = new JButton(Utils.resourceBundle.getString("select_reader"));
 		readerSelect.setBackground(backColor);
-		readerSelect.addActionListener(event ->
-		{
+		readerSelect.addActionListener(event -> {
 			ArrayList<String> selected = new ArrayList<>();
 			selected.add(Utils.configuration.getReaderName());
 			ArrayList<String> selection = new SelectListDialogFrame<String>(MainFrame.this, Utils.resourceBundle.getString("select_reader"), Utils.resourceBundle.getString("selection_reader"), Utils.terminalReader.getReadersName(), selected, false).showDialog();
-			if(selection!= null && selection.size() > 0)
+			if(selection != null && selection.size() > 0)
 			{
 				Utils.configuration.setReaderName(selection.get(0));
 				Utils.terminalReader.setTerminalName(selection.get(0));
@@ -381,8 +358,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.staffPanel.add(addNewCardCheck, gcb);
 		gcb.gridy = line++;
 		this.staffPanel.add(logAllCheck, gcb);
-		gcb.gridy = line++;
-		this.staffPanel.add(modeMedecineCheck, gcb);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JScrollPane scrollPaneChecked = new JScrollPane(this.tableChecked);
 		scrollPaneChecked.setAutoscrolls(false);
@@ -408,8 +383,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		gcb.fill = GridBagConstraints.BOTH;
 		gcb.gridx = 1;
 		getContentPane().add(groupsInfoLabel, gcb);
-		gcb.gridy = line++;
-		getContentPane().add(startButton, gcb);
 		gcb.gridwidth = 1;
 		gcb.weighty = 10;
 		gcb.weightx = 1;
@@ -546,10 +519,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 							this.cardPanel.setBackground(Color.GREEN);
 							this.cardTextLabel.setText(Utils.resourceBundle.getString("sql_connected"));
 							Utils.students.addAll(Utils.removeDuplicates(Utils.sql.getAllStudents()));
-							if(Utils.mode == 1)
-								for(Group g : Utils.groups)
-									for(Student s : Utils.students)
-										g.addStudent(s);
 						}
 					}
 				}
@@ -562,32 +531,12 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
 			ArrayList<Student> toCheck = new ArrayList<>();
 			boolean mod = false;
-			if(Utils.mode == 0)
+			for(Group group : Utils.groups)
 			{
-				for(Group group : Utils.groups)
-				{
-					group.update();
-					toCheck.addAll(group.getAllToCheck());
-					if(group.isCurrentlyPeriod())
-						groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
-				}
-			}
-			else
-			{
-				if(lastChecking != checking)
-				{
-					if(checking)
-						startCheck = date;
-					else
-					{
-						Period period = new Period(startCheck, date);
-						for(Group group : Utils.groups)
-							group.writeAbsents(period);
-					}
-				}
-				for(Group group : Utils.groups)
-					if(checking)
-						toCheck.addAll(group.getStudents());
+				group.update();
+				toCheck.addAll(group.getAllToCheck());
+				if(group.isCurrentlyPeriod())
+					groupsInfo.append(Utils.resourceBundle.getString("group")).append(" ").append(group.getName()).append(": ").append(group.getCurrentPeriodString()).append("<br />");
 			}
 			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
 			Utils.removeDuplicates(toCheck);
@@ -623,7 +572,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				{
 					needRefresh = true;
 				}
-			lastChecking = checking;
 		}
 	}
 

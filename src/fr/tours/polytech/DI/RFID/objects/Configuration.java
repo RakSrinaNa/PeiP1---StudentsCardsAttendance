@@ -9,7 +9,7 @@ import java.io.*;
  */
 public class Configuration implements Serializable
 {
-	private static final int SERIALIZATION_VERSION = 3;
+	private static final int SERIALIZATION_VERSION = 2;
 	private static final long serialVersionUID = 8289555994600359883L;
 	private String bddUser;
 	private String bddPassword;
@@ -18,7 +18,6 @@ public class Configuration implements Serializable
 	private String bddIP;
 	private String readerName;
 	private int bddPort;
-	private int launchMode;
 	private boolean logAll;
 	private boolean addNewStudents;
 
@@ -36,7 +35,6 @@ public class Configuration implements Serializable
 		this.setReaderName("");
 		this.setLogAll(true);
 		this.setAddNewStudents(true);
-		this.setLaunchMode(0);
 	}
 
 	/**
@@ -77,8 +75,6 @@ public class Configuration implements Serializable
 			this.addNewStudents = ois.readBoolean();
 		}
 		if(ver >= 2)
-			this.launchMode = ois.readInt();
-		if(ver >= 3)
 			this.readerName = ois.readUTF();
 	}
 
@@ -93,7 +89,6 @@ public class Configuration implements Serializable
 		oos.writeInt(bddPort);
 		oos.writeBoolean(logAll);
 		oos.writeBoolean(addNewStudents);
-		oos.writeInt(launchMode);
 		oos.writeUTF(readerName);
 	}
 
@@ -276,26 +271,6 @@ public class Configuration implements Serializable
 	public void setBddTableName(String bddTableName)
 	{
 		this.bddTableName = bddTableName;
-	}
-
-	/**
-	 * Used to get the launch mode.
-	 *
-	 * @return The launch mode.
-	 */
-	public int getLaunchMode()
-	{
-		return launchMode;
-	}
-
-	/**
-	 * Used to set the launch mode.
-	 *
-	 * @param launchMode The launch mode to set.
-	 */
-	public void setLaunchMode(int launchMode)
-	{
-		this.launchMode = launchMode;
 	}
 
 	/**

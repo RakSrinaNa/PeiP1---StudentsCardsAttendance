@@ -35,7 +35,6 @@ public class Utils
 	public static Configuration configuration;
 	public static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
-	public static int mode;
 
 	/**
 	 * Call when we need to exit the program.
@@ -46,8 +45,7 @@ public class Utils
 	public static void exit(int exitStaus)
 	{
 		mainFrame.exit();
-		if(mode == 0)
-			Group.saveGroups(Utils.groups);
+		Group.saveGroups(Utils.groups);
 		configuration.serialize(new File(baseFile, "configuration"));
 		terminalReader.stop();
 		System.exit(exitStaus);
@@ -241,20 +239,10 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
-		mode = configuration.getLaunchMode();
-		terminalReader = new TerminalReader("Contactless");
+		terminalReader = new TerminalReader(configuration.getReaderName());
 		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
 		students = Utils.sql.getAllStudents();
-		if(mode == 0)
-			groups = Group.loadGroups();
-		else
-		{
-			groups = new ArrayList<>();
-			Group g = new Group(Utils.resourceBundle.getString("students"));
-			for(Student s : students)
-				g.addStudent(s);
-			groups.add(g);
-		}
+		groups = Group.loadGroups();
 		mainFrame = new MainFrame();
 		terminalReader.addListener(mainFrame);
 	}
@@ -523,7 +511,9 @@ public class Utils
 					if(stu != null && stu.equals(student))
 						return true;
 		}
-		catch(ConcurrentModificationException e){}
+		catch(ConcurrentModificationException e)
+		{
+		}
 		return false;
 	}
 

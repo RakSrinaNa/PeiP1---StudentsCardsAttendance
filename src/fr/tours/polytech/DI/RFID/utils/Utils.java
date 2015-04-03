@@ -2,17 +2,12 @@ package fr.tours.polytech.DI.RFID.utils;
 
 import fr.tours.polytech.DI.RFID.frames.MainFrame;
 import fr.tours.polytech.DI.RFID.objects.Configuration;
-import fr.tours.polytech.DI.RFID.objects.Group;
-import fr.tours.polytech.DI.RFID.objects.Period;
-import fr.tours.polytech.DI.RFID.objects.Student;
 import fr.tours.polytech.DI.TerminalReader.threads.TerminalReader;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -27,15 +22,12 @@ public class Utils
 {
 	public static Logger logger;
 	public static SQLManager sql;
-	public static ArrayList<Student> students;
-	public static ArrayList<Group> groups;
 	public static ResourceBundle resourceBundle;
 	public static ArrayList<BufferedImage> icons;
 	public static File baseFile;
 	public static Configuration configuration;
 	public static TerminalReader terminalReader;
 	private static MainFrame mainFrame;
-	public static int mode;
 
 	/**
 	 * Call when we need to exit the program.
@@ -46,8 +38,6 @@ public class Utils
 	public static void exit(int exitStaus)
 	{
 		mainFrame.exit();
-		if(mode == 0)
-			Group.saveGroups(Utils.groups);
 		configuration.serialize(new File(baseFile, "configuration"));
 		terminalReader.stop();
 		System.exit(exitStaus);
@@ -64,17 +54,14 @@ public class Utils
 		{
 			File file = new File(baseFile, "SQLExport.sql");
 			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
-			pw.println("-- ---------------------------");
-			pw.println("-- STRUCTURE");
-			pw.println("-- ---------------------------");
-			pw.println("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
-			pw.println("CREATE TABLE " + sql.getTableName() + "(" + SQLManager.UID_LABEL + " varchar(18), " + SQLManager.SURNAME_LABEL + " varchar(255), " + SQLManager.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + SQLManager.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			for(String line : Students.exportStudentsTable())
+				pw.println(line);
 			pw.println();
-			pw.println("-- ---------------------------");
-			pw.println("-- DATA OF STUDENTS");
-			pw.println("-- ---------------------------");
-			for(Student student : Utils.removeDuplicates(Utils.sql.getAllStudents()))
-				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
+			for(String line : sql.exportCheckTable())
+				pw.println(line);
+			pw.println();
+			for(String line : sql.exportLogTable())
+				pw.println(line);
 			pw.flush();
 			pw.close();
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
@@ -183,46 +170,6 @@ public class Utils
 	}
 
 	/**
-	 * Used to know if a student have checked.
-	 *
-	 * @param student The student to verify.
-	 * @return True if he have checked in at least one group, false if not.
-	 */
-	public static boolean hasChecked(Student student)
-	{
-		boolean checked = false;
-		for(Group group : groups)
-			checked |= group.hasChecked(student);
-		return checked;
-	}
-
-	/**
-	 * used to check a student.
-	 *
-	 * @param student The student to check.
-	 * @return True if the student is been checked in at least one group, false if not.
-	 */
-	public static boolean checkStudent(Student student)
-	{
-		boolean checked = false;
-		for(Group group : groups)
-			if(group.checkStudent(student))
-				checked |= true;
-		return checked;
-	}
-
-	/**
-	 * Used to uncheck a student.
-	 *
-	 * @param student The student to uncheck.
-	 */
-	public static void uncheckStudent(Student student)
-	{
-		for(Group group : groups)
-			group.uncheckStudent(student);
-	}
-
-	/**
 	 * Call when the program is starting. Initalize some variables like
 	 * groups, students, logger, reader and SQL connection.
 	 *
@@ -241,118 +188,10 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
-		mode = configuration.getLaunchMode();
-		terminalReader = new TerminalReader("Contactless");
-		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
-		students = Utils.sql.getAllStudents();
-		if(mode == 0)
-			groups = Group.loadGroups();
-		else
-		{
-			groups = new ArrayList<>();
-			Group g = new Group(Utils.resourceBundle.getString("students"));
-			for(Student s : students)
-				g.addStudent(s);
-			groups.add(g);
-		}
+		terminalReader = new TerminalReader(configuration.getReaderName());
+		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
 		mainFrame = new MainFrame();
 		terminalReader.addListener(mainFrame);
-	}
-
-	/**
-	 * Used to get a student by his name.
-	 *
-	 * @param name The name of the student.
-	 * @param checkDB Should check him in the database if we don't know him?
-	 * @return The student or null if unknown.
-	 */
-	public static Student getStudentByName(String name, boolean checkDB)
-	{
-		for(Student student : students)
-			if(student != null && student.isSameName(name))
-				return student;
-		return checkDB ? Utils.sql.getStudentByName(capitalize(name.substring(0, name.lastIndexOf(" ")).trim().toLowerCase()), name.substring(name.lastIndexOf(" ")).trim()) : null;
-	}
-
-	/**
-	 * Used to get a student by his UID.
-	 *
-	 * @param uid The student's card UID.
-	 * @param checkDB Should check him in the database if we don't know him?
-	 * @return The student or null if unknown.
-	 */
-	public static Student getStudentByUID(String uid, boolean checkDB)
-	{
-		for(Student student : students)
-			if(student != null && student.getUid().equals(uid.replaceAll("-", "")))
-				return student;
-		return checkDB ? Utils.sql.getStudentByUID(uid.replaceAll("-", "")) : null;
-	}
-
-	/**
-	 * Used to log a check in the CSV file.
-	 *
-	 * @param student The student that checked.
-	 */
-	public static void logCheck(Student student)
-	{
-		if(!configuration.isLogAll())
-			return;
-		FileWriter fileWriter = null;
-		BufferedWriter bufferedWriter = null;
-		PrintWriter printWriter = null;
-		try
-		{
-			DateFormat dateFormat = new SimpleDateFormat("[zzz] dd/MM/yyyy HH:mm:ss");
-			Date date = new Date();
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(date);
-			File file = new File(baseFile, "Log" + File.separator + "checked_" + calendar.get(Calendar.YEAR) + ".csv");
-			if(!file.exists())
-			{
-				file.getParentFile().mkdirs();
-				try
-				{
-					file.createNewFile();
-				}
-				catch(IOException exception)
-				{
-					exception.printStackTrace();
-				}
-			}
-			fileWriter = new FileWriter(file, true);
-			bufferedWriter = new BufferedWriter(fileWriter);
-			printWriter = new PrintWriter(bufferedWriter);
-			printWriter.print(dateFormat.format(date) + ";" + student.getName() + ";" + student.getUid().replaceAll("-", "") + "\n");
-		}
-		catch(Exception exception)
-		{
-			Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
-		}
-		if(printWriter != null)
-			try
-			{
-				printWriter.close();
-			}
-			catch(Exception exception)
-			{
-			}
-		if(bufferedWriter != null)
-			try
-			{
-				bufferedWriter.close();
-			}
-			catch(Exception exception)
-			{
-			}
-		if(fileWriter != null)
-			try
-			{
-				fileWriter.close();
-			}
-			catch(Exception exception)
-			{
-			}
 	}
 
 	/**
@@ -368,111 +207,6 @@ public class Utils
 		list.clear();
 		list.addAll(setItems);
 		return list;
-	}
-
-	/**
-	 * Used to log all absents students in a CSV file with their name.
-	 *
-	 * @param period The period when the students haven't checked.
-	 * @param students The list of all the students that need to check.
-	 * @param checkedStudents The students that have checked.
-	 */
-	public static void writeAbsents(Period period, ArrayList<Student> students, ArrayList<Student> checkedStudents)
-	{
-		for(Student student : students)
-			if(!checkedStudents.contains(student))
-			{
-				logger.log(Level.INFO, student + " is missing");
-				FileWriter fileWriter = null;
-				BufferedWriter bufferedWriter = null;
-				PrintWriter printWriter = null;
-				try
-				{
-					DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-					Date date = new Date();
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(date);
-					File file = new File(baseFile, "Absents" + File.separator + "absent_" + student.getName() + "_" + calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + ".csv");
-					if(!file.exists())
-					{
-						file.getParentFile().mkdirs();
-						try
-						{
-							file.createNewFile();
-						}
-						catch(IOException exception)
-						{
-							exception.printStackTrace();
-						}
-					}
-					String last = "";
-					List<String> lines = readTextFile(file);
-					if(period != null && lines.size() > 0 && lines.get(lines.size() - 1).startsWith("Total"))
-					{
-						last = lines.get(lines.size() - 1);
-						lines.remove(lines.size() - 1);
-					}
-					fileWriter = new FileWriter(file, false);
-					bufferedWriter = new BufferedWriter(fileWriter);
-					printWriter = new PrintWriter(bufferedWriter);
-					for(String line : lines)
-						printWriter.println(line);
-					printWriter.print(dateFormat.format(date));
-					printWriter.print(";");
-					printWriter.print(student.getName());
-					if(period != null)
-					{
-						printWriter.print(";");
-						printWriter.print(period.getRawTimeInterval());
-						printWriter.print(";");
-						printWriter.print(period.getDurationString());
-					}
-					printWriter.println();
-					if(period != null)
-					{
-						if(last.equals(""))
-						{
-							printWriter.println("Total;" + period.getDurationString());
-						}
-						else
-						{
-							String[] vals = last.split(";");
-							String duration = vals[vals.length - 1];
-							int timeLast = stringToDuration(duration);
-							int timeNow = (int) period.getDuration();
-							printWriter.println("Total;" + durationToString(timeLast + timeNow));
-						}
-					}
-				}
-				catch(Exception exception)
-				{
-					Utils.logger.log(Level.SEVERE, "Cannot write checked file", exception);
-				}
-				if(printWriter != null)
-					try
-					{
-						printWriter.close();
-					}
-					catch(Exception exception)
-					{
-					}
-				if(bufferedWriter != null)
-					try
-					{
-						bufferedWriter.close();
-					}
-					catch(Exception exception)
-					{
-					}
-				if(fileWriter != null)
-					try
-					{
-						fileWriter.close();
-					}
-					catch(Exception exception)
-					{
-					}
-			}
 	}
 
 	public static String durationToString(long time)
@@ -498,75 +232,11 @@ public class Utils
 	}
 
 	/**
-	 * Used to know if a collection contains a student.
-	 *
-	 * @param collection The collection to verify.
-	 * @param student The student to search for.
-	 * @return True if in the collection, false if not.
-	 */
-	public static boolean containsStudent(Collection collection, Student student)
-	{
-		if(collection == null || collection.size() < 1)
-			return false;
-		try
-		{
-			if(collection.iterator().next() instanceof Vector)
-				for(Object obj : collection)
-				{
-					Vector<Student> vec = (Vector<Student>) obj;
-					for(Student stu : vec)
-						if(stu.equals(student))
-							return true;
-				}
-			else
-				for(Student stu : (Collection<Student>) collection)
-					if(stu != null && stu.equals(student))
-						return true;
-		}
-		catch(ConcurrentModificationException e){}
-		return false;
-	}
-
-	/**
-	 * Used to remove a student from a list.
-	 *
-	 * @param list The list where to remove.
-	 * @param toRemove The collection of students to remove.
-	 * @return The new list with the students removed.
-	 */
-	public static ArrayList<Student> removeStudentsInList(ArrayList<Student> list, Collection<Student> toRemove)
-	{
-		ArrayList<Student> toRem = new ArrayList<>();
-		for(Student student : toRemove)
-		{
-			for(Student stu : list)
-				if(student.equals(stu))
-					toRem.add(stu);
-			list.removeAll(toRem);
-			toRem.clear();
-		}
-		return list;
-	}
-
-	/**
-	 * Used to get a refreshed list of students from database.
-	 *
-	 * @return The refreshed list.
-	 */
-	public static ArrayList<Student> getRefreshedStudents()
-	{
-		ArrayList<Student> list = new ArrayList<>(students);
-		list.addAll(sql.getAllStudents());
-		Utils.removeDuplicates(list);
-		return list;
-	}
-
-	/**
 	 * Used to update the SQL connection from the Configuration object.
 	 */
 	public static void reloadSQLFromConfig()
 	{
-		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddTableName(), configuration.getBddUser(), configuration.getBddPassword());
+		sql.reloadInfos(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
 	}
 
 	/**
@@ -600,7 +270,7 @@ public class Utils
 			int reply = JOptionPane.showConfirmDialog(null, "<html><p>" + resourceBundle.getString("import_csv_drop").replaceAll("\n", "<br />") + "</p></html>", resourceBundle.getString("import_csv_drop_title"), JOptionPane.YES_NO_OPTION);
 			if(reply == JOptionPane.YES_OPTION)
 			{
-				sql.sendUpdateRequest("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
+				Students.resetStudentsTable();
 				sql.createBaseTable();
 			}
 			List<String> lines = readTextFile(file);
@@ -608,14 +278,14 @@ public class Utils
 			lines.remove(0);
 			int UIDIndex = getIndexOf(columns, "CSN");
 			int firstnameIndex = getIndexOf(columns, "PRENOM");
-			int surtnameIndex = getIndexOf(columns, "NOM");
-			if(UIDIndex == -1 || firstnameIndex == -1 || surtnameIndex == -1)
+			int lastnameIndex = getIndexOf(columns, "NOM");
+			if(UIDIndex == -1 || firstnameIndex == -1 || lastnameIndex == -1)
 				throw new IllegalArgumentException("Cannot find one of the requiered columns");
 			int req = 0;
 			for(String line : lines)
 			{
 				String[] infos = line.split(";");
-				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[surtnameIndex], infos[firstnameIndex]));
+				Students.addStudent(infos[UIDIndex], infos[lastnameIndex] + " " + infos[firstnameIndex]);
 				req++;
 			}
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);
@@ -632,5 +302,19 @@ public class Utils
 			if(table[i].equals(test))
 				return i;
 		return -1;
+	}
+
+	public static <T> boolean vectorContains(Vector<T> vec, T element)
+	{
+
+		for(Object el : vec)
+			if(el instanceof Vector)
+			{
+				if(vectorContains((Vector<T>) el, element))
+					return true;
+			}
+			else if(el.equals(element))
+				return true;
+		return false;
 	}
 }

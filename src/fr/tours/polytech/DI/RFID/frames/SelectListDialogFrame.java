@@ -25,7 +25,6 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 	 * @param elements The elements that will populate the list.
 	 * @param selected The selected elements.
 	 * @param multipleSelection Allow or not to select multiple items.
-	 *
 	 * @throws IllegalArgumentException If the element list is null.
 	 */
 	public SelectListDialogFrame(Window parent, String title, String message, final ArrayList<T> elements, ArrayList<T> selected, boolean multipleSelection) throws IllegalArgumentException
@@ -72,8 +71,7 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		messageLabel.setHorizontalAlignment(JLabel.CENTER);
 		messageLabel.setBackground(color);
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
-		valid.addActionListener(e ->
-		{
+		valid.addActionListener(e -> {
 			result = new ArrayList<>();
 			for(int i : list.getSelectedIndices())
 				result.add(elements.get(i));

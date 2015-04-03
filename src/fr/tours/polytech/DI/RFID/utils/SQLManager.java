@@ -2,9 +2,7 @@ package fr.tours.polytech.DI.RFID.utils;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
-import fr.tours.polytech.DI.RFID.objects.Student;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -15,10 +13,12 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	public final static String UID_LABEL = "UID";
-	public final static String FIRSTNAME_LABEL = "FirstName";
-	public final static String SURNAME_LABEL = "Surname";
-	private String tableName;
+	private static final boolean printQuerry = false;
+	private static final String LOG_TABLE = "Log";
+	private static final String LOG_CSN_LABEL = "CSN";
+	private static final String LOG_TIME_LABEL = "Time";
+	private static final String CHECKED_TABLE = "Checked";
+	private static final String CHECKED_CSN_LABEL = "CSN", CHECKED_DATE_LABEL = "Date";
 	private String databaseURL;
 	private int port;
 	private String databaseName;
@@ -34,21 +34,18 @@ public class SQLManager
 	 * @param databaseURL The URL of the database.
 	 * @param port The port of the database.
 	 * @param databaseName The database name.
-	 * @param tableName The table name.
 	 * @param user The username.
 	 * @param password The password for this user.
 	 */
-	public SQLManager(String databaseURL, int port, String databaseName, String tableName, String user, String password)
+	public SQLManager(String databaseURL, int port, String databaseName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
-		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
 		login();
 		Utils.logger.log(Level.INFO, "Initializing SQL connection...");
-		this.tableName = "Users";
 		createBaseTable();
 	}
 
@@ -58,77 +55,16 @@ public class SQLManager
 	 * @param databaseURL The URL of the database.
 	 * @param port The port of the database.
 	 * @param databaseName The database name.
-	 * @param tableName The table name.
 	 * @param user The username.
 	 * @param password The password for this user.
 	 */
-	public void reloadInfos(String databaseURL, int port, String databaseName, String tableName, String user, String password)
+	public void reloadInfos(String databaseURL, int port, String databaseName, String user, String password)
 	{
 		this.databaseURL = databaseURL;
 		this.port = port;
 		this.databaseName = databaseName;
-		this.tableName = tableName;
 		this.user = user;
 		this.password = password;
-	}
-
-	/**
-	 * Used to add a student into the database.
-	 *
-	 * @param student The student to add.
-	 */
-	public void addStudentToDatabase(Student student)
-	{
-		sendUpdateRequest("INSERT INTO " + this.tableName + " (" + UID_LABEL + "," + FIRSTNAME_LABEL + "," + SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\")");
-	}
-
-	/**
-	 * Used to retrieve a student from the database by his name.
-	 *
-	 * @param surname The surname of the student.
-	 * @param firstname The firstname of the student.
-	 * @return The student corresponding, null if not found.
-	 */
-	public Student getStudentByName(String surname, String firstname)
-	{
-		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + " FROM " + this.tableName + " WHERE " + FIRSTNAME_LABEL + " = \"" + firstname + "\" AND " + SURNAME_LABEL + " = \"" + surname + "\";");
-		try
-		{
-			if(result.next())
-				return new Student(result.getString(UID_LABEL), surname, firstname);
-		}
-		catch(SQLException exception)
-		{
-			Utils.logger.log(Level.WARNING, "", exception);
-		}
-		catch(NullPointerException exception)
-		{
-		}
-		return null;
-	}
-
-	/**
-	 * Used to retrieve a student from the database by his UID.
-	 *
-	 * @param uid The UID of the student.
-	 * @return The student corresponding, null if not found.
-	 */
-	public Student getStudentByUID(String uid)
-	{
-		ResultSet result = sendQueryRequest("SELECT " + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + " WHERE " + UID_LABEL + " = \"" + uid + "\";");
-		try
-		{
-			if(result.next())
-				return new Student(uid, result.getString(SURNAME_LABEL), result.getString(FIRSTNAME_LABEL));
-		}
-		catch(NullPointerException e)
-		{
-		}
-		catch(SQLException exception)
-		{
-			Utils.logger.log(Level.WARNING, "", exception);
-		}
-		return null;
 	}
 
 	/**
@@ -162,7 +98,21 @@ public class SQLManager
 	 */
 	public int createBaseTable()
 	{
-		return sendUpdateRequest("CREATE TABLE IF NOT EXISTS " + this.tableName + "(" + UID_LABEL + " varchar(18), " + SURNAME_LABEL + " varchar(255), " + FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+		int i = 0;
+		i += sendUpdateRequest(Students.getCreateStudentsTableText());
+		i += sendUpdateRequest(getCreateCheckedTableText());
+		i += sendUpdateRequest(getCreateLogTableText());
+		return i;
+	}
+
+	private String getCreateCheckedTableText()
+	{
+		return "CREATE TABLE IF NOT EXISTS " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + " VARCHAR(18) NOT NULL, " + CHECKED_DATE_LABEL + " DATE NOT NULL, PRIMARY KEY(" + CHECKED_CSN_LABEL + ", " + CHECKED_DATE_LABEL + "));";
+	}
+
+	private String getCreateLogTableText()
+	{
+		return "CREATE TABLE IF NOT EXISTS " + LOG_TABLE + " (" + LOG_CSN_LABEL + " VARCHAR(18) NOT NULL, " + LOG_TIME_LABEL + " TIMESTAMP NOT NULL, PRIMARY KEY(" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + "));";
 	}
 
 	/**
@@ -213,7 +163,8 @@ public class SQLManager
 	{
 		if(this.connection == null)
 			return null;
-		Utils.logger.log(Level.INFO, "Sending MYSQL request...: " + request);
+		if(printQuerry)
+			Utils.logger.log(Level.INFO, "Sending MYSQL request...: " + request);
 		ResultSet result = null;
 		try
 		{
@@ -244,7 +195,8 @@ public class SQLManager
 	{
 		if(this.connection == null)
 			return 0;
-		Utils.logger.log(Level.INFO, "Sending MYSQL update...: " + request);
+		if(printQuerry)
+			Utils.logger.log(Level.INFO, "Sending MYSQL update...: " + request);
 		int result = 0;
 		try
 		{
@@ -259,37 +211,13 @@ public class SQLManager
 		}
 		catch(MySQLIntegrityConstraintViolationException exception)
 		{
-			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request + " -> Already got the student");
+			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request + " -> PRIMARY KEY Constraint error");
 		}
 		catch(SQLException exception)
 		{
 			Utils.logger.log(Level.WARNING, "SQL ERROR when sending " + request, exception);
 		}
 		return result;
-	}
-
-	/**
-	 * Used to get all the students from the database.
-	 *
-	 * @return A list of the students.
-	 */
-	public ArrayList<Student> getAllStudents()
-	{
-		ArrayList<Student> students = new ArrayList<>();
-		ResultSet result = sendQueryRequest("SELECT " + UID_LABEL + "," + SURNAME_LABEL + ", " + FIRSTNAME_LABEL + " FROM " + this.tableName + " ORDER BY " + SURNAME_LABEL + "," + FIRSTNAME_LABEL + ";");
-		try
-		{
-			while(result.next())
-				students.add(new Student(result.getString(UID_LABEL), result.getString(SURNAME_LABEL), result.getString(FIRSTNAME_LABEL)));
-		}
-		catch(NullPointerException e)
-		{
-		}
-		catch(Exception exception)
-		{
-			Utils.logger.log(Level.WARNING, "", exception);
-		}
-		return students;
 	}
 
 	/**
@@ -330,13 +258,58 @@ public class SQLManager
 		return isLogging;
 	}
 
-	/**
-	 * Used to get the table name where we are working.
-	 *
-	 * @return The table name
-	 */
-	public String getTableName()
+	public String[] exportCheckTable()
 	{
-		return this.tableName;
+		StringBuilder sb = new StringBuilder();
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("-- STRUCTURE" + "\n");
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("DROP TABLE IF EXISTS " + CHECKED_TABLE + ";" + "\n");
+		sb.append(getCreateCheckedTableText()).append("\n");
+		sb.append("\n");
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("-- DATA OF CHECKED" + "\n");
+		sb.append("-- ---------------------------" + "\n");
+		ResultSet entries = sendQueryRequest("SELECT * FROM " + CHECKED_TABLE + ";");
+		try
+		{
+			while(entries.next())
+				sb.append("INSERT INTO " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + ", " + CHECKED_DATE_LABEL + ") VALUES(\"").append(entries.getString(CHECKED_CSN_LABEL)).append("\", \"").append(entries.getString(CHECKED_DATE_LABEL)).append("\");").append("\n");
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return sb.toString().split("\n");
+	}
+
+	public String[] exportLogTable()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("-- STRUCTURE" + "\n");
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("DROP TABLE IF EXISTS " + LOG_TABLE + ";" + "\n");
+		sb.append(getCreateLogTableText()).append("\n");
+		sb.append("\n");
+		sb.append("-- ---------------------------" + "\n");
+		sb.append("-- DATA OF LOG" + "\n");
+		sb.append("-- ---------------------------" + "\n");
+		ResultSet entries = sendQueryRequest("SELECT * FROM " + LOG_TABLE + ";");
+		try
+		{
+			while(entries.next())
+				sb.append("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"").append(entries.getString(LOG_CSN_LABEL)).append("\", ").append(entries.getString(LOG_TIME_LABEL)).append(");").append("\n");
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return sb.toString().split("\n");
+	}
+
+	public int logCheck(String UID)
+	{
+		return sendUpdateRequest("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"" + UID + "\", NOW());");
 	}
 }

@@ -9,16 +9,14 @@ import java.io.*;
  */
 public class Configuration implements Serializable
 {
-	private static final int SERIALIZATION_VERSION = 3;
+	private static final int SERIALIZATION_VERSION = 2;
 	private static final long serialVersionUID = 8289555994600359883L;
 	private String bddUser;
 	private String bddPassword;
 	private String bddName;
-	private String bddTableName;
 	private String bddIP;
 	private String readerName;
 	private int bddPort;
-	private int launchMode;
 	private boolean logAll;
 	private boolean addNewStudents;
 
@@ -30,13 +28,11 @@ public class Configuration implements Serializable
 		this.setBddUser("rfid");
 		this.setBddPassword("PolytechDI26");
 		this.setBddName("rfid");
-		this.setBddTableName("name");
 		this.setBddIP("127.0.0.1");
 		this.setBddPort(3306);
 		this.setReaderName("");
 		this.setLogAll(true);
 		this.setAddNewStudents(true);
-		this.setLaunchMode(0);
 	}
 
 	/**
@@ -70,15 +66,12 @@ public class Configuration implements Serializable
 			this.bddUser = ois.readUTF();
 			this.bddPassword = ois.readUTF();
 			this.bddName = ois.readUTF();
-			this.bddTableName = ois.readUTF();
 			this.bddIP = ois.readUTF();
 			this.bddPort = ois.readInt();
 			this.logAll = ois.readBoolean();
 			this.addNewStudents = ois.readBoolean();
 		}
 		if(ver >= 2)
-			this.launchMode = ois.readInt();
-		if(ver >= 3)
 			this.readerName = ois.readUTF();
 	}
 
@@ -88,12 +81,10 @@ public class Configuration implements Serializable
 		oos.writeUTF(bddUser);
 		oos.writeUTF(bddPassword);
 		oos.writeUTF(bddName);
-		oos.writeUTF(bddTableName);
 		oos.writeUTF(bddIP);
 		oos.writeInt(bddPort);
 		oos.writeBoolean(logAll);
 		oos.writeBoolean(addNewStudents);
-		oos.writeInt(launchMode);
 		oos.writeUTF(readerName);
 	}
 
@@ -256,46 +247,6 @@ public class Configuration implements Serializable
 	public void setBddPort(int bddPort)
 	{
 		this.bddPort = bddPort;
-	}
-
-	/**
-	 * Used to get the table where the datas are saved.
-	 *
-	 * @return The table name.
-	 */
-	public String getBddTableName()
-	{
-		return bddTableName;
-	}
-
-	/**
-	 * Used to set the table where the datas are saved.
-	 *
-	 * @param bddTableName The table name to set.
-	 */
-	public void setBddTableName(String bddTableName)
-	{
-		this.bddTableName = bddTableName;
-	}
-
-	/**
-	 * Used to get the launch mode.
-	 *
-	 * @return The launch mode.
-	 */
-	public int getLaunchMode()
-	{
-		return launchMode;
-	}
-
-	/**
-	 * Used to set the launch mode.
-	 *
-	 * @param launchMode The launch mode to set.
-	 */
-	public void setLaunchMode(int launchMode)
-	{
-		this.launchMode = launchMode;
 	}
 
 	/**

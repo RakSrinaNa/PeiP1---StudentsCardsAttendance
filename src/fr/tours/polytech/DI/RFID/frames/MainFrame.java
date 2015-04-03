@@ -128,12 +128,14 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menuFile = new JMenu(Utils.resourceBundle.getString("menu_file"));
 		JMenu menuHelp = new JMenu(Utils.resourceBundle.getString("menu_help"));
+		JMenu menuResult = new JMenu(Utils.resourceBundle.getString("menu_result"));
 		JMenuItem menuItemExit = new JMenuItem(Utils.resourceBundle.getString("menu_item_quit"));
 		JMenuItem menuItemHelp = new JMenuItem(Utils.resourceBundle.getString("menu_item_help"));
 		JMenuItem menuItemAbout = new JMenuItem(Utils.resourceBundle.getString("menu_item_about"));
 		JMenuItem menuItemExportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_sql"));
 		JMenuItem menuItemImportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_sql"));
 		JMenuItem menuItemImportCSV = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_csv"));
+		JMenuItem menuItemExportResult = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_result"));
 		menuItemExit.addActionListener(event -> Utils.exit(0));
 		menuItemHelp.addActionListener(event -> {
 			try
@@ -149,6 +151,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuItemExportSQL.addActionListener(event -> Utils.exportSQL(this));
 		menuItemImportSQL.addActionListener(event -> Utils.importSQL(this));
 		menuItemImportCSV.addActionListener(event -> Utils.importCSV(this));
+		menuItemExportResult.addActionListener(event -> Utils.exportResults(MainFrame.this));
 		menuFile.add(menuItemExportSQL);
 		menuFile.add(menuItemImportSQL);
 		menuFile.addSeparator();
@@ -157,7 +160,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuFile.add(menuItemExit);
 		menuHelp.add(menuItemHelp);
 		menuHelp.add(menuItemAbout);
+		menuResult.add(menuItemExportResult);
 		menuBar.add(menuFile);
+		menuBar.add(menuResult);
 		menuBar.add(menuHelp);
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////

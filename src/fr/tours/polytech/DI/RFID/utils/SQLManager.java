@@ -312,4 +312,9 @@ public class SQLManager
 	{
 		return sendUpdateRequest("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"" + UID + "\", NOW());");
 	}
+
+	public int resetCheckedTable()
+	{
+		return sendUpdateRequest("TRUNCATE TABLE " + LOG_TABLE + ";");
+	}
 }

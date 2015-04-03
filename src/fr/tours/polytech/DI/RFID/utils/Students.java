@@ -43,7 +43,7 @@ public class Students
 	public static ArrayList<String> getAllStudents()
 	{
 		ArrayList<String> results = new ArrayList<>();
-		ResultSet result = Utils.sql.sendQueryRequest("SELECT CONCAT(" + STUDENTS_LASTNAME_LABEL + ", \" \", " + STUDENTS_FIRSTNAME_LABEL + ") AS Name FROM " + STUDENTS_TABLE + ";");
+		ResultSet result = Utils.sql.sendQueryRequest("SELECT CONCAT(" + STUDENTS_LASTNAME_LABEL + ", \" \", " + STUDENTS_FIRSTNAME_LABEL + ") AS Name FROM " + STUDENTS_TABLE + " ORDER BY " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ";");
 		try
 		{
 			while(result.next())
@@ -100,6 +100,44 @@ public class Students
 		return results;
 	}
 
+	public static String getLastname(String UID)
+	{
+		String results = "Unknown";
+		ResultSet result = Utils.sql.sendQueryRequest("SELECT (" + STUDENTS_LASTNAME_LABEL + ") FROM " + STUDENTS_TABLE + " WHERE " + STUDENTS_CSN_LABEL + "=\"" + UID.replaceAll("-", "") + "\";");
+		try
+		{
+			if(result.next())
+				results = result.getString(STUDENTS_LASTNAME_LABEL);
+		}
+		catch(NullPointerException e)
+		{
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+		return results;
+	}
+
+	public static String getFirstname(String UID)
+	{
+		String results = "Unknown";
+		ResultSet result = Utils.sql.sendQueryRequest("SELECT (" + STUDENTS_FIRSTNAME_LABEL + ") FROM " + STUDENTS_TABLE + " WHERE " + STUDENTS_CSN_LABEL + "=\"" + UID.replaceAll("-", "") + "\";");
+		try
+		{
+			if(result.next())
+				results = result.getString(STUDENTS_FIRSTNAME_LABEL);
+		}
+		catch(NullPointerException e)
+		{
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+		return results;
+	}
+
 	public static boolean isStudentKnown(String UID)
 	{
 		ResultSet result = Utils.sql.sendQueryRequest("SELECT " + STUDENTS_LASTNAME_LABEL + " FROM " + STUDENTS_TABLE + " WHERE " + STUDENTS_CSN_LABEL + "=\"" + UID.replaceAll("-", "") + "\";");
@@ -129,5 +167,24 @@ public class Students
 	public static int checkStudent(String UID)
 	{
 		return Utils.sql.sendUpdateRequest("INSERT INTO Checked (CSN, Date) VALUES(\"" + UID.replaceAll("-", "") + "\", NOW());");
+	}
+
+	public static ArrayList<String> getAllStudentsCSN()
+	{
+		ArrayList<String> results = new ArrayList<>();
+		ResultSet result = Utils.sql.sendQueryRequest("SELECT " + STUDENTS_CSN_LABEL + " FROM " + STUDENTS_TABLE + " ORDER BY " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ";");
+		try
+		{
+			while(result.next())
+				results.add(result.getString(STUDENTS_CSN_LABEL));
+		}
+		catch(NullPointerException e)
+		{
+		}
+		catch(Exception exception)
+		{
+			Utils.logger.log(Level.WARNING, "", exception);
+		}
+		return results;
 	}
 }

@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -316,5 +317,64 @@ public class Utils
 			else if(el.equals(element))
 				return true;
 		return false;
+	}
+
+	public static void exportResults(MainFrame parent)
+	{
+		try
+		{
+			int total = Integer.parseInt(JOptionPane.showInputDialog(parent, resourceBundle.getString("total_conf"), resourceBundle.getString("total_conf_title"), JOptionPane.QUESTION_MESSAGE));
+			int min = Integer.parseInt(JOptionPane.showInputDialog(parent, resourceBundle.getString("min_conf"), resourceBundle.getString("min_conf_title"), JOptionPane.QUESTION_MESSAGE));
+			if(min > total)
+			{
+				JOptionPane.showMessageDialog(parent, "Le nombre minimal de conférences dépasse le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			File file = new File(baseFile, "ResultExport.csv");
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
+			pw.print("NOM");
+			pw.print(";");
+			pw.print("PRENOM");
+			pw.print(";");
+			pw.print("# PRESENCES");
+			pw.print(";");
+			pw.print("# ABSENCES");
+			pw.print(";");
+			pw.print("PROBLEME");
+			pw.println();
+			for(String UID : Students.getAllStudentsCSN())
+			{
+				int presence = 0;
+				try
+				{
+					ResultSet result = sql.sendQueryRequest("SELECT COUNT(Date) AS Count FROM Checked WHERE CSN=\"" + UID + "\";");
+					if(result.next())
+						presence = result.getInt("Count");
+					pw.print(Students.getLastname(UID));
+					pw.print(";");
+					pw.print(Students.getFirstname(UID));
+					pw.print(";");
+					pw.write("" + presence);
+					pw.print(";");
+					pw.write("" + (total - presence));
+					pw.write(";");
+					pw.write(presence < min ? "Injustifi\351" : "");
+					pw.println();
+					pw.flush();
+				}
+				catch(Exception e){}
+			}
+			pw.close();
+			sql.resetCheckedTable();
+			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch(NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(parent, "Merci de rentrer uniquement des nombres!", "Erreur", JOptionPane.ERROR_MESSAGE);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

@@ -4,6 +4,7 @@ import fr.tours.polytech.DI.RFID.Main;
 import fr.tours.polytech.DI.RFID.frames.components.ImagePanel;
 import fr.tours.polytech.DI.RFID.frames.components.JTableUneditableModel;
 import fr.tours.polytech.DI.RFID.frames.components.StudentsRenderer;
+import fr.tours.polytech.DI.RFID.utils.Periods;
 import fr.tours.polytech.DI.RFID.utils.Students;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import fr.tours.polytech.DI.TerminalReader.interfaces.TerminalListener;
@@ -32,7 +33,7 @@ import java.util.logging.Level;
  */
 public class MainFrame extends JFrame implements TerminalListener, Runnable
 {
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "2.0";
 	private static final long serialVersionUID = -4989573496325827301L;
 	private final Thread thread;
 	private final JPanel cardPanel;
@@ -43,11 +44,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
 	private final TableRowSorter<TableModel> sorter;
+	private int periodID;
 	public static Color backColor;
 	private boolean cardPresent;
 	private boolean checking;
 	private boolean needRefresh;
-	private Date startCheck;
 
 	/**
 	 * Constructor.
@@ -62,7 +63,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		checking = false;
 		needRefresh = false;
 		cardPresent = false;
-		startCheck = new Date();
+		periodID = 0;
 		addWindowListener(new WindowListener()
 		{
 			@Override
@@ -167,8 +168,13 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
-		startButton.addActionListener(e -> {
+		startButton.addActionListener(e ->
+		{
 			checking = !checking;
+			if(checking)
+				periodID = Periods.startNewPeriod();
+			else
+				Periods.endPeriod(periodID);
 			startButton.setText(Utils.resourceBundle.getString(checking ? "button_stop" : "button_start"));
 		});
 		this.cardTextLabel = new JLabel();
@@ -190,7 +196,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mousePressed(MouseEvent e)
 			{
-
 			}
 
 			@Override
@@ -202,13 +207,11 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			@Override
 			public void mouseEntered(MouseEvent e)
 			{
-
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
-
 			}
 		});
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -462,7 +465,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	{
 		if(checking)
 		{
-			int i = Students.checkStudent(rfidCard.getUid());
+			int i = Students.checkStudent(rfidCard.getUid(), periodID);
 			System.out.println(i);
 			return i > 0;
 		}
@@ -564,7 +567,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				SwingUtilities.invokeLater(() -> {
 					try
 					{
-						System.out.println("REFRESHING");
 						modelChecked.fireTableDataChanged();
 						sorter.sort();
 						needRefresh = false;

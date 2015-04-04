@@ -61,7 +61,7 @@ public class Students
 
 	public static boolean hasStudentChecked(String name)
 	{
-		ResultSet result = Utils.sql.sendQueryRequest("SELECT CONCAT(" + STUDENTS_LASTNAME_LABEL + ", \" \", " + STUDENTS_FIRSTNAME_LABEL + ") AS Name FROM " + STUDENTS_TABLE + " JOIN (Checked) ON (Checked.CSN = Students." + STUDENTS_CSN_LABEL + ") WHERE CONCAT(" + STUDENTS_LASTNAME_LABEL + ", \" \", " + STUDENTS_FIRSTNAME_LABEL + ")=\"" + name + "\" AND Date = CURDATE();");
+		ResultSet result = Utils.sql.sendQueryRequest("SELECT " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + " FROM " + STUDENTS_TABLE + " JOIN (Checked CROSS JOIN Periods) ON (Students." + STUDENTS_CSN_LABEL + " = Checked.CSN AND Checked.Period_ID = Periods.ID) WHERE CONCAT(" + STUDENTS_LASTNAME_LABEL + " ,\" \", " + STUDENTS_FIRSTNAME_LABEL + ")=\"" + name + "\" AND Start <= NOW() AND (End > NOW() OR End IS NULL);");
 		try
 		{
 			return result.next();
@@ -160,13 +160,13 @@ public class Students
 		if(name == null || name.equals(""))
 			throw new IllegalArgumentException("Name must not be null or empty");
 		if(!Pattern.matches("(\\w+)( )(\\w+)", name))
-			throw new IllegalArgumentException("Name should be A B");
+			throw new IllegalArgumentException("Name should be Lastname Firstname");
 		return Utils.sql.sendUpdateRequest("INSERT INTO " + STUDENTS_TABLE + " (" + STUDENTS_CSN_LABEL + ", " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ") VALUES(\"" + UID.replaceAll("-", "") + "\", \"" + name.split(" ")[0] + "\", \"" + name.split(" ")[1] + "\");") > 0;
 	}
 
-	public static int checkStudent(String UID)
+	public static int checkStudent(String UID, int periodID)
 	{
-		return Utils.sql.sendUpdateRequest("INSERT INTO Checked (CSN, Date) VALUES(\"" + UID.replaceAll("-", "") + "\", NOW());");
+		return Utils.sql.sendUpdateRequest("INSERT INTO Checked (CSN, Period_ID, CheckedON) VALUES(\"" + UID.replaceAll("-", "") + "\", \"" + periodID + "\", NOW());");
 	}
 
 	public static ArrayList<String> getAllStudentsCSN()

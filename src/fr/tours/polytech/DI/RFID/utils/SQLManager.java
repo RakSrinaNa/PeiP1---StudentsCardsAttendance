@@ -18,7 +18,8 @@ public class SQLManager
 	private static final String LOG_CSN_LABEL = "CSN";
 	private static final String LOG_TIME_LABEL = "Time";
 	private static final String CHECKED_TABLE = "Checked";
-	private static final String CHECKED_CSN_LABEL = "CSN", CHECKED_DATE_LABEL = "Date";
+	private static final String CHECKED_CSN_LABEL = "CSN", CHECKED_PERIOD_LABEL = "Period_ID";
+	private static final String CHECKED_WHEN_LABEL = "CheckedON";
 	private String databaseURL;
 	private int port;
 	private String databaseName;
@@ -102,12 +103,13 @@ public class SQLManager
 		i += sendUpdateRequest(Students.getCreateStudentsTableText());
 		i += sendUpdateRequest(getCreateCheckedTableText());
 		i += sendUpdateRequest(getCreateLogTableText());
+		i += sendUpdateRequest(Periods.getCreatePeriodsTableText());
 		return i;
 	}
 
 	private String getCreateCheckedTableText()
 	{
-		return "CREATE TABLE IF NOT EXISTS " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + " VARCHAR(18) NOT NULL, " + CHECKED_DATE_LABEL + " DATE NOT NULL, PRIMARY KEY(" + CHECKED_CSN_LABEL + ", " + CHECKED_DATE_LABEL + "));";
+		return "CREATE TABLE IF NOT EXISTS " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + " VARCHAR(18) NOT NULL, " + CHECKED_PERIOD_LABEL + " INT UNSIGNED NOT NULL, " + CHECKED_WHEN_LABEL + " DATETIME NOT NULL, PRIMARY KEY(" + CHECKED_CSN_LABEL + ", " + CHECKED_PERIOD_LABEL + "));";
 	}
 
 	private String getCreateLogTableText()
@@ -274,7 +276,7 @@ public class SQLManager
 		try
 		{
 			while(entries.next())
-				sb.append("INSERT INTO " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + ", " + CHECKED_DATE_LABEL + ") VALUES(\"").append(entries.getString(CHECKED_CSN_LABEL)).append("\", \"").append(entries.getString(CHECKED_DATE_LABEL)).append("\");").append("\n");
+				sb.append("INSERT INTO " + CHECKED_TABLE + " (" + CHECKED_CSN_LABEL + ", " + CHECKED_PERIOD_LABEL + ", " + CHECKED_WHEN_LABEL + ") VALUES(\"").append(entries.getString(CHECKED_CSN_LABEL)).append("\", \"").append(entries.getString(CHECKED_PERIOD_LABEL)).append("\", \"").append(entries.getString(CHECKED_WHEN_LABEL)).append("\");").append("\n");
 		}
 		catch(SQLException e)
 		{
@@ -299,7 +301,7 @@ public class SQLManager
 		try
 		{
 			while(entries.next())
-				sb.append("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"").append(entries.getString(LOG_CSN_LABEL)).append("\", ").append(entries.getString(LOG_TIME_LABEL)).append(");").append("\n");
+				sb.append("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"").append(entries.getString(LOG_CSN_LABEL)).append("\", \"").append(entries.getString(LOG_TIME_LABEL)).append("\");").append("\n");
 		}
 		catch(SQLException e)
 		{
@@ -310,11 +312,11 @@ public class SQLManager
 
 	public int logCheck(String UID)
 	{
-		return sendUpdateRequest("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"" + UID + "\", NOW());");
+		return sendUpdateRequest("INSERT INTO " + LOG_TABLE + " (" + LOG_CSN_LABEL + ", " + LOG_TIME_LABEL + ") VALUES(\"" + UID.replaceAll("-", "") + "\", NOW());");
 	}
 
 	public int resetCheckedTable()
 	{
-		return sendUpdateRequest("TRUNCATE TABLE " + LOG_TABLE + ";");
+		return sendUpdateRequest("TRUNCATE TABLE " + CHECKED_TABLE + ";");
 	}
 }

@@ -9,6 +9,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -58,10 +60,16 @@ public class Utils
 			for(String line : Students.exportStudentsTable())
 				pw.println(line);
 			pw.println();
+			pw.println();
 			for(String line : sql.exportCheckTable())
 				pw.println(line);
 			pw.println();
+			pw.println();
 			for(String line : sql.exportLogTable())
+				pw.println(line);
+			pw.println();
+			pw.println();
+			for(String line : Periods.exportPeriodsTable())
 				pw.println(line);
 			pw.flush();
 			pw.close();
@@ -321,17 +329,15 @@ public class Utils
 
 	public static void exportResults(MainFrame parent)
 	{
+		File file = new File(baseFile, "ResultExport " + new SimpleDateFormat("yyy-MM-dd HH_mm_ss").format(new Date()) + ".csv");
+		PrintWriter pw = null;
+		boolean reset = false;
 		try
 		{
-			int total = Integer.parseInt(JOptionPane.showInputDialog(parent, resourceBundle.getString("total_conf"), resourceBundle.getString("total_conf_title"), JOptionPane.QUESTION_MESSAGE));
+			int total = 0;//Integer.parseInt(JOptionPane.showInputDialog(parent, resourceBundle.getString("total_conf"), resourceBundle.getString("total_conf_title"), JOptionPane.QUESTION_MESSAGE));
 			int min = Integer.parseInt(JOptionPane.showInputDialog(parent, resourceBundle.getString("min_conf"), resourceBundle.getString("min_conf_title"), JOptionPane.QUESTION_MESSAGE));
-			if(min > total)
-			{
-				JOptionPane.showMessageDialog(parent, "Le nombre minimal de conférences dépasse le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			File file = new File(baseFile, "ResultExport.csv");
-			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
+			pw = new PrintWriter(new BufferedWriter(new FileWriter(file, false)));
+			ResultSet result = sql.sendQueryRequest("SELECT Date, Start, End FROM Periods;");
 			pw.print("NOM");
 			pw.print(";");
 			pw.print("PRENOM");
@@ -340,32 +346,53 @@ public class Utils
 			pw.print(";");
 			pw.print("# ABSENCES");
 			pw.print(";");
-			pw.print("PROBLEME");
+			pw.print("SEUIL ATTEINT");
+			while(result.next())
+			{
+				total++;
+				pw.print(";");
+				pw.print(result.getString("Date"));
+				pw.print(" ");
+				pw.print(result.getString("Start"));
+				pw.print("-");
+				pw.print(result.getString("End"));
+			}
 			pw.println();
+			pw.println();
+			if(min > total)
+			{
+				JOptionPane.showMessageDialog(parent, "Le nombre minimal de conférences dépasse le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			for(String UID : Students.getAllStudentsCSN())
 			{
-				int presence = 0;
 				try
 				{
-					ResultSet result = sql.sendQueryRequest("SELECT COUNT(Date) AS Count FROM Checked WHERE CSN=\"" + UID + "\";");
-					if(result.next())
-						presence = result.getInt("Count");
+					ArrayList<Integer> checked = new ArrayList<>();
+					result = sql.sendQueryRequest("SELECT Period_ID From Checked Where CSN = \"" + UID + "\";");
+					while(result.next())
+						checked.add(result.getInt("Period_ID"));
 					pw.print(Students.getLastname(UID));
 					pw.print(";");
 					pw.print(Students.getFirstname(UID));
 					pw.print(";");
-					pw.write("" + presence);
+					pw.print("" + checked.size());
 					pw.print(";");
-					pw.write("" + (total - presence));
-					pw.write(";");
-					pw.write(presence < min ? "Injustifi\351" : "");
+					pw.print("" + (total - checked.size()));
+					pw.print(";");
+					pw.print(checked.size() < min ? "NON" : "OUI");
+					for(int i = 1; i < total + 1; i++)
+					{
+						pw.print(";");
+						pw.print(checked.contains(i) ? "Pr\351sent" : "Absent");
+					}
 					pw.println();
 					pw.flush();
 				}
 				catch(Exception e){}
 			}
-			pw.close();
 			sql.resetCheckedTable();
+			Periods.resetPeriodsTable();
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch(NumberFormatException e)
@@ -374,7 +401,16 @@ public class Utils
 		}
 		catch(Exception e)
 		{
+			reset = true;
 			e.printStackTrace();
 		}
+		finally
+		{
+			if(pw != null)
+				pw.close();
+		}
+		if(reset)
+			if(file.exists())
+				file.delete();
 	}
 }

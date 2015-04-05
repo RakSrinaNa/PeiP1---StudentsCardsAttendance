@@ -13,7 +13,7 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	private static final boolean printQuerry = false;
+	private static final boolean printQuerry = true;
 	private static final String LOG_TABLE = "Log";
 	private static final String LOG_CSN_LABEL = "CSN";
 	private static final String LOG_TIME_LABEL = "Time";

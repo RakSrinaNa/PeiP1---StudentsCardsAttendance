@@ -1,5 +1,6 @@
 package fr.tours.polytech.DI.RFID.frames;
 
+import fr.tours.polytech.DI.RFID.frames.components.TextFieldLimitNumbersDocument;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
@@ -84,6 +85,7 @@ public class SQLSettingsFrame extends JDialog
 		this.dbPort = new JTextArea("" + Utils.configuration.getBddPort());
 		this.dbPort.setWrapStyleWord(true);
 		this.dbPort.setLineWrap(true);
+		this.dbPort.setDocument(new TextFieldLimitNumbersDocument(5));
 		JLabel dbUserLabel = new JLabel(Utils.resourceBundle.getString("bdd_user") + ":");
 		dbUserLabel.setHorizontalAlignment(JLabel.RIGHT);
 		this.dbUser = new JTextArea("" + Utils.configuration.getBddUser());

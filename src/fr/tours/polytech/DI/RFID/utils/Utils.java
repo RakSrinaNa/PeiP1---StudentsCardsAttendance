@@ -66,13 +66,13 @@ public class Utils
 			pw.println("-- STRUCTURE");
 			pw.println("-- ---------------------------");
 			pw.println("DROP TABLE IF EXISTS " + sql.getTableName() + ";");
-			pw.println("CREATE TABLE " + sql.getTableName() + "(" + SQLManager.UID_LABEL + " varchar(18), " + SQLManager.SURNAME_LABEL + " varchar(255), " + SQLManager.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + SQLManager.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			pw.println("CREATE TABLE " + sql.getTableName() + "(" + SQLManager.UID_LABEL + " varchar(18), " + SQLManager.LASTNAME_LABEL + " varchar(255), " + SQLManager.FIRSTNAME_LABEL + " varchar(255)," + "PRIMARY KEY (" + SQLManager.UID_LABEL + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			pw.println();
 			pw.println("-- ---------------------------");
 			pw.println("-- DATA OF STUDENTS");
 			pw.println("-- ---------------------------");
 			for(Student student : Utils.removeDuplicates(Utils.sql.getAllStudents()))
-				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.SURNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
+				pw.println("INSERT INTO " + sql.getTableName() + " (" + SQLManager.UID_LABEL + "," + SQLManager.FIRSTNAME_LABEL + "," + SQLManager.LASTNAME_LABEL + ") VALUES(\"" + student.getRawUid() + "\",\"" + student.getFirstName() + "\",\"" + student.getLastname() + "\");");
 			pw.flush();
 			pw.close();
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
@@ -598,14 +598,14 @@ public class Utils
 			lines.remove(0);
 			int UIDIndex = getIndexOf(columns, "CSN");
 			int firstnameIndex = getIndexOf(columns, "PRENOM");
-			int surtnameIndex = getIndexOf(columns, "NOM");
-			if(UIDIndex == -1 || firstnameIndex == -1 || surtnameIndex == -1)
+			int lastnameIndex = getIndexOf(columns, "NOM");
+			if(UIDIndex == -1 || firstnameIndex == -1 || lastnameIndex == -1)
 				throw new IllegalArgumentException("Cannot find one of the requiered columns");
 			int req = 0;
 			for(String line : lines)
 			{
 				String[] infos = line.split(";");
-				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[surtnameIndex], infos[firstnameIndex]));
+				sql.addStudentToDatabase(new Student(infos[UIDIndex], infos[lastnameIndex].replaceAll(" ", "-"), infos[firstnameIndex].replaceAll(" ", "-")));
 				req++;
 			}
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);

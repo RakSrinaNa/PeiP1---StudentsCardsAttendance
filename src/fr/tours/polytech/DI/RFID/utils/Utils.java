@@ -9,7 +9,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.ResultSet;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.FileHandler;
@@ -389,7 +388,9 @@ public class Utils
 					pw.println();
 					pw.flush();
 				}
-				catch(Exception e){}
+				catch(Exception e)
+				{
+				}
 			}
 			sql.resetCheckedTable();
 			Periods.resetPeriodsTable();

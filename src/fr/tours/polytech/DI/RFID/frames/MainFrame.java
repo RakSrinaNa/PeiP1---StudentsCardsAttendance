@@ -44,8 +44,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	private final ImagePanel openPanelImage;
 	private final JTableUneditableModel modelChecked;
 	private final TableRowSorter<TableModel> sorter;
-	private int periodID;
 	public static Color backColor;
+	private int periodID;
 	private boolean cardPresent;
 	private boolean checking;
 	private boolean needRefresh;
@@ -168,8 +168,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
 		JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
-		startButton.addActionListener(e ->
-		{
+		startButton.addActionListener(e -> {
 			checking = !checking;
 			if(checking)
 				periodID = Periods.startNewPeriod();

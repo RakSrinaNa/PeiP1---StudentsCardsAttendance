@@ -4,9 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-/**
- * Created by MrCraftCod on 04/04/2015.
- */
 public class Periods
 {
 	private static final String PERIODS_TABLE = "Periods";

@@ -293,13 +293,14 @@ public class Utils
 			for(String line : lines)
 			{
 				String[] infos = line.split(";");
-				Students.addStudent(infos[UIDIndex], infos[lastnameIndex] + " " + infos[firstnameIndex]);
+				Students.addStudent(infos[lastnameIndex].replaceAll(" ", "-") + " " + infos[firstnameIndex].replaceAll(" ", "-"), infos[UIDIndex]);
 				req++;
 			}
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("csv_import_done"), req), resourceBundle.getString("csv_import_title"), JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(parent, resourceBundle.getString("csv_import_error"), resourceBundle.getString("csv_import_title"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -360,7 +361,7 @@ public class Utils
 			pw.println();
 			if(min > total)
 			{
-				JOptionPane.showMessageDialog(parent, "Le nombre minimal de conférences dépasse le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(parent, "Le nombre minimal de confï¿½rences dï¿½passe le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			for(String UID : Students.getAllStudentsCSN())

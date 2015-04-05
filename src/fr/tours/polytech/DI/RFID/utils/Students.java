@@ -159,8 +159,8 @@ public class Students
 	{
 		if(name == null || name.equals(""))
 			throw new IllegalArgumentException("Name must not be null or empty");
-		if(!Pattern.matches("(\\w+)( )(\\w+)", name))
-			throw new IllegalArgumentException("Name should be Lastname Firstname");
+		if(!Pattern.matches("((\\w||-)+)( )((\\w||-)+)", name))
+			throw new IllegalArgumentException("Name should be Lastname Firstname, was " + name);
 		return Utils.sql.sendUpdateRequest("INSERT INTO " + STUDENTS_TABLE + " (" + STUDENTS_CSN_LABEL + ", " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ") VALUES(\"" + UID.replaceAll("-", "") + "\", \"" + name.split(" ")[0] + "\", \"" + name.split(" ")[1] + "\");") > 0;
 	}
 

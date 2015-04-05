@@ -438,6 +438,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.cardTextLabel.setText(Utils.resourceBundle.getString("card_detected") + " : " + student.getName());
 		if(Utils.checkStudent(student))
 		{
+			needRefresh = true;
 			Utils.logCheck(student);
 			Sounds.CARD_CHECKED.playSound();
 		}
@@ -530,7 +531,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
 			ArrayList<Student> toCheck = new ArrayList<>();
-			boolean mod = false;
 			for(Group group : Utils.groups)
 			{
 				group.update();
@@ -545,7 +545,7 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				if(student != null)
 					if(!Utils.containsStudent(vec, student))
 					{
-						mod = true;
+						needRefresh = true;
 						SwingUtilities.invokeLater(() -> {
 							try
 							{
@@ -559,10 +559,10 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			for(int i = 0; i < modelChecked.getRowCount(); i++)
 				if(!Utils.containsStudent(toCheck, ((Student) modelChecked.getValueAt(i, 0))))
 				{
-					mod = true;
+					needRefresh = true;
 					modelChecked.removeRow(i);
 				}
-			if(mod || needRefresh)
+			if(needRefresh)
 				try
 				{
 					modelChecked.fireTableDataChanged();

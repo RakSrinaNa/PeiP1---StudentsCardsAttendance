@@ -56,13 +56,14 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 						super.addSelectionInterval(index0, index1);
 				}
 			});
-		for(T elem : selected)
-		{
-			int i = elements.indexOf(elem);
-			list.addSelectionInterval(i, i);
-			if(!multipleSelection)
-				break;
-		}
+		if(selected != null)
+			for(T elem : selected)
+			{
+				int i = elements.indexOf(elem);
+				list.addSelectionInterval(i, i);
+				if(!multipleSelection)
+					break;
+			}
 		JScrollPane scrollPane = new JScrollPane(list);
 		scrollPane.setAutoscrolls(false);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);

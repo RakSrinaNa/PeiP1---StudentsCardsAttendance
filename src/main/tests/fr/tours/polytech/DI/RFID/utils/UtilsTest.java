@@ -9,7 +9,7 @@ public class UtilsTest
 	@org.junit.Test
 	public void testRemoveDuplicates() throws Exception
 	{
-		ArrayList<String> list = new ArrayList<>();
+		ArrayList<String> list = new ArrayList<String>();
 		list.add("Test");
 		list.add("TesT");
 		list.add("test");

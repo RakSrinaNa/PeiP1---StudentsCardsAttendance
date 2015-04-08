@@ -1,10 +1,7 @@
 package fr.tours.polytech.DI.RFID.enums;
 
 import fr.tours.polytech.DI.RFID.utils.Utils;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.*;
 import java.util.logging.Level;
 
 /**
@@ -29,22 +26,32 @@ public enum Sounds
 	public synchronized void playSound()
 	{
 		if(play)
-			new Thread(() -> {
-				try
+			new Thread()
+			{
+				@Override
+				public void run()
 				{
-					final Clip clip = AudioSystem.getClip();
-					AudioInputStream inputStream = AudioSystem.getAudioInputStream(Utils.class.getClassLoader().getResource(Sounds.this.path));
-					clip.open(inputStream);
-					clip.start();
-					clip.addLineListener(arg0 -> {
-						if(arg0.getType() == LineEvent.Type.STOP)
-							clip.close();
-					});
+					try
+					{
+						final Clip clip = AudioSystem.getClip();
+						AudioInputStream inputStream = AudioSystem.getAudioInputStream(Utils.class.getClassLoader().getResource(Sounds.this.path));
+						clip.open(inputStream);
+						clip.start();
+						clip.addLineListener(new LineListener()
+						{
+							@Override
+							public void update(LineEvent event)
+							{
+								if(event.getType() == LineEvent.Type.STOP)
+									clip.close();
+							}
+						});
+					}
+					catch(Exception e)
+					{
+						Utils.logger.log(Level.WARNING, "Couldn't play sound " + Sounds.this.path, e);
+					}
 				}
-				catch(Exception e)
-				{
-					Utils.logger.log(Level.WARNING, "Couldn't play sound " + Sounds.this.path, e);
-				}
-			}).start();
+			}.start();
 	}
 }

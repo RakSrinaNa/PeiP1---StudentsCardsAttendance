@@ -123,15 +123,17 @@ public class Utils
 	public static List<String> readTextFile(final File file)
 	{
 		List<String> fileLines = null;
-		try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file)))
+		try
 		{
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 			String line = bufferedReader.readLine();
-			fileLines = new ArrayList<>();
+			fileLines = new ArrayList<String>();
 			while(line != null)
 			{
 				fileLines.add(line);
 				line = bufferedReader.readLine();
 			}
+			bufferedReader.close();
 		}
 		catch(IOException exception)
 		{
@@ -191,7 +193,7 @@ public class Utils
 		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
 		baseFile = new File("." + File.separator + "RFID");
-		icons = new ArrayList<>();
+		icons = new ArrayList<BufferedImage>();
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon16.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
@@ -211,7 +213,7 @@ public class Utils
 	 */
 	public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list)
 	{
-		Set<T> setItems = new LinkedHashSet<>(list);
+		Set<T> setItems = new LinkedHashSet<T>(list);
 		list.clear();
 		list.addAll(setItems);
 		return list;
@@ -368,7 +370,7 @@ public class Utils
 			{
 				try
 				{
-					ArrayList<Integer> checked = new ArrayList<>();
+					ArrayList<Integer> checked = new ArrayList<Integer>();
 					result = sql.sendQueryRequest("SELECT Period_ID From Checked Where CSN = \"" + UID + "\";");
 					while(result.next())
 						checked.add(result.getInt("Period_ID"));

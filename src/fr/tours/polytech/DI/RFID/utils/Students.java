@@ -42,7 +42,7 @@ public class Students
 
 	public static ArrayList<String> getAllStudents()
 	{
-		ArrayList<String> results = new ArrayList<>();
+		ArrayList<String> results = new ArrayList<String>();
 		ResultSet result = Utils.sql.sendQueryRequest("SELECT CONCAT(" + STUDENTS_LASTNAME_LABEL + ", \" \", " + STUDENTS_FIRSTNAME_LABEL + ") AS Name FROM " + STUDENTS_TABLE + " ORDER BY " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ";");
 		try
 		{
@@ -171,7 +171,7 @@ public class Students
 
 	public static ArrayList<String> getAllStudentsCSN()
 	{
-		ArrayList<String> results = new ArrayList<>();
+		ArrayList<String> results = new ArrayList<String>();
 		ResultSet result = Utils.sql.sendQueryRequest("SELECT " + STUDENTS_CSN_LABEL + " FROM " + STUDENTS_TABLE + " ORDER BY " + STUDENTS_LASTNAME_LABEL + ", " + STUDENTS_FIRSTNAME_LABEL + ";");
 		try
 		{

@@ -137,22 +137,69 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JMenuItem menuItemImportSQL = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_sql"));
 		JMenuItem menuItemImportCSV = new JMenuItem(Utils.resourceBundle.getString("menu_item_import_csv"));
 		JMenuItem menuItemExportResult = new JMenuItem(Utils.resourceBundle.getString("menu_item_export_result"));
-		menuItemExit.addActionListener(event -> Utils.exit(0));
-		menuItemHelp.addActionListener(event -> {
-			try
+		menuItemExit.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
 			{
-				Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
-			}
-			catch(Exception exception)
-			{
-				Utils.logger.log(Level.WARNING, "Error when opening wiki page", exception);
+				Utils.exit(0);
 			}
 		});
-		menuItemAbout.addActionListener(event -> new AboutFrame(MainFrame.this));
-		menuItemExportSQL.addActionListener(event -> Utils.exportSQL(this));
-		menuItemImportSQL.addActionListener(event -> Utils.importSQL(this));
-		menuItemImportCSV.addActionListener(event -> Utils.importCSV(this));
-		menuItemExportResult.addActionListener(event -> Utils.exportResults(MainFrame.this));
+		menuItemHelp.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					Desktop.getDesktop().browse(new URL("https://github.com/MrCraftCod/RFID/wiki").toURI());
+				}
+				catch(Exception exception)
+				{
+					Utils.logger.log(Level.WARNING, "Error when opening wiki page", exception);
+				}
+			}
+		});
+		menuItemAbout.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				new AboutFrame(MainFrame.this);
+			}
+		});
+		menuItemExportSQL.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.exportSQL(MainFrame.this);
+			}
+		});
+		menuItemImportSQL.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.importSQL(MainFrame.this);
+			}
+		});
+		menuItemImportCSV.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.importCSV(MainFrame.this);
+			}
+		});
+		menuItemExportResult.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.exportResults(MainFrame.this);
+			}
+		});
 		menuFile.add(menuItemExportSQL);
 		menuFile.add(menuItemImportSQL);
 		menuFile.addSeparator();
@@ -167,14 +214,19 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		menuBar.add(menuHelp);
 		setJMenuBar(menuBar);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
-		JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
-		startButton.addActionListener(e -> {
-			checking = !checking;
-			if(checking)
-				periodID = Periods.startNewPeriod();
-			else
-				Periods.endPeriod(periodID);
-			startButton.setText(Utils.resourceBundle.getString(checking ? "button_stop" : "button_start"));
+		final JButton startButton = new JButton(Utils.resourceBundle.getString("button_start"));
+		startButton.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				checking = !checking;
+				if(checking)
+					periodID = Periods.startNewPeriod();
+				else
+					Periods.endPeriod(periodID);
+				startButton.setText(Utils.resourceBundle.getString(checking ? "button_stop" : "button_start"));
+			}
 		});
 		this.cardTextLabel = new JLabel();
 		this.cardTextLabel.setVerticalAlignment(JLabel.CENTER);
@@ -275,9 +327,9 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		this.tableChecked.setShowGrid(true);
 		this.tableChecked.setBorder(new EtchedBorder(EtchedBorder.RAISED));
 		this.tableChecked.setGridColor(Color.BLACK);
-		sorter = new TableRowSorter<>(tableChecked.getModel());
+		sorter = new TableRowSorter<TableModel>(tableChecked.getModel());
 		tableChecked.setRowSorter(sorter);
-		ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
+		ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
 		sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 		sorter.setSortKeys(sortKeys);
 		sorter.setSortsOnUpdates(false);
@@ -304,24 +356,50 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		JCheckBox addNewCardCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("add_new_card") + "</p></html>");
 		addNewCardCheck.setBackground(backColor);
 		addNewCardCheck.setSelected(Utils.configuration.isAddNewStudents());
-		addNewCardCheck.addActionListener(event -> Utils.configuration.setAddNewStudents(((JCheckBox) event.getSource()).isSelected()));
+		addNewCardCheck.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.configuration.setAddNewStudents(((JCheckBox) e.getSource()).isSelected());
+			}
+		});
 		JCheckBox logAllCheck = new JCheckBox("<html><p width=\"200\" align=\"center\">" + Utils.resourceBundle.getString("log_all") + "</p></html>");
 		logAllCheck.setBackground(backColor);
 		logAllCheck.setSelected(Utils.configuration.isLogAll());
-		logAllCheck.addActionListener(event -> Utils.configuration.setLogAll(((JCheckBox) event.getSource()).isSelected()));
+		logAllCheck.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Utils.configuration.setLogAll(((JCheckBox) e.getSource()).isSelected());
+			}
+		});
 		JButton sqlSettings = new JButton(Utils.resourceBundle.getString("sql_settings"));
 		sqlSettings.setBackground(backColor);
-		sqlSettings.addActionListener(event -> new SQLSettingsFrame(MainFrame.this));
+		sqlSettings.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				new SQLSettingsFrame(MainFrame.this);
+			}
+		});
 		JButton readerSelect = new JButton(Utils.resourceBundle.getString("select_reader"));
 		readerSelect.setBackground(backColor);
-		readerSelect.addActionListener(event -> {
-			ArrayList<String> selected = new ArrayList<>();
-			selected.add(Utils.configuration.getReaderName());
-			ArrayList<String> selection = new SelectListDialogFrame<String>(MainFrame.this, Utils.resourceBundle.getString("select_reader"), Utils.resourceBundle.getString("selection_reader"), Utils.terminalReader.getReadersName(), selected, false).showDialog();
-			if(selection != null && selection.size() > 0)
+		readerSelect.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
 			{
-				Utils.configuration.setReaderName(selection.get(0));
-				Utils.terminalReader.setTerminalName(selection.get(0));
+				ArrayList<String> selected = new ArrayList<String>();
+				selected.add(Utils.configuration.getReaderName());
+				ArrayList<String> selection = new SelectListDialogFrame<String>(MainFrame.this, Utils.resourceBundle.getString("select_reader"), Utils.resourceBundle.getString("selection_reader"), Utils.terminalReader.getReadersName(), selected, false).showDialog();
+				if(selection != null && selection.size() > 0)
+				{
+					Utils.configuration.setReaderName(selection.get(0));
+					Utils.terminalReader.setTerminalName(selection.get(0));
+				}
 			}
 		});
 		line = 0;
@@ -521,8 +599,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 				}
 			}
 			StringBuilder groupsInfo = new StringBuilder("<html><p align=\"center\">").append(dateFormat.format(date)).append("<br />");
-			ArrayList<String> toCheck = new ArrayList<>();
-			ArrayList<String> toAdd = new ArrayList<>();
+			ArrayList<String> toCheck = new ArrayList<String>();
+			final ArrayList<String> toAdd = new ArrayList<String>();
 			if(date.getTime() - lastRefreshTime > 1500)
 			{
 				if(checking)
@@ -535,16 +613,21 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 						if(!Utils.vectorContains(vec, student))
 							toAdd.add(student);
 				if(toAdd.size() > 0)
-					SwingUtilities.invokeLater(() -> {
-						try
+					SwingUtilities.invokeLater(new Runnable()
+					{
+						@Override
+						public void run()
 						{
-							needRefresh = true;
-							for(String etu : toAdd)
-								modelChecked.addRow(new String[]{etu});
-						}
-						catch(Exception e)
-						{
-							e.printStackTrace();
+							try
+							{
+								needRefresh = true;
+								for(String etu : toAdd)
+									modelChecked.addRow(new String[]{etu});
+							}
+							catch(Exception e)
+							{
+								e.printStackTrace();
+							}
 						}
 					});
 				if(toCheck.size() < 1)
@@ -563,16 +646,21 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 			}
 			this.groupsInfoLabel.setText(groupsInfo.append("</p></html>").toString());
 			if(needRefresh)
-				SwingUtilities.invokeLater(() -> {
-					try
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
 					{
-						modelChecked.fireTableDataChanged();
-						sorter.sort();
-						needRefresh = false;
-					}
-					catch(NullPointerException e)
-					{
-						needRefresh = true;
+						try
+						{
+							modelChecked.fireTableDataChanged();
+							sorter.sort();
+							needRefresh = false;
+						}
+						catch(NullPointerException e)
+						{
+							needRefresh = true;
+						}
 					}
 				});
 		}

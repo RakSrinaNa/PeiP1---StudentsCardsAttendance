@@ -3,6 +3,7 @@ package fr.tours.polytech.DI.RFID.frames;
 import fr.tours.polytech.DI.RFID.utils.Utils;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -39,7 +40,7 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.getContentPane().setLayout(new GridBagLayout());
 		/**************************************************************************/
-		JList list = new JList(elements.toArray());
+		final JList list = new JList(elements.toArray());
 		if(!multipleSelection)
 			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		else
@@ -71,12 +72,17 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 		messageLabel.setHorizontalAlignment(JLabel.CENTER);
 		messageLabel.setBackground(color);
 		JButton valid = new JButton(Utils.resourceBundle.getString("validate"));
-		valid.addActionListener(e -> {
-			result = new ArrayList<>();
-			for(int i : list.getSelectedIndices())
-				result.add(elements.get(i));
-			setVisible(false);
-			dispose();
+		valid.addActionListener(new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				result = new ArrayList<T>();
+				for(int i : list.getSelectedIndices())
+					result.add(elements.get(i));
+				setVisible(false);
+				dispose();
+			}
 		});
 		/**************************************************************************/
 		int line = 0;
@@ -112,6 +118,6 @@ public class SelectListDialogFrame<T extends Comparable<T>> extends JDialog
 	public ArrayList<T> showDialog()
 	{
 		setVisible(true);
-		return result == null ? new ArrayList<>() : result;
+		return result == null ? new ArrayList<T>() : result;
 	}
 }

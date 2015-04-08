@@ -43,9 +43,9 @@ public class TerminalReader implements Runnable
 	 */
 	public TerminalReader(String name)
 	{
-		this.listenersTerminal = new ArrayList<>();
+		this.listenersTerminal = new ArrayList<TerminalListener>();
 		this.terminalName = name;
-		this.logger = Logger.getGlobal();
+		this.logger = Logger.getLogger("RFID");
 		this.thread = new Thread(this);
 		this.thread.setName("TerminalReader");
 		this.thread.start();
@@ -194,7 +194,7 @@ public class TerminalReader implements Runnable
 	 */
 	public ArrayList<String> getReadersName()
 	{
-		ArrayList<String> list = new ArrayList<>();
+		ArrayList<String> list = new ArrayList<String>();
 		try
 		{
 			for(CardTerminal terminal : terminalFactory.terminals().list())

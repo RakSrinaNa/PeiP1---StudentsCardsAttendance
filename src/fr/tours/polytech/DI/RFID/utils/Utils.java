@@ -361,7 +361,7 @@ public class Utils
 			pw.println();
 			if(min > total)
 			{
-				JOptionPane.showMessageDialog(parent, "Le nombre minimal de conf�rences d�passe le nombre total!", "Erreur", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(parent, resourceBundle.getString("too_much_min_conf"), resourceBundle.getString("error"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			for(String UID : Students.getAllStudentsCSN())
@@ -393,7 +393,7 @@ public class Utils
 				{
 				}
 			}
-			if(JOptionPane.showConfirmDialog(parent, "Voulez-vous conserver les donn\351es des pr\351c\351dents \351margements?", "R\351initialisation", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+			if(JOptionPane.showConfirmDialog(parent, resourceBundle.getString("export_result_reset"), resourceBundle.getString("export_result_reset_title"), JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
 			{
 				sql.resetCheckedTable();
 				Periods.resetPeriodsTable();
@@ -402,7 +402,7 @@ public class Utils
 		}
 		catch(NumberFormatException e)
 		{
-			JOptionPane.showMessageDialog(parent, "Merci de rentrer uniquement des nombres!", "Erreur", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(parent, resourceBundle.getString("only_numbers"), resourceBundle.getString("error"), JOptionPane.ERROR_MESSAGE);
 		}
 		catch(Exception e)
 		{

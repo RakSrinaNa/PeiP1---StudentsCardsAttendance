@@ -476,6 +476,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 */
 	public void exit()
 	{
+		if(checking)
+			Periods.endPeriod(periodID);
 		if(this.thread != null)
 			this.thread.interrupt();
 		dispose();

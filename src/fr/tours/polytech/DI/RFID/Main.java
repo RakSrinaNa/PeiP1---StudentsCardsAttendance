@@ -21,6 +21,6 @@ public class Main
 	 */
 	public static void main(String[] args) throws SecurityException, IOException
 	{
-		Utils.init();
+		Utils.init(args);
 	}
 }

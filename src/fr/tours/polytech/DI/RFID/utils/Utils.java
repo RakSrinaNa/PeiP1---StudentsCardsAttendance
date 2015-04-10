@@ -181,12 +181,13 @@ public class Utils
 	 * Call when the program is starting. Initalize some variables like
 	 * groups, students, logger, reader and SQL connection.
 	 *
+	 * @param args The program arguments.
 	 * @throws IOException If files couldn't be read.
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see FileHandler#FileHandler(String, boolean)
 	 */
 	@SuppressWarnings("ConstantConditions")
-	public static void init() throws SecurityException, IOException
+	public static void init(String args[]) throws SecurityException, IOException
 	{
 		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
@@ -196,10 +197,25 @@ public class Utils
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon32.png")));
 		icons.add(ImageIO.read(Utils.class.getClassLoader().getResource("icons/icon64.png")));
 		configuration = Configuration.deserialize(new File(baseFile, "configuration"));
+		processArgs(args);
 		terminalReader = new TerminalReader(configuration.getReaderName());
 		sql = new SQLManager(configuration.getBddIP(), configuration.getBddPort(), configuration.getBddName(), configuration.getBddUser(), configuration.getBddPassword());
 		mainFrame = new MainFrame();
 		terminalReader.addListener(mainFrame);
+	}
+
+	/**
+	 * Used to process the program arguments.
+	 *
+	 * @param args The arguments.
+	 */
+	private static void processArgs(String[] args)
+	{
+		for(int i = 0; i < args.length; i++)
+		{
+			if(args[i].equals("-b"))
+				configuration.setBddName(args[i + 1]);
+		}
 	}
 
 	/**

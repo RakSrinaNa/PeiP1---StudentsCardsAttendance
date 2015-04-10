@@ -393,8 +393,11 @@ public class Utils
 				{
 				}
 			}
-			sql.resetCheckedTable();
-			Periods.resetPeriodsTable();
+			if(JOptionPane.showConfirmDialog(parent, "Voulez-vous conserver les donn\351es des pr\351c\351dents \351margements?", "R\351initialisation", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+			{
+				sql.resetCheckedTable();
+				Periods.resetPeriodsTable();
+			}
 			JOptionPane.showMessageDialog(parent, String.format(resourceBundle.getString("sql_export_done"), file.getAbsolutePath()), resourceBundle.getString("sql_export_title"), JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch(NumberFormatException e)

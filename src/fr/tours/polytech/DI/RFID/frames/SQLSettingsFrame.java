@@ -147,7 +147,8 @@ public class SQLSettingsFrame extends JDialog
 	private void save()
 	{
 		Utils.configuration.setBddIP(dbIP.getText());
-		Utils.configuration.setBddPort(Integer.parseInt(dbPort.getText()));
+		if(!dbPort.getText().equals(""))
+			Utils.configuration.setBddPort(Integer.parseInt(dbPort.getText()));
 		Utils.configuration.setBddName(dbName.getText());
 		Utils.configuration.setBddUser(dbUser.getText());
 		Utils.configuration.setBddPassword(getPassword());

@@ -396,7 +396,7 @@ public class Utils
 					pw.print(";");
 					pw.print("" + (total - checked.size()));
 					pw.print(";");
-					pw.print(checked.size() < min ? "NON" : "OUI");
+					pw.print(checked.size() < min ? "Non" : "Oui");
 					for(int i = 1; i < total + 1; i++)
 					{
 						pw.print(";");

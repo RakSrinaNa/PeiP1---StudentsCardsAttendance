@@ -233,6 +233,9 @@ public class Utils
 	@SuppressWarnings("ConstantConditions")
 	public static void init(String args[]) throws SecurityException, IOException
 	{
+		File libPcscLite = new File("/lib/x86_64-linux-gnu/libpcsclite.so.1");
+		if (libPcscLite.exists())
+			System.setProperty("sun.security.smartcardio.library", libPcscLite.getAbsolutePath());
 		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());
 		baseFile = new File("." + File.separator + "RFID");

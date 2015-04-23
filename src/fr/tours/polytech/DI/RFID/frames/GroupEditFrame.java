@@ -194,7 +194,11 @@ public class GroupEditFrame extends JDialog
 					return;
 				Period period = group.getPeriodByName(GroupEditFrame.this.tablePeriods.getValueAt(rowindex, 0).toString());
 				removePeriod(period, rowindex);
-				GroupEditFrame.this.tablePeriods.setRowSelectionInterval(rowindex, rowindex);
+				try
+				{
+					GroupEditFrame.this.tablePeriods.setRowSelectionInterval(rowindex, rowindex);
+				}
+				catch(Exception e1){}
 			}
 
 			@Override

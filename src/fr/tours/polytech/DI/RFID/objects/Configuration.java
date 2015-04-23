@@ -29,7 +29,7 @@ public class Configuration implements Serializable
 		this.setBddUser("rfid");
 		this.setBddPassword("PolytechDI26");
 		this.setBddName("rfid");
-		this.setBddTableName("name");
+		this.setBddTableName("students");
 		this.setBddIP("127.0.0.1");
 		this.setBddPort(3306);
 		this.setReaderName("");

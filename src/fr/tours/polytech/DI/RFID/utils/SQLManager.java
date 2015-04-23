@@ -15,7 +15,7 @@ import java.util.logging.Level;
  */
 public class SQLManager
 {
-	public final static String UID_LABEL = "UID";
+	public final static String UID_LABEL = "CSN";
 	public final static String FIRSTNAME_LABEL = "Firstname";
 	public final static String LASTNAME_LABEL = "Lastname";
 	private String tableName;
@@ -48,7 +48,6 @@ public class SQLManager
 		this.password = password;
 		login();
 		Utils.logger.log(Level.INFO, "Initializing SQL connection...");
-		this.tableName = "Users";
 		createBaseTable();
 	}
 

@@ -1,6 +1,6 @@
-fr.tours.polytech.DI.RFID
-fr.tours.polytech.DI.RFID.enums
-fr.tours.polytech.DI.RFID.frames
-fr.tours.polytech.DI.RFID.frames.components
-fr.tours.polytech.DI.RFID.objects
-fr.tours.polytech.DI.RFID.utils
+polytech.DI.RFID
+polytech.DI.RFID.enums
+polytech.DI.RFID.frames
+polytech.DI.RFID.frames.components
+polytech.DI.RFID.objects
+polytech.DI.RFID.utils

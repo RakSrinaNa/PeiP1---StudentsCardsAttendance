@@ -412,6 +412,8 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 * <p>
 	 * Check the student if needed and open the staff panel if it should be
 	 * opened.
+	 *
+	 * @param rfidCard The card added.
 	 */
 	@Override
 	public void cardAdded(RFIDCard rfidCard)
@@ -490,9 +492,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 		dispose();
 	}
 
-	/**
-	 * Thread. Will update clock, periods and student list.
-	 */
 	@Override
 	public void run()
 	{
@@ -580,7 +579,6 @@ public class MainFrame extends JFrame implements TerminalListener, Runnable
 	 *
 	 * @param staffMember Is it a staff member?
 	 */
-	@SuppressWarnings("ConstantConditions")
 	private void setStaffInfos(boolean staffMember)
 	{
 		this.staffPanel.setVisible(staffMember);

@@ -91,9 +91,6 @@ public class ImagePanel extends JPanel
 		invalidate();
 	}
 
-	/**
-	 * Used to paint the component.
-	 */
 	@Override
 	protected void paintComponent(Graphics g)
 	{

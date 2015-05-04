@@ -75,6 +75,12 @@ public class Period implements Serializable
 		this.decimalFormat = new DecimalFormat("00");
 	}
 
+	/**
+	 * Used for deserialization.
+	 *
+	 * @param ois The stream of the file.
+	 * @throws IOException If there is an error reading the file.
+	 */
 	private void readObject(final ObjectInputStream ois) throws IOException
 	{
 		int ver = ois.readInt();
@@ -90,6 +96,12 @@ public class Period implements Serializable
 		this.decimalFormat = new DecimalFormat("00");
 	}
 
+	/**
+	 * Used to serialize.
+	 *
+	 * @param oos The stream of the file.
+	 * @throws IOException If there is an error writing the file.
+	 */
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		oos.writeInt(SERIALIZATION_VERSION);
@@ -380,11 +392,21 @@ public class Period implements Serializable
 		return endingMinute;
 	}
 
+	/**
+	 * The duration of the period as a String.
+	 *
+	 * @return The duration.
+	 */
 	public String getDurationString()
 	{
 		return Utils.durationToString(getDuration());
 	}
 
+	/**
+	 * Used to get the duration of the period.
+	 *
+	 * @return The duration in seconds.
+	 */
 	public long getDuration()
 	{
 		return getEndingDate().getTime() - getStartingDate().getTime();

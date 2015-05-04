@@ -28,18 +28,17 @@ public class Student implements Serializable, Comparable<Student>
 	 */
 	public Student(String uid, String surname, String firstname)
 	{
-		this.uid = getValidUID(uid);
+		this.uid = uid;
 		this.surname = Utils.capitalize(surname.toLowerCase().trim());
 		this.firstname = Utils.capitalize(firstname.toLowerCase().trim());
 	}
 
-	private String getValidUID(String uid)
-	{
-		//while(uid.length() < 14)
-		//	uid = "0" + uid;
-		return uid;
-	}
-
+	/**
+	 * Used for deserialization.
+	 *
+	 * @param ois The stream of the file.
+	 * @throws IOException If there is an error reading the file.
+	 */
 	private void readObject(final ObjectInputStream ois) throws IOException
 	{
 		int ver = ois.readInt();
@@ -51,6 +50,12 @@ public class Student implements Serializable, Comparable<Student>
 		}
 	}
 
+	/**
+	 * Used to serialize.
+	 *
+	 * @param oos The stream of the file.
+	 * @throws IOException If there is an error writing the file.
+	 */
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		oos.writeInt(SERIALIZATION_VERSION);

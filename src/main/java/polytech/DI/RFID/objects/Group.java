@@ -9,7 +9,6 @@ import java.util.Date;
  * An object representing a group.
  *
  * @author COLEAU Victor, COUCHOUD Thomas
- * @version 1.0
  */
 public class Group implements Serializable
 {
@@ -40,7 +39,7 @@ public class Group implements Serializable
 	 * @return The group correcponding to the serialized object.
 	 *
 	 * @throws IOException If the file cannot be read.
-	 * @throws ClassNotFoundException If teh filed couldn't be deserialized.
+	 * @throws ClassNotFoundException If the file couldn't be deserialized.
 	 */
 	public static Group deserialize(File file) throws IOException, ClassNotFoundException
 	{
@@ -65,7 +64,6 @@ public class Group implements Serializable
 	 *
 	 * @param groups The groups to save.
 	 */
-	@SuppressWarnings("ConstantConditions")
 	public static void saveGroups(ArrayList<Group> groups)
 	{
 		for(File file : new File(Utils.baseFile, "Groups").listFiles())
@@ -86,7 +84,6 @@ public class Group implements Serializable
 	 *
 	 * @return The groups deserialized.
 	 */
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	public static ArrayList<Group> loadGroups()
 	{
 		ArrayList<Group> groups = new ArrayList<>();

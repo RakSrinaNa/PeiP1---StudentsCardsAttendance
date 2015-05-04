@@ -40,11 +40,6 @@ public class StudentsEditGroupRenderer implements TableCellRenderer
 		return isSelected ? selected : Utils.getStudentByUID(value.getUid(), true) != null ? null : Color.ORANGE;
 	}
 
-	/**
-	 * Set the component drawn to have the background set to the correct colour.
-	 *
-	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)
-	 */
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{

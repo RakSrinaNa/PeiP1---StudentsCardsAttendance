@@ -229,7 +229,6 @@ public class Utils
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see FileHandler#FileHandler(String, boolean)
 	 */
-	@SuppressWarnings("ConstantConditions")
 	public static void init(String args[]) throws SecurityException, IOException
 	{
 		File libPcscLite = new File("/lib/x86_64-linux-gnu/libpcsclite.so.1");
@@ -482,12 +481,24 @@ public class Utils
 			}
 	}
 
+	/**
+	 * Used to convert a time in seconds to a string like xxHyy, where xx are hours and yy minutes.
+	 *
+	 * @param time The duration to convert.
+	 * @return The corresponding string.
+	 */
 	public static String durationToString(long time)
 	{
 		int mins = (int) ((time / 1000) / 60);
 		return (mins / 60) + "H" + (mins % 60);
 	}
 
+	/**
+	 * Used to convert a String formatted as xxHyy, where xx are hours and yy minutes, to a time in seconds.
+	 *
+	 * @param time The String to convert.
+	 * @return The time in seconds.
+	 */
 	public static int stringToDuration(String time)
 	{
 		try
@@ -599,6 +610,11 @@ public class Utils
 		return sb.toString();
 	}
 
+	/**
+	 * Used to import a CSV file from the DTIC department.
+	 *
+	 * @param parent The parent frame.
+	 */
 	public static void importCSV(JFrame parent)
 	{
 		try
@@ -635,6 +651,13 @@ public class Utils
 		}
 	}
 
+	/**
+	 * Used to get the index of an object in an array.
+	 *
+	 * @param table The array containing the elements.
+	 * @param test The object to get the index of.
+	 * @return The index of the element, -1 if not found.
+	 */
 	private static int getIndexOf(Object[] table, Object test)
 	{
 		for(int i = 0; i < table.length; i++)

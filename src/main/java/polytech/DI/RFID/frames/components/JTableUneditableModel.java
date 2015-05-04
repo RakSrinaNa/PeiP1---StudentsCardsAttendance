@@ -23,11 +23,6 @@ public class JTableUneditableModel extends DefaultTableModel
 		super(tableData, columnsNames);
 	}
 
-	/**
-	 * Used to know if the cell id editable.
-	 *
-	 * @return false as we want the table to be uneditable.
-	 */
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{

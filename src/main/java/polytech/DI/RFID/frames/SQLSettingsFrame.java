@@ -25,6 +25,7 @@ public class SQLSettingsFrame extends JDialog
 	 * Constructor.
 	 *
 	 * @param parent The parent frame.
+	 * @see JDialog#JDialog(Window)
 	 */
 	public SQLSettingsFrame(MainFrame parent)
 	{

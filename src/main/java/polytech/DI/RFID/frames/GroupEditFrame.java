@@ -369,6 +369,9 @@ public class GroupEditFrame extends JDialog
 
 	/**
 	 * Used when we need to add a period.
+	 *
+	 * @param period The period to add.
+	 * @return True is the period was added, false if not.
 	 */
 	private boolean addPeriod(Period period)
 	{
@@ -416,6 +419,7 @@ public class GroupEditFrame extends JDialog
 	 *
 	 * @param student The student to remove.
 	 * @param index The index in the table of the student.
+	 * @param name The name of teh student.
 	 */
 	private void removeStudent(Student student, int index, String name)
 	{

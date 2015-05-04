@@ -9,7 +9,6 @@ import java.util.logging.Level;
 
 /**
  * @author COLEAU Victor, COUCHOUD Thomas
- * @version 1.0
  */
 public enum Sounds
 {

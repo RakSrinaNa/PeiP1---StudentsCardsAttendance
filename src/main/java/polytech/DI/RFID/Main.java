@@ -7,7 +7,6 @@ import java.io.IOException;
  * Program used to replace the attendance sheet with the student cards.
  *
  * @author COLEAU Victor, COUCHOUD Thomas
- * @version 1.0
  */
 public class Main
 {

@@ -60,6 +60,12 @@ public class Configuration implements Serializable
 		}
 	}
 
+	/**
+	 * Used for deserialization.
+	 *
+	 * @param ois The stream of the file.
+	 * @throws IOException If there is an error reading the file.
+	 */
 	private void readObject(final ObjectInputStream ois) throws IOException
 	{
 		int ver = ois.readInt();
@@ -78,6 +84,12 @@ public class Configuration implements Serializable
 			this.readerName = ois.readUTF();
 	}
 
+	/**
+	 * Used to serialize.
+	 *
+	 * @param oos The stream of the file.
+	 * @throws IOException If there is an error writing the file.
+	 */
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		oos.writeInt(SERIALIZATION_VERSION);

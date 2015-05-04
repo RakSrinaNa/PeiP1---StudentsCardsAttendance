@@ -35,8 +35,8 @@ public class Student implements Serializable, Comparable<Student>
 
 	private String getValidUID(String uid)
 	{
-		while(uid.length() < 14)
-			uid = "0" + uid;
+		//while(uid.length() < 14)
+		//	uid = "0" + uid;
 		return uid;
 	}
 

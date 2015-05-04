@@ -225,7 +225,6 @@ public class Utils
 	 * groups, students, logger, reader and SQL connection.
 	 *
 	 * @param args The program arguments.
-	 *
 	 * @throws IOException If files couldn't be read.
 	 * @throws SecurityException If the database connection can't be made.
 	 * @see FileHandler#FileHandler(String, boolean)
@@ -234,7 +233,7 @@ public class Utils
 	public static void init(String args[]) throws SecurityException, IOException
 	{
 		File libPcscLite = new File("/lib/x86_64-linux-gnu/libpcsclite.so.1");
-		if (libPcscLite.exists())
+		if(libPcscLite.exists())
 			System.setProperty("sun.security.smartcardio.library", libPcscLite.getAbsolutePath());
 		logger = Logger.getLogger("TerminalReader");
 		resourceBundle = ResourceBundle.getBundle("lang/messages", Locale.getDefault());

@@ -3,9 +3,9 @@
 </p>
 
 # RFID
-Projet de deux étutiants en PeiP1 [Polytech'Tours](http://polytech.univ-tours.fr/) durant l'année 2014-2015.
+Project of two students in PeiP1 at [Polytech'Tours](http://polytech.univ-tours.fr/) during the year 2014-2015.
 
-L'objectif de ce programme est d'automatiser l'émargement des étudiants pour savoir si ils sont présents durant certaines périodes grâce à leur carte étudiante.
+The objective of this software is to automate the confirmation of attendence of the students by the mean of their student cards.
 
-## Dépendence
-Les cartes sont lues grâce à la dépendence suivante [RFIDReader](https://gitlab.com/MrCraftCod/RFIDReader).
+## Dependencies
+RFID card are read by the mean of [RFIDReader](https://gitlab.com/MrCraftCod/RFIDReader).

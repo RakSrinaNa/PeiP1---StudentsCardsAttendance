@@ -8,4 +8,4 @@ Project of two students in PeiP1 at [Polytech'Tours](http://polytech.univ-tours.
 The objective of this software is to automate the confirmation of attendence of the students by the mean of their student cards.
 
 ## Dependencies
-RFID card are read by the mean of [RFIDReader](https://gitlab.com/MrCraftCod/RFIDReader).
+RFID card are read by the mean of [RFIDReader](https://github.com/RakSrinaNa/RFIDReader).
